@@ -1,4 +1,4 @@
-name := """pique-java"""
+name := """pique"""
 
 version := "1.0-SNAPSHOT"
 
