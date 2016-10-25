@@ -1,4 +1,17 @@
 package services.sources;
 
-public class FacebookSource extends AbstractSource {
+/**
+ * Class representation of the Facebook RESTful API
+ *
+ * @author Reid Oliveira, Sammie Jiang
+ */
+public class FacebookSource extends AbstractRestfulSource {
+	public static final String URL = "graph.facebook.com";
+	public static final String VERSION = "2.8";
+
+	public FacebookSource() {
+		super(URL, VERSION);
+	}
+
+	// TODO methods should be representative of the facebook API and help construct API calls
 }

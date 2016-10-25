@@ -1,4 +1,4 @@
 package services.content;
 
-public class AbstractPost {
+public class Post {
 }

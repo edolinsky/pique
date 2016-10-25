@@ -1,13 +1,27 @@
 package services.content;
 
-import services.sources.AbstractSource;
 import services.storage.AbstractDataAccess;
 
+/**
+ * This class is the abstract level representation of an entity that collects data for our
+ * system. It has an {@link AbstractDataAccess} object to store results in.
+ *
+ * @author Reid Oliveira, Sammie Jiang
+ */
 public abstract class AbstractDataCollector {
 	AbstractDataAccess dataAccess;
-	AbstractSource source;
 
-	public abstract AbstractPost fetch();
+	public AbstractDataCollector(AbstractDataAccess dataAccess) {
+		this.dataAccess = dataAccess;
+	}
 
-	public abstract void post(AbstractPost post);
+	public abstract Post fetch();
+
+	public void store(Post post) {
+		dataAccess.store(post);
+	}
+
+	public void collect() {
+		store(fetch());
+	}
 }
