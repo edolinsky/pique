@@ -1,15 +1,23 @@
 package services.sources;
 
+import akka.pattern.FutureRef;
+import services.content.Post;
 import twitter4j.Location;
 import twitter4j.Query;
 import twitter4j.QueryResult;
 import twitter4j.ResponseList;
 import twitter4j.Status;
+import twitter4j.Trend;
 import twitter4j.Trends;
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
 
 import javax.xml.ws.Response;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -18,6 +26,7 @@ import java.util.Optional;
  * @author Reid Oliveira, Sammie Jiang
  */
 public class TwitterSource extends AbstractJavaSource {
+	Map<String, Integer> cachedCodes = new HashMap<>();
 
 	// twitter object that acts as the router for all requests
 	Twitter twitter;
@@ -27,18 +36,62 @@ public class TwitterSource extends AbstractJavaSource {
 
 	}
 
-	public void getTopTrending(String country){
-		try{
-			Optional<Location> location = getLocation(country);
+	/**
+	 * Gets tweets corresponding to the current trending topics on Twitter
+	 * @return
+	 */
+	public List<Post> getTopTrending() {
+		// TODO get country code from FE request
+		Optional<Trends> trends = getTrends("Canada");
+		QueryResult result = null;
 
-			if (location.isPresent()) {
-				Trends trends = twitter.getPlaceTrends(location.get().getWoeid());
-			} else {
-				// TODO weren't able to fufill the request, should probably notify someone
+		if (trends.isPresent()) {
+			for (Trend t : trends.get().getTrends()) {
+				Query trendQuery = new Query(t.getQuery());
+				trendQuery.setCount(100);
+
+				try {
+					result = twitter.search(trendQuery);
+				} catch (Exception e) {
+					// TODO
+				}
+			}
+		}
+
+		return parseQueryResult(result);
+	}
+
+	private List<Post> parseQueryResult(QueryResult result) {
+		if (result.getTweets() == null || result.getTweets().isEmpty())
+			return Collections.emptyList();
+
+		List<Post> posts = new ArrayList<>();
+		for (Status s : result.getTweets()) {
+			// TODO
+		}
+
+		return posts;
+	}
+
+	/**
+	 * Gets the {@link Trends} for a certain country, if it is available.
+	 * @param country the country to get {@link Trends} for
+	 * @return an {@link Optional} containing the trends, or an empty {@link Optional} if
+	 * {@link Trends} are not available for that country.
+	 */
+	private Optional<Trends> getTrends(String country){
+
+		try{
+			Optional<Integer> id = getLocationId(country);
+
+			if (id.isPresent()) {
+				return Optional.of(twitter.getPlaceTrends(id.get()));
 			}
 		} catch (Exception e){
 			// TODO
 		}
+
+		return Optional.empty();
 	}
 
 	/**
@@ -48,17 +101,20 @@ public class TwitterSource extends AbstractJavaSource {
 	 * @param country the name of the country
 	 * @return {@link Optional} of the {@link Location}, or null if it is not available.
 	 */
-	private Optional<Location> getLocation(String country) {
+	private Optional<Integer> getLocationId(String country) {
+		String countryLower = country.toLowerCase();
+		if (cachedCodes.containsKey(countryLower)) {
+			return Optional.of(cachedCodes.get(countryLower));
+		}
 
 		try {
 			ResponseList<Location> availableLocations = twitter.getAvailableTrends();
-
 			for (Location l : availableLocations) {
-				if (l.getCountryName().equalsIgnoreCase(country)) {
-					return Optional.of(l);
+				if (l.getCountryName().equalsIgnoreCase(countryLower)) {
+					cachedCodes.put(countryLower, l.getWoeid());
+					return Optional.of(l.getWoeid());
 				}
 			}
-
 		} catch (Exception e) {
 			// TODO
 		}
