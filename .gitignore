@@ -15,7 +15,7 @@ bin/
 .eclipse
 /logs/
 /modules
-/project/target
+/project
 /target
 tmp/
 test-result
@@ -23,3 +23,5 @@ server.pid
 *.eml
 /dist/
 .cache
+/out
+.sbtserver
