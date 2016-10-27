@@ -5,3 +5,5 @@ scala:
 jdk:
   - oraclejdk8
 install: true
+notifications:
+  slack: 321-pique:n3URF60BrGosxpVBRF2kodkb
