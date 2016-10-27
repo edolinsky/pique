@@ -2,13 +2,9 @@ package controllers;
 
 import com.google.inject.Inject;
 import play.mvc.*;
-import play.libs.ws.*;
-import java.util.concurrent.CompletionStage;
-import com.fasterxml.jackson.databind.JsonNode;
-import play.libs.Json;
-
-import views.html.*;
-
+import services.dataAccess.AbstractDataAccess;
+import services.dataAccess.InMemoryAccessObject;
+import services.dataAccess.RedisAccessObject;
 /**
  * This controller contains an action to handle HTTP requests
  * to the application's home page.
@@ -16,15 +12,22 @@ import views.html.*;
 public class TopContentController extends Controller {
 
     @Inject
-    private WSClient ws;
+    private InMemoryAccessObject dataSource = new InMemoryAccessObject();
     /**
      * An action that renders an HTML page with a welcome message.
      * The configuration in the <code>routes</code> file means that
      * this method will be called when the application receives a
      * <code>GET</code> request with a path of <code>/</code>.
      */
-    public Result index() {
-        return ok(index.render("Pique"));
+    public Result content() {
+
+        byte[] topContent = dataSource.peekAt("top");
+
+        if (topContent.length != 0) {
+            return ok(topContent);
+        } else {
+            return noContent();
+        }
     }
 
 }
