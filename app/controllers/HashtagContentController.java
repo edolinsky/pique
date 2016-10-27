@@ -5,6 +5,9 @@ import play.mvc.*;
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.RedisAccessObject;
 import services.dataAccess.InMemoryAccessObject;
+
+import java.util.Optional;
+
 /**
  * This controller contains an action to handle HTTP requests
  * to the application's home page.
@@ -21,10 +24,10 @@ public class HashtagContentController extends Controller {
      */
 
     public Result content(String hashtag) {
-        byte[] hashtagContent = dataSource.peekAt(hashtag);
+        Optional<byte[]> hashtagContent = dataSource.peekAtByte("display:" + hashtag);
 
-        if (hashtagContent.length != 0) {
-            return ok(hashtagContent);
+        if (hashtagContent.isPresent()) {
+            return ok(hashtagContent.get());
         } else {
             return noContent();
         }

@@ -6,6 +6,8 @@ import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.InMemoryAccessObject;
 import services.dataAccess.RedisAccessObject;
 
+import java.util.Optional;
+
 /**
  * This controller contains an action to handle HTTP requests
  * to the application's home page.
@@ -22,10 +24,10 @@ public class TrendingContentController extends Controller {
      */
 
     public Result content() {
-        byte[] trendingContent = dataSource.peekAt("trending");
+        Optional<byte[]> trendingContent = dataSource.peekAtByte("display:trending");
 
-        if (trendingContent.length != 0) {
-            return ok(trendingContent);
+        if (trendingContent.isPresent()) {
+            return ok(trendingContent.get());
         } else {
             return noContent();
         }

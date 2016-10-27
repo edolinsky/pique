@@ -5,6 +5,9 @@ import play.mvc.*;
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.InMemoryAccessObject;
 import services.dataAccess.RedisAccessObject;
+
+import java.util.Optional;
+
 /**
  * This controller contains an action to handle HTTP requests
  * to the application's home page.
@@ -22,13 +25,14 @@ public class TopContentController extends Controller {
 
     public Result content() {
 
-        byte[] topContent = dataSource.peekAt("top");
+        Optional<byte[]> topContent = dataSource.peekAtByte("display:top");
 
-        if (topContent.length != 0) {
-            return ok(topContent);
+        if(topContent.isPresent()) {
+            return ok(topContent.get());
         } else {
             return noContent();
         }
+
     }
 
 }
