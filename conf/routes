@@ -12,7 +12,7 @@ GET     /message                    controllers.AsyncController.message
 # Content stream endpoints
 GET     /top                        controllers.TopContentController.content
 
-GET     /hashtag                    controllers.HashtagContentController.content
+GET     /hashtag/*tag                    controllers.HashtagContentController.content(tag)
 
 GET     /trending                   controllers.TrendingContentController.content
 

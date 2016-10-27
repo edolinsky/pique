@@ -2,6 +2,8 @@ package controllers;
 
 import com.google.inject.Inject;
 import play.mvc.*;
+import services.dataAccess.AbstractDataAccess;
+import services.dataAccess.InMemoryAccessObject;
 import services.dataAccess.RedisAccessObject;
 
 /**
@@ -11,7 +13,7 @@ import services.dataAccess.RedisAccessObject;
 public class TrendingContentController extends Controller {
 
     @Inject
-    private RedisAccessObject dataSource = new RedisAccessObject();
+    private InMemoryAccessObject dataSource = new InMemoryAccessObject();
     /**
      * An action that renders an HTML page with a welcome message.
      * The configuration in the <code>routes</code> file means that
