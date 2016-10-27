@@ -16,14 +16,14 @@
     * Get an `Html` object by calling the built-in Play welcome
     * template and passing a `String` message.
     *@
-    <!--  <h1>@message</h1> -->
+  <!--  <h1>@message</h1> -->
 
     <div class = "page">
     @for(i <- 1 to 20) {
         <div class = "row">
         @for(j <- 1 to 3) {
             <div class="col-sm-4">
-                <h2>Headline</h2>
+                <h2>Hashtag Content</h2>
                 <p>Some content here, perhaps a tweet</p>
                 <a href="https://google.com"><i class="glyphicon glyphicon-eye-open"></i></a>
             </div>
@@ -31,5 +31,4 @@
         </div>
     }
     </div>
-
 }

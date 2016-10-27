@@ -24,7 +24,7 @@ public class TopContentController extends Controller {
      * <code>GET</code> request with a path of <code>/</code>.
      */
     public Result index() {
-        return ok(index.render("Pique"));
+        return ok(topContent.render("Pique"));
     }
 
 }
