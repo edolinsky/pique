@@ -1,6 +1,6 @@
 package services.content;
 
-import services.storage.AbstractDataAccess;
+import services.dataAccess.AbstractDataAccess;
 
 /**
  * This class is the abstract level representation of an entity that collects data for our
@@ -17,8 +17,8 @@ public abstract class AbstractDataCollector {
 
 	public abstract Post fetch();
 
-	public void store(Post post) {
-		dataAccess.store(post);
+	public void store(Post post){
+		// TODO
 	}
 
 	public void collect() {

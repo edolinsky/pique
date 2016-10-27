@@ -1,7 +1,7 @@
 package services.content;
 
+import services.dataAccess.AbstractDataAccess;
 import services.sources.AbstractRestfulSource;
-import services.storage.AbstractDataAccess;
 
 /**
  * This class is capable of making RESTful API calls to collect data, given an
