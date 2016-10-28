@@ -16,3 +16,6 @@ libraryDependencies ++= Seq(
   javaWs,
   "redis.clients" % "jedis" % "2.9.0"
 )
+
+
+fork in run := true
