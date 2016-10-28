@@ -1,6 +1,5 @@
 package services.sources;
 
-//import akka.pattern.FutureRef;
 import services.dataAccess.proto.PostProto;
 import services.dataAccess.proto.PostProto.Post;
 import twitter4j.HashtagEntity;
@@ -35,6 +34,7 @@ import java.text.SimpleDateFormat;
  */
 public class TwitterSource extends AbstractJavaSource {
     
+    public static final String TWITTER = "twitter";
     public static final String DEFAULT_TEXT = "N/A";
     
 	Map<String, Integer> cachedCodes = new HashMap<>();
@@ -43,15 +43,16 @@ public class TwitterSource extends AbstractJavaSource {
 	Twitter twitter;
 
 	public TwitterSource() {
+		super(TWITTER);
 		twitter = new TwitterFactory().getInstance();
-
 	}
 
 	/**
 	 * Gets tweets corresponding to the current trending topics on Twitter
 	 * @return
 	 */
-	public List<PostProto.Post> getTopTrending() {
+	@Override
+	public List<Post> getTopTrending() {
 		// TODO get country code from FE request
 		Optional<Trends> trends = getTrends("Canada");
 		QueryResult result = null;
@@ -64,6 +65,7 @@ public class TwitterSource extends AbstractJavaSource {
 				try {
 					result = twitter.search(trendQuery);
 				} catch (Exception e) {
+					e.printStackTrace();
 					// TODO
 				}
 			}
@@ -166,6 +168,7 @@ public class TwitterSource extends AbstractJavaSource {
 				return Optional.of(twitter.getPlaceTrends(id.get()));
 			}
 		} catch (Exception e){
+			e.printStackTrace();
 			// TODO
 		}
 
@@ -194,6 +197,7 @@ public class TwitterSource extends AbstractJavaSource {
 				}
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			// TODO
 		}
 

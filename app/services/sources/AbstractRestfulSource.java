@@ -10,7 +10,8 @@ public abstract class AbstractRestfulSource extends AbstractSource {
 	String url;
 	String version;
 
-	public AbstractRestfulSource(String url, String version) {
+	public AbstractRestfulSource(String sourceName, String url, String version) {
+		super(sourceName);
 		this.url = url;
 		this.version = version;
 	}

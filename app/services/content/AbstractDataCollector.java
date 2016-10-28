@@ -1,6 +1,10 @@
 package services.content;
 
 import services.dataAccess.AbstractDataAccess;
+import services.dataAccess.proto.PostProto.Post;
+import services.sources.AbstractSource;
+
+import java.util.List;
 
 /**
  * This class is the abstract level representation of an entity that collects data for our
@@ -15,10 +19,11 @@ public abstract class AbstractDataCollector {
 		this.dataAccess = dataAccess;
 	}
 
-	public abstract Post fetch();
+	public abstract AbstractSource getSource();
+	public abstract List<Post> fetch();
 
-	public void store(Post post){
-		// TODO
+	private void store(List<Post> posts){
+//		dataAccess.addNewPosts(getSource().getSourceName(), posts);
 	}
 
 	public void collect() {
