@@ -52,7 +52,7 @@ public class TwitterSource extends AbstractJavaSource {
 	 * @return
 	 */
 	@Override
-	public List<Post> getTopTrending() {
+	public List<PostProto.Post> getTopTrending() {
 		// TODO get country code from FE request
 		Optional<Trends> trends = getTrends("Canada");
 		QueryResult result = null;
@@ -83,75 +83,83 @@ public class TwitterSource extends AbstractJavaSource {
 		if (result.getTweets() == null || result.getTweets().isEmpty())
 			return Collections.emptyList();
 
-		List<Post> posts = new ArrayList<>();
+		List<PostProto.Post> posts = new ArrayList<>();
 		
 		for (Status s : result.getTweets()) {
 
 			PostProto.Post.Builder builder = PostProto.Post.newBuilder();
-
-			String id = String.valueOf(s.getId());
-			builder.setId(id);
-
 			DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-			String timeStamp = df.format(s.getCreatedAt());
-			builder.setTimestamp(timeStamp);
 
-			String source = s.getUser().getScreenName();
-			builder.setSource(0, source);
-
-			String source_link = s.getUser().getURL().toString();
-			builder.setSourceLink(0, source_link);
-
-			builder.setPopularityScore(0); //TODO
-			builder.setPopularityVelocity(0); //TODO
-
-			builder.setNumComments(0); //TODO or maybe not possible
-
-			if (s.getRetweetCount() == -1) { //If tweet was created before the retween count feature was enabled
-				//TODO
-			} else {
-				builder.setNumShares(s.getRetweetCount());
-			}
-			;
-
-			builder.setNumLikes(s.getFavoriteCount());
-
-			HashtagEntity[] hashtagArray = s.getHashtagEntities();
-			if (hashtagArray == null) {
-				builder.setHashtag(0, DEFAULT_TEXT);
-			} else {
-				for (int i = 0; i < hashtagArray.length; i++) {
-					builder.setHashtag(i, hashtagArray[i].getText());
-				}
-			}
-
-			builder.setText(0, s.getText());
-
-			MediaEntity[] mediaArray = s.getMediaEntities();
-			if (mediaArray == null) {
-				builder.setImgLink(0, DEFAULT_TEXT);
-			} else {
-				for (int j = 0; j < mediaArray.length; j++) {
-					builder.setImgLink(j, mediaArray[j].getMediaURL());
-				}
-			}
-
-			URLEntity[] urlArray = s.getURLEntities();
-			if (urlArray == null) {
-				builder.setExtLink(0, DEFAULT_TEXT);
-			} else {
-				for (int k = 0; k < urlArray.length; k++) {
-					builder.setExtLink(k, urlArray[k].getURL());
-				}
-			}
+			setPostVariables(s, builder);
 
 			posts.add(builder.build());
-
 			
 		}
 
 		return posts;
 	}
+
+	private void setPostVariables(Status s, PostProto.Post.Builder builder) {
+		builder.setId(String.valueOf(s.getId()));
+		builder.setTimestamp(df.format(s.getCreatedAt()));
+		builder.setSource(0, s.getUser().getScreenName());
+		builder.setSourceLink(0, s.getUser().getURL().toString());
+		builder.setPopularityScore(0); //TODO
+		builder.setPopularityVelocity(0); //TODO
+		builder.setNumComments(0); //TODO or maybe not possible
+		setPostNumShares(s, builder);
+		builder.setNumLikes(s.getFavoriteCount());
+		builder.setText(0, s.getText());
+		setPostHashtag(s, builder);
+		setPostMedia(s, builder);
+		setPostURL(s, builder);
+	}
+
+	private void setPostNumShares(Status s, PostProto.Post.Builder builder) {
+		if (s.getRetweetCount() == -1) { //If tweet was created before the retween count feature was enabled
+			//TODO
+		} else {
+			builder.setNumShares(s.getRetweetCount());
+		}
+	}
+
+	private void setPostHashtag(Status s, PostProto.Post.Builder builder) {
+		HashtagEntity[] hashtagArray = s.getHashtagEntities();
+		if (hashtagArray == null) {
+			builder.setHashtag(0, DEFAULT_TEXT);
+		} else {
+			for (int i = 0; i < hashtagArray.length; i++) {
+				builder.setHashtag(i, hashtagArray[i].getText());
+			}
+		}
+	}
+
+	private void setPostMedia(Status s, PostProto.Post.Builder builder) {
+		MediaEntity[] mediaArray = s.getMediaEntities();
+		if (mediaArray == null) {
+			builder.setImgLink(0, DEFAULT_TEXT);
+		} else {
+			for (int j = 0; j < mediaArray.length; j++) {
+				builder.setImgLink(j, mediaArray[j].getMediaURL());
+			}
+		}
+	}
+
+	private void setPostURL(Status s, PostProto.Post.Builder builder) {
+		URLEntity[] urlArray = s.getURLEntities();
+		if (urlArray == null) {
+			builder.setExtLink(0, DEFAULT_TEXT);
+		} else {
+			for (int k = 0; k < urlArray.length; k++) {
+				builder.setExtLink(k, urlArray[k].getURL());
+			}
+		}
+	}
+
+
+
+
+
 
 	/**
 	 * Gets the {@link Trends} for a certain country, if it is available.
