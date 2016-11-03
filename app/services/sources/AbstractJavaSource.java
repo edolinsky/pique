@@ -14,6 +14,4 @@ public abstract class AbstractJavaSource extends AbstractSource {
 	public AbstractJavaSource(String sourceName) {
 		super(sourceName);
 	}
-
-	public abstract List<PostProto.Post> getTopTrending();
 }
