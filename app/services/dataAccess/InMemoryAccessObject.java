@@ -1,19 +1,17 @@
 package services.dataAccess;
 
-import services.dataAccess.proto.PostListProto;
-import services.dataAccess.proto.PostProto;
+import services.dataAccess.proto.PostListProto.PostList;
+import services.dataAccess.proto.PostProto.Post;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Created by erik on 23/10/16.
  */
 public class InMemoryAccessObject extends AbstractDataAccess {
 
-    private HashMap<String, List<PostProto.Post>> postDataStore;
-    private HashMap<String, List<PostListProto.PostList>> postListDataStore;
+    private Map<String, List<Post>> postDataStore;
+    private Map<String, List<PostList>> postListDataStore;
 
     public InMemoryAccessObject() {
         postDataStore = new HashMap<>();
@@ -21,30 +19,75 @@ public class InMemoryAccessObject extends AbstractDataAccess {
     }
 
     @Override
-    public long addNewPost(String keyString, PostProto.Post post) {
-        List<PostProto.Post> listAtKeyString = postDataStore.get(keyString);
-        listAtKeyString.add(post);
-        return listAtKeyString.size();
-    }
+    public long addNewPost(String keyString, Post post) {
 
-    public long addNewPosts(String keyString, List<PostProto.Post> listOfPosts) {
-        List<PostProto.Post> listAtKeyString = postDataStore.get(keyString);
-        listAtKeyString.addAll(listOfPosts);
+        List<Post> listAtKeyString;
+
+        // If key exists in map, append post to list,
+        if (postDataStore.containsKey(keyString)) {
+            listAtKeyString = postDataStore.get(keyString);
+            listAtKeyString.add(post);
+
+            // otherwise, create new map entry containing post in list
+        } else {
+            listAtKeyString = new ArrayList<>();
+            listAtKeyString.add(post);
+            postDataStore.put(keyString, listAtKeyString);
+        }
         return listAtKeyString.size();
     }
 
     @Override
-    public long addNewPostList(String keyString, PostListProto.PostList postList) {
-        List<PostListProto.PostList> listAtKeyString = postListDataStore.get(keyString);
-        listAtKeyString.add(postList);
+    public long addNewPosts(String keyString, List<Post> listOfPosts) {
+
+        List<Post> listAtKeyString;
+
+        // If key exists in map, append post to list
+        if (postDataStore.containsKey(keyString)) {
+            listAtKeyString = postDataStore.get(keyString);
+            listAtKeyString.addAll(listOfPosts);
+
+            // otherwise, create new map entry and append posts to list
+        } else {
+            listAtKeyString = postDataStore.put(keyString, listOfPosts);
+        }
         return listAtKeyString.size();
     }
 
     @Override
-    public Optional<PostProto.Post> popOldestPost(String keyString) {
-        List<PostProto.Post> listAtKeyString = postDataStore.get(keyString);
-        PostProto.Post oldestPost = null;
+    public long addNewPostList(String keyString, PostList postList) {
 
+        List<PostList> listAtKeyString;
+
+        // if key exists, add postList at *beginning* of list
+        if (postListDataStore.containsKey(keyString)) {
+            listAtKeyString = postListDataStore.get(keyString);
+            listAtKeyString.add(0, postList);
+
+            // if key does not exist, create new map entry and insert postList
+        } else {
+            listAtKeyString = new ArrayList<>();
+            listAtKeyString.add(0, postList);
+            postListDataStore.put(keyString, listAtKeyString);
+        }
+
+        // todo: implement pruning of postListDataStore for long-term operation (max size)
+
+        return listAtKeyString.size();
+    }
+
+    @Override
+    public List<Post> getAllPosts(String keyString) {
+        return postDataStore.get(keyString);
+    }
+
+    @Override
+    public Optional<Post> popOldestPost(String keyString) {
+
+        List<Post> listAtKeyString = postDataStore.get(keyString);
+        Post oldestPost = null;
+
+        // pop post if one exists
         if (listAtKeyString.size() > 0) {
             oldestPost = listAtKeyString.get(0);
             listAtKeyString.remove(0);
@@ -58,24 +101,10 @@ public class InMemoryAccessObject extends AbstractDataAccess {
     }
 
     @Override
-    public Optional<byte[]> peekAtByte(String keyString) {
-        Optional<PostListProto.PostList> post = peekAtPostList(keyString);
-        if (post.isPresent()) {
-            return Optional.of(post.get().toByteArray());
-        } else {
-            return Optional.empty();
-        }
-    }
+    public Optional<PostList> peekAtPostList(String keyString) {
+        List<PostList> listAtKeyString = postListDataStore.get(keyString);
 
-    @Override
-    public Optional<byte[]> peekAtByte(byte[] key) {
-        return peekAtByte(key.toString());
-    }
-
-    @Override
-    public Optional<PostListProto.PostList> peekAtPostList(String keyString) {
-        List<PostListProto.PostList> listAtKeyString = postListDataStore.get(keyString);
-
+        // peek at first postList if it exists
         if (listAtKeyString.size() == 0) {
             return Optional.empty();
         } else {

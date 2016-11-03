@@ -5,6 +5,8 @@ import play.mvc.*;
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.RedisAccessObject;
 import services.dataAccess.InMemoryAccessObject;
+import services.dataAccess.proto.PostListProto.PostList;
+import services.serializer.BinarySerializer;
 
 import java.util.Optional;
 
@@ -15,7 +17,8 @@ import java.util.Optional;
 public class HashtagContentController extends Controller {
 
     @Inject
-    private InMemoryAccessObject dataSource = new InMemoryAccessObject();
+    private AbstractDataAccess dataSource = new InMemoryAccessObject();
+    private BinarySerializer serializer = new BinarySerializer();
     /**
      * An action that renders an HTML page with a welcome message.
      * The configuration in the <code>routes</code> file means that
@@ -24,10 +27,10 @@ public class HashtagContentController extends Controller {
      */
 
     public Result content(String hashtag) {
-        Optional<byte[]> hashtagContent = dataSource.peekAtByte("display:" + hashtag);
+        Optional<PostList> hashtagContent = dataSource.peekAtPostList("display:" + hashtag);
 
         if (hashtagContent.isPresent()) {
-            return ok(hashtagContent.get());
+            return ok(serializer.serialize(hashtagContent.get()));
         } else {
             return noContent();
         }

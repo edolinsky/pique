@@ -5,6 +5,8 @@ import play.mvc.*;
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.InMemoryAccessObject;
 import services.dataAccess.RedisAccessObject;
+import services.dataAccess.proto.PostListProto.PostList;
+import services.serializer.BinarySerializer;
 
 import java.util.Optional;
 
@@ -15,7 +17,8 @@ import java.util.Optional;
 public class TopContentController extends Controller {
 
     @Inject
-    private InMemoryAccessObject dataSource = new InMemoryAccessObject();
+    private AbstractDataAccess dataSource = new InMemoryAccessObject();
+    private BinarySerializer serializer = new BinarySerializer();
     /**
      * An action that renders an HTML page with a welcome message.
      * The configuration in the <code>routes</code> file means that
@@ -25,10 +28,10 @@ public class TopContentController extends Controller {
 
     public Result content() {
 
-        Optional<byte[]> topContent = dataSource.peekAtByte("display:top");
+        Optional<PostList> topContent = dataSource.peekAtPostList("display:top");
 
         if(topContent.isPresent()) {
-            return ok(topContent.get());
+            return ok(serializer.serialize(topContent.get()));
         } else {
             return noContent();
         }

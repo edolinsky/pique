@@ -1,8 +1,7 @@
 package services.dataAccess;
 
-import org.springframework.stereotype.Service;
-import services.dataAccess.proto.PostListProto;
-import services.dataAccess.proto.PostProto;
+import services.dataAccess.proto.PostListProto.PostList;
+import services.dataAccess.proto.PostProto.Post;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,11 +11,12 @@ import java.util.Optional;
  */
 
 public abstract class AbstractDataAccess {
-    abstract public long addNewPost(String keyString, PostProto.Post post);
-    abstract public long addNewPosts(String keyString, List<PostProto.Post> listOfPosts);
-    abstract public long addNewPostList(String keyString, PostListProto.PostList postList);
-    abstract public Optional<PostProto.Post> popOldestPost(String keyString);
-    abstract public Optional<PostListProto.PostList> peekAtPostList(String keyString);
-    abstract public Optional<byte[]> peekAtByte(String keyString);
-    abstract public Optional<byte[]> peekAtByte(byte[] key);
+
+    abstract public long addNewPost(String keyString, Post post);
+    abstract public long addNewPosts(String keyString, List<Post> listOfPosts);
+    abstract public long addNewPostList(String keyString, PostList postList);
+
+    abstract public List<Post> getAllPosts(String keyString);
+    abstract public Optional<Post> popOldestPost(String keyString);
+    abstract public Optional<PostList> peekAtPostList(String keyString);
 }
