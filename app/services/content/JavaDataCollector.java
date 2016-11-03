@@ -1,11 +1,9 @@
 package services.content;
 
 import services.dataAccess.AbstractDataAccess;
-import services.dataAccess.proto.PostProto;
 import services.dataAccess.proto.PostProto.Post;
 import services.sources.AbstractJavaSource;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -36,6 +34,6 @@ public class JavaDataCollector extends AbstractDataCollector {
 		 * work to the source object.
 		 */
 
-		return source.getTopTrending();
+		return null;
 	}
 }

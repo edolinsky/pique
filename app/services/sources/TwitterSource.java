@@ -1,6 +1,5 @@
 package services.sources;
 
-import services.dataAccess.proto.PostProto;
 import services.dataAccess.proto.PostProto.Post;
 import twitter4j.HashtagEntity;
 import twitter4j.Location;
@@ -15,17 +14,16 @@ import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
 import twitter4j.URLEntity;
 
-
-import javax.xml.ws.Response;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-
+import java.util.Set;
 
 /**
  * Class that interacts with the twitter4j library to get data
@@ -36,8 +34,9 @@ public class TwitterSource extends AbstractJavaSource {
     
     public static final String TWITTER = "twitter";
     public static final String DEFAULT_TEXT = "N/A";
+	public static final Integer MAX_REQUEST_SIZE = 100;
     
-	Map<String, Integer> cachedCodes = new HashMap<>();
+	Map<String, Set<Location>> cachedCodes = new HashMap<>();
 
 	// twitter object that acts as the router for all requests
 	Twitter twitter;
@@ -51,126 +50,36 @@ public class TwitterSource extends AbstractJavaSource {
 	 * Gets tweets corresponding to the current trending topics on Twitter
 	 * @return
 	 */
-	@Override
-	public List<PostProto.Post> getTopTrending() {
-		// TODO get country code from FE request
-		Optional<Trends> trends = getTrends("Canada");
-		QueryResult result = null;
+	public List<Post> getTrendingPosts(Trend trend, int numPosts) {
+		Query trendQuery = new Query(trend.getQuery());
+		trendQuery.setCount(numPosts);
 
-		if (trends.isPresent()) {
-			for (Trend t : trends.get().getTrends()) {
-				Query trendQuery = new Query(t.getQuery());
-				trendQuery.setCount(100);
-
-				try {
-					result = twitter.search(trendQuery);
-				} catch (Exception e) {
-					e.printStackTrace();
-					// TODO
-				}
-			}
+		try {
+			QueryResult result = twitter.search(trendQuery);
+			return parseQueryResult(result);
+		} catch (Exception e) {
+			e.printStackTrace();
+			// TODO
 		}
 
-		return parseQueryResult(result);
+		return Collections.emptyList();
 	}
 
-	/**
-	 * Generates Post object for every status in given queried tweets
-	 * @param result
-	 * @return
-	 */
-	private List<PostProto.Post> parseQueryResult(QueryResult result) {
-		if (result.getTweets() == null || result.getTweets().isEmpty())
-			return Collections.emptyList();
-
-		List<PostProto.Post> posts = new ArrayList<>();
-		
-		for (Status s : result.getTweets()) {
-
-			PostProto.Post.Builder builder = PostProto.Post.newBuilder();
-			DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-
-			setPostVariables(s, builder);
-
-			posts.add(builder.build());
-			
-		}
-
-		return posts;
+	public List<Post> getTrendingPosts(Trend trend) {
+		return getTrendingPosts(trend, MAX_REQUEST_SIZE);
 	}
-
-	private void setPostVariables(Status s, PostProto.Post.Builder builder) {
-		builder.setId(String.valueOf(s.getId()));
-		builder.setTimestamp(df.format(s.getCreatedAt()));
-		builder.setSource(0, s.getUser().getScreenName());
-		builder.setSourceLink(0, s.getUser().getURL().toString());
-		builder.setPopularityScore(0); //TODO
-		builder.setPopularityVelocity(0); //TODO
-		builder.setNumComments(0); //TODO or maybe not possible
-		setPostNumShares(s, builder);
-		builder.setNumLikes(s.getFavoriteCount());
-		builder.setText(0, s.getText());
-		setPostHashtag(s, builder);
-		setPostMedia(s, builder);
-		setPostURL(s, builder);
-	}
-
-	private void setPostNumShares(Status s, PostProto.Post.Builder builder) {
-		if (s.getRetweetCount() == -1) { //If tweet was created before the retween count feature was enabled
-			//TODO
-		} else {
-			builder.setNumShares(s.getRetweetCount());
-		}
-	}
-
-	private void setPostHashtag(Status s, PostProto.Post.Builder builder) {
-		HashtagEntity[] hashtagArray = s.getHashtagEntities();
-		if (hashtagArray == null) {
-			builder.setHashtag(0, DEFAULT_TEXT);
-		} else {
-			for (int i = 0; i < hashtagArray.length; i++) {
-				builder.setHashtag(i, hashtagArray[i].getText());
-			}
-		}
-	}
-
-	private void setPostMedia(Status s, PostProto.Post.Builder builder) {
-		MediaEntity[] mediaArray = s.getMediaEntities();
-		if (mediaArray == null) {
-			builder.setImgLink(0, DEFAULT_TEXT);
-		} else {
-			for (int j = 0; j < mediaArray.length; j++) {
-				builder.setImgLink(j, mediaArray[j].getMediaURL());
-			}
-		}
-	}
-
-	private void setPostURL(Status s, PostProto.Post.Builder builder) {
-		URLEntity[] urlArray = s.getURLEntities();
-		if (urlArray == null) {
-			builder.setExtLink(0, DEFAULT_TEXT);
-		} else {
-			for (int k = 0; k < urlArray.length; k++) {
-				builder.setExtLink(k, urlArray[k].getURL());
-			}
-		}
-	}
-
-
-
-
-
 
 	/**
 	 * Gets the {@link Trends} for a certain country, if it is available.
-	 * @param country the country to get {@link Trends} for
+	 * @param country
+	 * @param city
 	 * @return an {@link Optional} containing the trends, or an empty {@link Optional} if
 	 * {@link Trends} are not available for that country.
 	 */
-	private Optional<Trends> getTrends(String country){
+	public Optional<Trends> getTrends(String country, String city){
 
 		try{
-			Optional<Integer> id = getLocationId(country);
+			Optional<Integer> id = getLocationId(country, city);
 
 			if (id.isPresent()) {
 				return Optional.of(twitter.getPlaceTrends(id.get()));
@@ -186,30 +95,129 @@ public class TwitterSource extends AbstractJavaSource {
 	/**
 	 * Retrives the {@link Location} object for the specified country if it is available,
 	 * else an empty Optional.
-	 *
-	 * @param country the name of the country
+	 * @param country
+	 * @param city
 	 * @return {@link Optional} of the {@link Location}, or null if it is not available.
 	 */
-	private Optional<Integer> getLocationId(String country) {
-		String countryLower = country.toLowerCase();
-		if (cachedCodes.containsKey(countryLower)) {
-			return Optional.of(cachedCodes.get(countryLower));
+	private Optional<Integer> getLocationId(String country, String city) {
+		// check if location is cached
+		if (cachedCodes.containsKey(country)) {
+			Set<Location> cities = cachedCodes.get(country);
+
+			for (Location l : cities) {
+				if (l.getName().equalsIgnoreCase(city)) return Optional.of(l.getWoeid());
+			}
 		}
 
+		// else retrieve list of locations and store
 		try {
 			ResponseList<Location> availableLocations = twitter.getAvailableTrends();
+
+			Optional<Integer> toReturn = Optional.empty();
 			for (Location l : availableLocations) {
-				if (l.getCountryName().equalsIgnoreCase(countryLower)) {
-					cachedCodes.put(countryLower, l.getWoeid());
-					return Optional.of(l.getWoeid());
+				if (l.getCountryName().equalsIgnoreCase(country)
+						&& l.getName().equalsIgnoreCase(city)) {
+					toReturn = Optional.of(l.getWoeid());
+				}
+
+				if (cachedCodes.containsKey(l.getCountryCode())) {
+					cachedCodes.get(l.getCountryName()).add(l);
+				} else {
+					Set<Location> citySet = new HashSet<>();
+					citySet.add(l);
+					cachedCodes.put(l.getCountryName(), citySet);
 				}
 			}
+
+			return toReturn;
 		} catch (Exception e) {
 			e.printStackTrace();
 			// TODO
 		}
 
 		return Optional.empty(); // could not find the location
+	}
+
+	/**
+	 * Generates Post object for every status in given queried tweets
+	 * @param result
+	 * @return
+	 */
+	public List<Post> parseQueryResult(QueryResult result) {
+		if (result.getTweets() == null || result.getTweets().isEmpty())
+			return Collections.emptyList();
+
+		List<Post> posts = new ArrayList<>();
+		
+		for (Status s : result.getTweets()) {
+
+			Post.Builder builder = Post.newBuilder();
+
+			setPostVariables(s, builder);
+
+			posts.add(builder.build());
+			
+		}
+
+		return posts;
+	}
+
+	private void setPostVariables(Status s, Post.Builder builder) {
+		DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+		builder.setId(String.valueOf(s.getId()));
+		builder.setTimestamp(df.format(s.getCreatedAt()));
+		builder.setSource(0, s.getUser().getScreenName());
+		builder.setSourceLink(0, s.getUser().getURL().toString());
+		builder.setPopularityScore(0); //TODO
+		builder.setPopularityVelocity(0); //TODO
+		builder.setNumComments(0); //TODO or maybe not possible
+		setPostNumShares(s, builder);
+		builder.setNumLikes(s.getFavoriteCount());
+		builder.setText(0, s.getText());
+		setPostHashtag(s, builder);
+		setPostMedia(s, builder);
+		setPostURL(s, builder);
+	}
+
+	private void setPostNumShares(Status s, Post.Builder builder) {
+		if (s.getRetweetCount() == -1) { //If tweet was created before the retween count feature was enabled
+			//TODO
+		} else {
+			builder.setNumShares(s.getRetweetCount());
+		}
+	}
+
+	private void setPostHashtag(Status s, Post.Builder builder) {
+		HashtagEntity[] hashtagArray = s.getHashtagEntities();
+		if (hashtagArray == null) {
+			builder.setHashtag(0, DEFAULT_TEXT);
+		} else {
+			for (int i = 0; i < hashtagArray.length; i++) {
+				builder.setHashtag(i, hashtagArray[i].getText());
+			}
+		}
+	}
+
+	private void setPostMedia(Status s, Post.Builder builder) {
+		MediaEntity[] mediaArray = s.getMediaEntities();
+		if (mediaArray == null) {
+			builder.setImgLink(0, DEFAULT_TEXT);
+		} else {
+			for (int j = 0; j < mediaArray.length; j++) {
+				builder.setImgLink(j, mediaArray[j].getMediaURL());
+			}
+		}
+	}
+
+	private void setPostURL(Status s, Post.Builder builder) {
+		URLEntity[] urlArray = s.getURLEntities();
+		if (urlArray == null) {
+			builder.setExtLink(0, DEFAULT_TEXT);
+		} else {
+			for (int k = 0; k < urlArray.length; k++) {
+				builder.setExtLink(k, urlArray[k].getURL());
+			}
+		}
 	}
 
 }
