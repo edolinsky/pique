@@ -2,9 +2,7 @@ package controllers;
 
 import com.google.inject.Inject;
 import play.mvc.*;
-import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.RedisAccessObject;
-import services.dataAccess.InMemoryAccessObject;
 import services.dataAccess.proto.PostListProto.PostList;
 import services.serializer.BinarySerializer;
 
@@ -17,8 +15,9 @@ import java.util.Optional;
 public class HashtagContentController extends Controller {
 
     @Inject
-    private AbstractDataAccess dataSource = new InMemoryAccessObject();
+    private RedisAccessObject dataSource = new RedisAccessObject();
     private BinarySerializer serializer = new BinarySerializer();
+
     /**
      * An action that renders an HTML page with a welcome message.
      * The configuration in the <code>routes</code> file means that

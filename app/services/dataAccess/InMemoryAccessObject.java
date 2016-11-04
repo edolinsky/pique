@@ -47,11 +47,16 @@ public class InMemoryAccessObject extends AbstractDataAccess {
             listAtKeyString = postDataStore.get(keyString);
             listAtKeyString.addAll(listOfPosts);
 
-            // otherwise, create new map entry and append posts to list
         } else {
-            listAtKeyString = postDataStore.put(keyString, listOfPosts);
+            // otherwise initialize key
+            listAtKeyString = postDataStore.put(keyString, new ArrayList<>(listOfPosts));
         }
-        return listAtKeyString.size();
+
+        if (listAtKeyString == null) {
+            return 0;
+        } else {
+            return listAtKeyString.size();
+        }
     }
 
     @Override
@@ -78,7 +83,15 @@ public class InMemoryAccessObject extends AbstractDataAccess {
 
     @Override
     public List<Post> getAllPosts(String keyString) {
-        return postDataStore.get(keyString);
+
+        List<Post> listOfPosts = postDataStore.get(keyString);
+
+        // return list of posts under a key, or empty list if key does not exist
+        if (listOfPosts == null) {
+            return new ArrayList<>();
+        } else {
+            return listOfPosts;
+        }
     }
 
     @Override
@@ -87,8 +100,8 @@ public class InMemoryAccessObject extends AbstractDataAccess {
         List<Post> listAtKeyString = postDataStore.get(keyString);
         Post oldestPost = null;
 
-        // pop post if one exists
-        if (listAtKeyString.size() > 0) {
+        if (listAtKeyString != null && listAtKeyString.size() > 0) {
+            // pop post if one exists
             oldestPost = listAtKeyString.get(0);
             listAtKeyString.remove(0);
         }
@@ -105,7 +118,7 @@ public class InMemoryAccessObject extends AbstractDataAccess {
         List<PostList> listAtKeyString = postListDataStore.get(keyString);
 
         // peek at first postList if it exists
-        if (listAtKeyString.size() == 0) {
+        if (listAtKeyString == null) {
             return Optional.empty();
         } else {
             return Optional.of(listAtKeyString.get(0));

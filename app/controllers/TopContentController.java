@@ -2,8 +2,6 @@ package controllers;
 
 import com.google.inject.Inject;
 import play.mvc.*;
-import services.dataAccess.AbstractDataAccess;
-import services.dataAccess.InMemoryAccessObject;
 import services.dataAccess.RedisAccessObject;
 import services.dataAccess.proto.PostListProto.PostList;
 import services.serializer.BinarySerializer;
@@ -17,8 +15,10 @@ import java.util.Optional;
 public class TopContentController extends Controller {
 
     @Inject
-    private AbstractDataAccess dataSource = new InMemoryAccessObject();
+    private RedisAccessObject dataSource = new RedisAccessObject();
     private BinarySerializer serializer = new BinarySerializer();
+
+
     /**
      * An action that renders an HTML page with a welcome message.
      * The configuration in the <code>routes</code> file means that
@@ -30,7 +30,7 @@ public class TopContentController extends Controller {
 
         Optional<PostList> topContent = dataSource.peekAtPostList("display:top");
 
-        if(topContent.isPresent()) {
+        if (topContent.isPresent()) {
             return ok(serializer.serialize(topContent.get()));
         } else {
             return noContent();

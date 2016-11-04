@@ -7,10 +7,10 @@ import redis.clients.jedis.Response;
 import services.dataAccess.proto.PostListProto.PostList;
 import services.dataAccess.proto.PostProto.Post;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Created by erik on 23/10/16.
@@ -24,7 +24,7 @@ public class RedisAccessObject extends AbstractDataAccess {
 
         // initialize based on environment variables
         String redisUrl = System.getenv("redis_url");
-        Integer redisPort = Integer.getInteger(System.getenv("redis_port"));
+        Integer redisPort = Integer.valueOf(System.getenv("redis_port"));
         redisAccess = new BinaryJedis(redisUrl, redisPort);
     }
 
@@ -57,6 +57,7 @@ public class RedisAccessObject extends AbstractDataAccess {
 
         connect();
         Pipeline pipe = redisAccess.pipelined();
+        pipe.multi();
 
         for (Post post : listOfPosts) {
             pipe.rpush(keyString.getBytes(), post.toByteArray());
@@ -64,13 +65,19 @@ public class RedisAccessObject extends AbstractDataAccess {
         // Response<byte[]> pipeId = pipe.get(keyString.getBytes());
         Response<List<Object>> results = pipe.exec();
 
+        try {
+            pipe.close();
+        } catch (IOException IOe) {
+            System.out.println("Problems closing Redis Pipe"); // todo: handle better
+        }
+
         disconnect();
 
         return (long) results.get().size();
     }
 
     @Override
-    public long addNewPostList(String keyString, PostList postList){
+    public long addNewPostList(String keyString, PostList postList) {
 
         connect();
 
@@ -85,7 +92,7 @@ public class RedisAccessObject extends AbstractDataAccess {
     public List<Post> getAllPosts(String keyString) {
 
         connect();  // get all posts under a particular key (denoted by range 0 to -1)
-        List<byte[]> byteList= redisAccess.lrange(keyString.getBytes(), 0, -1);
+        List<byte[]> byteList = redisAccess.lrange(keyString.getBytes(), 0, -1);
         disconnect();
 
         List<Post> postList = new ArrayList<>();
@@ -115,12 +122,15 @@ public class RedisAccessObject extends AbstractDataAccess {
 
         disconnect();   // disconnect from redis
 
-        // parse Post object from byte array
-        try {
-            oldestPost = Post.parseFrom(result);
-        } catch (InvalidProtocolBufferException iPBE) {
-            //todo: handle this more elegantly
-            System.out.println("Invalid Protocol Buffer");
+        if (result != null) {
+            // parse Post object from byte array
+            try {
+                oldestPost = Post.parseFrom(result);
+            } catch (InvalidProtocolBufferException iPBE) {
+                //todo: handle this more elegantly
+                System.out.println("Invalid Protocol Buffer");
+            }
+
         }
 
         // handle negative case and return
@@ -133,17 +143,17 @@ public class RedisAccessObject extends AbstractDataAccess {
 
     private Optional<byte[]> peekAtByte(String keyString) {
 
-        Optional<byte[]> entry = Optional.of(new byte[0]);
         byte[] key = keyString.getBytes();
 
         connect();  // connect to redis and get first element under key
         List<byte[]> entryList = redisAccess.lrange(key, 0, 0);
         disconnect();
 
-        if (!entryList.isEmpty()) {     // if we found something, take the first element
-            entry = Optional.of(entryList.get(0));
+        if (entryList.isEmpty()) {     // if we found something, take the first element
+            return Optional.empty();
+        } else {
+            return Optional.of(entryList.get(0));
         }
-        return entry;
     }
 
     @Override
