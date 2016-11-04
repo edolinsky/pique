@@ -11,10 +11,10 @@ import twitter4j.Status;
 import twitter4j.Trend;
 import twitter4j.Trends;
 import twitter4j.Twitter;
+import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.URLEntity;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Class that interacts with the twitter4j library to get data
@@ -57,7 +58,7 @@ public class TwitterSource extends AbstractJavaSource {
 		try {
 			QueryResult result = twitter.search(trendQuery);
 			return parseQueryResult(result);
-		} catch (Exception e) {
+		} catch (TwitterException e) {
 			e.printStackTrace();
 			// TODO
 		}
@@ -65,7 +66,7 @@ public class TwitterSource extends AbstractJavaSource {
 		return Collections.emptyList();
 	}
 
-	public List<Post> getTrendingPosts(Trend trend) {
+	public List<Post> getMaxTrendingPosts(Trend trend) {
 		return getTrendingPosts(trend, MAX_REQUEST_SIZE);
 	}
 
@@ -84,7 +85,7 @@ public class TwitterSource extends AbstractJavaSource {
 			if (id.isPresent()) {
 				return Optional.of(twitter.getPlaceTrends(id.get()));
 			}
-		} catch (Exception e){
+		} catch (TwitterException e){
 			e.printStackTrace();
 			// TODO
 		}
@@ -130,7 +131,7 @@ public class TwitterSource extends AbstractJavaSource {
 			}
 
 			return toReturn;
-		} catch (Exception e) {
+		} catch (TwitterException e) {
 			e.printStackTrace();
 			// TODO
 		}
@@ -147,36 +148,26 @@ public class TwitterSource extends AbstractJavaSource {
 		if (result.getTweets() == null || result.getTweets().isEmpty())
 			return Collections.emptyList();
 
-		List<Post> posts = new ArrayList<>();
-		
-		for (Status s : result.getTweets()) {
-
-			Post.Builder builder = Post.newBuilder();
-
-			setPostVariables(s, builder);
-
-			posts.add(builder.build());
-			
-		}
-
-		return posts;
+		return result.getTweets().stream().map(this::createPost).collect(Collectors.toList());
 	}
 
-	private void setPostVariables(Status s, Post.Builder builder) {
+	private Post createPost(Status s) {
+		Post.Builder builder = Post.newBuilder();
 		DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 		builder.setId(String.valueOf(s.getId()));
 		builder.setTimestamp(df.format(s.getCreatedAt()));
-		builder.setSource(0, s.getUser().getScreenName());
-		builder.setSourceLink(0, s.getUser().getURL().toString());
+		builder.addSource(s.getUser().getScreenName());
+		builder.addSourceLink("https://twitter.com"); // TODO get profile URL somehow
 		builder.setPopularityScore(0); //TODO
 		builder.setPopularityVelocity(0); //TODO
 		builder.setNumComments(0); //TODO or maybe not possible
 		setPostNumShares(s, builder);
 		builder.setNumLikes(s.getFavoriteCount());
-		builder.setText(0, s.getText());
+		builder.addText(s.getText());
 		setPostHashtag(s, builder);
 		setPostMedia(s, builder);
 		setPostURL(s, builder);
+		return builder.build();
 	}
 
 	private void setPostNumShares(Status s, Post.Builder builder) {
@@ -189,33 +180,33 @@ public class TwitterSource extends AbstractJavaSource {
 
 	private void setPostHashtag(Status s, Post.Builder builder) {
 		HashtagEntity[] hashtagArray = s.getHashtagEntities();
-		if (hashtagArray == null) {
-			builder.setHashtag(0, DEFAULT_TEXT);
+		if (hashtagArray == null || hashtagArray.length == 0) {
+			builder.addHashtag(DEFAULT_TEXT);
 		} else {
 			for (int i = 0; i < hashtagArray.length; i++) {
-				builder.setHashtag(i, hashtagArray[i].getText());
+				builder.addHashtag(hashtagArray[i].getText());
 			}
 		}
 	}
 
 	private void setPostMedia(Status s, Post.Builder builder) {
 		MediaEntity[] mediaArray = s.getMediaEntities();
-		if (mediaArray == null) {
-			builder.setImgLink(0, DEFAULT_TEXT);
+		if (mediaArray == null || mediaArray.length == 0) {
+			builder.addImgLink(DEFAULT_TEXT);
 		} else {
 			for (int j = 0; j < mediaArray.length; j++) {
-				builder.setImgLink(j, mediaArray[j].getMediaURL());
+				builder.addImgLink(mediaArray[j].getMediaURL());
 			}
 		}
 	}
 
 	private void setPostURL(Status s, Post.Builder builder) {
 		URLEntity[] urlArray = s.getURLEntities();
-		if (urlArray == null) {
-			builder.setExtLink(0, DEFAULT_TEXT);
+		if (urlArray == null || urlArray.length == 0) {
+			builder.addExtLink(DEFAULT_TEXT);
 		} else {
 			for (int k = 0; k < urlArray.length; k++) {
-				builder.setExtLink(k, urlArray[k].getURL());
+				builder.addExtLink(urlArray[k].getURL());
 			}
 		}
 	}
