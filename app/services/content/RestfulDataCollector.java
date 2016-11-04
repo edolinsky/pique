@@ -7,6 +7,7 @@ import services.sources.AbstractRestfulSource;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -75,7 +76,7 @@ public class RestfulDataCollector extends AbstractDataCollector {
 			//TODO create Post object from response object
 			return Collections.emptyList();
 
-		} catch(Exception e) {
+		} catch(IOException e) {
 			// if we fail this we shouldn't fall over, just reschedule an attempt
 
 			// TODO notify of failure and fail gracefully
