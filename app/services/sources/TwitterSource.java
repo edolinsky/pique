@@ -1,5 +1,6 @@
 package services.sources;
 
+import services.PublicConstants;
 import services.dataAccess.proto.PostProto.Post;
 import twitter4j.HashtagEntity;
 import twitter4j.Location;
@@ -14,6 +15,7 @@ import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.URLEntity;
+import twitter4j.conf.ConfigurationBuilder;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,6 +27,11 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static services.PublicConstants.TWITTER4J_ACCESSS_TOKEN;
+import static services.PublicConstants.TWITTER4J_ACCESS_TOKEN_SECRET;
+import static services.PublicConstants.TWITTER4J_CONSUMER_KEY;
+import static services.PublicConstants.TWITTER4J_CONSUMER_SECRET;
 
 /**
  * Class that interacts with the twitter4j library to get data
@@ -44,7 +51,16 @@ public class TwitterSource extends AbstractJavaSource {
 
 	public TwitterSource() {
 		super(TWITTER);
-		twitter = new TwitterFactory().getInstance();
+
+		Map<String, String> env = System.getenv();
+		ConfigurationBuilder cb = new ConfigurationBuilder();
+		cb.setDebugEnabled(true)
+				.setOAuthConsumerKey(env.get(TWITTER4J_CONSUMER_KEY))
+				.setOAuthConsumerSecret(env.get(TWITTER4J_CONSUMER_SECRET))
+				.setOAuthAccessToken(env.get(TWITTER4J_ACCESSS_TOKEN))
+				.setOAuthAccessTokenSecret(env.get(TWITTER4J_ACCESS_TOKEN_SECRET));
+		TwitterFactory tf = new TwitterFactory(cb.build());
+		twitter = tf.getInstance();
 	}
 
 	/**
