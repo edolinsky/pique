@@ -2,17 +2,22 @@ package controllers;
 
 import com.google.inject.Inject;
 import play.mvc.*;
-import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.RedisAccessObject;
-import services.dataAccess.InMemoryAccessObject;
+import services.dataAccess.AbstractDataAccess;
+import services.dataAccess.proto.PostListProto.PostList;
+import services.serializer.BinarySerializer;
+
+import java.util.Optional;
+
 /**
  * This controller contains an action to handle HTTP requests
  * to the application's home page.
  */
 public class HashtagContentController extends Controller {
 
-    @Inject
-    private InMemoryAccessObject dataSource = new InMemoryAccessObject();
+    private AbstractDataAccess dataSource = new RedisAccessObject();
+    private BinarySerializer serializer = new BinarySerializer();
+
     /**
      * An action that renders an HTML page with a welcome message.
      * The configuration in the <code>routes</code> file means that
@@ -21,10 +26,10 @@ public class HashtagContentController extends Controller {
      */
 
     public Result content(String hashtag) {
-        byte[] hashtagContent = dataSource.peekAt(hashtag);
+        Optional<PostList> hashtagContent = dataSource.peekAtPostList("display:" + hashtag);
 
-        if (hashtagContent.length != 0) {
-            return ok(hashtagContent);
+        if (hashtagContent.isPresent()) {
+            return ok(serializer.serialize(hashtagContent.get()));
         } else {
             return noContent();
         }
