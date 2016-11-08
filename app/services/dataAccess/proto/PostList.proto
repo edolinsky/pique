@@ -1,0 +1,10 @@
+syntax = "proto3";
+package services.dataAccess.proto;
+import "Post.proto";
+
+option java_package = "services.dataAccess.proto";
+option java_outer_classname = "PostListProto";
+
+message PostList {
+    repeated Post posts = 1;
+}
