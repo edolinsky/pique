@@ -2,7 +2,7 @@ package controllers;
 
 import com.google.inject.Inject;
 import play.mvc.*;
-import services.dataAccess.AbstractDataAccess;
+import services.dataAccess.TestDataAccess;
 import services.dataAccess.RedisAccessObject;
 import services.dataAccess.InMemoryAccessObject;
 /**
@@ -12,7 +12,7 @@ import services.dataAccess.InMemoryAccessObject;
 public class HashtagContentController extends Controller {
 
     @Inject
-    private InMemoryAccessObject dataSource = new InMemoryAccessObject();
+    private TestDataAccess dataSource = new TestDataAccess();
     /**
      * An action that renders an HTML page with a welcome message.
      * The configuration in the <code>routes</code> file means that
