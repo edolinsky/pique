@@ -17,7 +17,6 @@ import java.util.Optional;
  */
 public class TrendingContentController extends Controller {
 
-    @Inject
     private TestDataAccess testDataSource = new TestDataAccess();
     private AbstractDataAccess dataSource = new RedisAccessObject();
     private BinarySerializer serializer = new BinarySerializer();
