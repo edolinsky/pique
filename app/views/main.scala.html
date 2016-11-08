@@ -9,7 +9,6 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        @* Here's where we render the page title `String`. *@
         <title>@title</title>
         <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
 
@@ -23,16 +22,21 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
         <script src="@routes.Assets.versioned("javascripts/hello.js")" type="text/javascript"></script>
 
-        <div class="banner">
-          <h1 id="title">Pique</h1>
-        </div>
-
-        <button class="button" style="vertical-align:middle;background-color:SteelBlue" onclick="topFunction()"><span>Top </span></button>
-        <button class="button" style="vertical-align:middle;background-color:Teal" onclick="trendingFunction()"><span>Trending </span></button>
-        <button class="button" style="vertical-align:middle;background-color:RebeccaPurple" onclick="hashtagFunction()"><span>Hashtag </span></button>
-
     </head>
     <body>
+
+      <div class="banner">
+        <table><tr>
+          <td><h1>Pique</h1></td>
+          <td><div class="menu" onclick="topFunction()"><span>Top </span></div></td>
+          <td><div class="menu" onclick="trendingFunction()"><span>Trending </span></button></td>
+          <td><div class="menu" onclick="hashtagFunction()"><span>Hashtag </span></button></td>
+        </tr></table>
+      </div>
+
+      <div class="posts">
         @content
+      </div>
+
     </body>
 </html>

@@ -9,10 +9,6 @@ function topFunction() {
     for (var i=0, max=all.length; i < max; i++) {
          all[i].innerText = "Top Post";
     }
-
-    //TopContentController controller = new TopContentController();
-    //byte[] content = controller.content();
-    //topContent.render("string");
 }
 
 function trendingFunction() {
