@@ -8,6 +8,8 @@
 goog.provide('proto.services.dataAccess.proto.Post');
 
 goog.require('jspb.Message');
+goog.require('jspb.BinaryReader');
+goog.require('jspb.BinaryWriter');
 
 
 /**
@@ -83,6 +85,216 @@ proto.services.dataAccess.proto.Post.toObject = function(includeInstance, msg) {
   return obj;
 };
 }
+
+
+/**
+ * Deserializes binary data (in protobuf wire format).
+ * @param {jspb.ByteSource} bytes The bytes to deserialize.
+ * @return {!proto.services.dataAccess.proto.Post}
+ */
+proto.services.dataAccess.proto.Post.deserializeBinary = function(bytes) {
+  var reader = new jspb.BinaryReader(bytes);
+  var msg = new proto.services.dataAccess.proto.Post;
+  return proto.services.dataAccess.proto.Post.deserializeBinaryFromReader(msg, reader);
+};
+
+
+/**
+ * Deserializes binary data (in protobuf wire format) from the
+ * given reader into the given message object.
+ * @param {!proto.services.dataAccess.proto.Post} msg The message object to deserialize into.
+ * @param {!jspb.BinaryReader} reader The BinaryReader to use.
+ * @return {!proto.services.dataAccess.proto.Post}
+ */
+proto.services.dataAccess.proto.Post.deserializeBinaryFromReader = function(msg, reader) {
+  while (reader.nextField()) {
+    if (reader.isEndGroup()) {
+      break;
+    }
+    var field = reader.getFieldNumber();
+    switch (field) {
+    case 1:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setId(value);
+      break;
+    case 2:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setTimestamp(value);
+      break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.addSource(value);
+      break;
+    case 4:
+      var value = /** @type {string} */ (reader.readString());
+      msg.addSourceLink(value);
+      break;
+    case 5:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setPopularityScore(value);
+      break;
+    case 6:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setPopularityVelocity(value);
+      break;
+    case 7:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setNumComments(value);
+      break;
+    case 8:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setNumShares(value);
+      break;
+    case 9:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setNumLikes(value);
+      break;
+    case 10:
+      var value = /** @type {string} */ (reader.readString());
+      msg.addHashtag(value);
+      break;
+    case 11:
+      var value = /** @type {string} */ (reader.readString());
+      msg.addText(value);
+      break;
+    case 12:
+      var value = /** @type {string} */ (reader.readString());
+      msg.addImgLink(value);
+      break;
+    case 13:
+      var value = /** @type {string} */ (reader.readString());
+      msg.addExtLink(value);
+      break;
+    default:
+      reader.skipField();
+      break;
+    }
+  }
+  return msg;
+};
+
+
+/**
+ * Class method variant: serializes the given message to binary data
+ * (in protobuf wire format), writing to the given BinaryWriter.
+ * @param {!proto.services.dataAccess.proto.Post} message
+ * @param {!jspb.BinaryWriter} writer
+ */
+proto.services.dataAccess.proto.Post.serializeBinaryToWriter = function(message, writer) {
+  message.serializeBinaryToWriter(writer);
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format).
+ * @return {!Uint8Array}
+ */
+proto.services.dataAccess.proto.Post.prototype.serializeBinary = function() {
+  var writer = new jspb.BinaryWriter();
+  this.serializeBinaryToWriter(writer);
+  return writer.getResultBuffer();
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format),
+ * writing to the given BinaryWriter.
+ * @param {!jspb.BinaryWriter} writer
+ */
+proto.services.dataAccess.proto.Post.prototype.serializeBinaryToWriter = function (writer) {
+  var f = undefined;
+  f = this.getId();
+  if (f.length > 0) {
+    writer.writeString(
+      1,
+      f
+    );
+  }
+  f = this.getTimestamp();
+  if (f.length > 0) {
+    writer.writeString(
+      2,
+      f
+    );
+  }
+  f = this.getSourceList();
+  if (f.length > 0) {
+    writer.writeRepeatedString(
+      3,
+      f
+    );
+  }
+  f = this.getSourceLinkList();
+  if (f.length > 0) {
+    writer.writeRepeatedString(
+      4,
+      f
+    );
+  }
+  f = this.getPopularityScore();
+  if (f !== 0) {
+    writer.writeInt32(
+      5,
+      f
+    );
+  }
+  f = this.getPopularityVelocity();
+  if (f !== 0) {
+    writer.writeInt32(
+      6,
+      f
+    );
+  }
+  f = this.getNumComments();
+  if (f !== 0) {
+    writer.writeInt32(
+      7,
+      f
+    );
+  }
+  f = this.getNumShares();
+  if (f !== 0) {
+    writer.writeInt32(
+      8,
+      f
+    );
+  }
+  f = this.getNumLikes();
+  if (f !== 0) {
+    writer.writeInt32(
+      9,
+      f
+    );
+  }
+  f = this.getHashtagList();
+  if (f.length > 0) {
+    writer.writeRepeatedString(
+      10,
+      f
+    );
+  }
+  f = this.getTextList();
+  if (f.length > 0) {
+    writer.writeRepeatedString(
+      11,
+      f
+    );
+  }
+  f = this.getImgLinkList();
+  if (f.length > 0) {
+    writer.writeRepeatedString(
+      12,
+      f
+    );
+  }
+  f = this.getExtLinkList();
+  if (f.length > 0) {
+    writer.writeRepeatedString(
+      13,
+      f
+    );
+  }
+};
 
 
 /**

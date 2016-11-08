@@ -5,9 +5,11 @@
  */
 // GENERATED CODE -- DO NOT EDIT!
 
-goog.provide('proto.services.dataAccess.proto.postList');
+goog.provide('proto.services.dataAccess.proto.PostList');
 
 goog.require('jspb.Message');
+goog.require('jspb.BinaryReader');
+goog.require('jspb.BinaryWriter');
 goog.require('proto.services.dataAccess.proto.Post');
 
 
@@ -21,19 +23,19 @@ goog.require('proto.services.dataAccess.proto.Post');
  * @extends {jspb.Message}
  * @constructor
  */
-proto.services.dataAccess.proto.postList = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.services.dataAccess.proto.postList.repeatedFields_, null);
+proto.services.dataAccess.proto.PostList = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.services.dataAccess.proto.PostList.repeatedFields_, null);
 };
-goog.inherits(proto.services.dataAccess.proto.postList, jspb.Message);
+goog.inherits(proto.services.dataAccess.proto.PostList, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
-  proto.services.dataAccess.proto.postList.displayName = 'proto.services.dataAccess.proto.postList';
+  proto.services.dataAccess.proto.PostList.displayName = 'proto.services.dataAccess.proto.PostList';
 }
 /**
  * List of repeated fields within this message type.
  * @private {!Array<number>}
  * @const
  */
-proto.services.dataAccess.proto.postList.repeatedFields_ = [1];
+proto.services.dataAccess.proto.PostList.repeatedFields_ = [1];
 
 
 
@@ -48,8 +50,8 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
  *     for transitional soy proto support: http://goto/soy-param-migration
  * @return {!Object}
  */
-proto.services.dataAccess.proto.postList.prototype.toObject = function(opt_includeInstance) {
-  return proto.services.dataAccess.proto.postList.toObject(opt_includeInstance, this);
+proto.services.dataAccess.proto.PostList.prototype.toObject = function(opt_includeInstance) {
+  return proto.services.dataAccess.proto.PostList.toObject(opt_includeInstance, this);
 };
 
 
@@ -58,10 +60,10 @@ proto.services.dataAccess.proto.postList.prototype.toObject = function(opt_inclu
  * @param {boolean|undefined} includeInstance Whether to include the JSPB
  *     instance for transitional soy proto support:
  *     http://goto/soy-param-migration
- * @param {!proto.services.dataAccess.proto.postList} msg The msg instance to transform.
+ * @param {!proto.services.dataAccess.proto.PostList} msg The msg instance to transform.
  * @return {!Object}
  */
-proto.services.dataAccess.proto.postList.toObject = function(includeInstance, msg) {
+proto.services.dataAccess.proto.PostList.toObject = function(includeInstance, msg) {
   var f, obj = {
     postsList: jspb.Message.toObjectList(msg.getPostsList(),
     proto.services.dataAccess.proto.Post.toObject, includeInstance)
@@ -76,19 +78,99 @@ proto.services.dataAccess.proto.postList.toObject = function(includeInstance, ms
 
 
 /**
+ * Deserializes binary data (in protobuf wire format).
+ * @param {jspb.ByteSource} bytes The bytes to deserialize.
+ * @return {!proto.services.dataAccess.proto.PostList}
+ */
+proto.services.dataAccess.proto.PostList.deserializeBinary = function(bytes) {
+  var reader = new jspb.BinaryReader(bytes);
+  var msg = new proto.services.dataAccess.proto.PostList;
+  return proto.services.dataAccess.proto.PostList.deserializeBinaryFromReader(msg, reader);
+};
+
+
+/**
+ * Deserializes binary data (in protobuf wire format) from the
+ * given reader into the given message object.
+ * @param {!proto.services.dataAccess.proto.PostList} msg The message object to deserialize into.
+ * @param {!jspb.BinaryReader} reader The BinaryReader to use.
+ * @return {!proto.services.dataAccess.proto.PostList}
+ */
+proto.services.dataAccess.proto.PostList.deserializeBinaryFromReader = function(msg, reader) {
+  while (reader.nextField()) {
+    if (reader.isEndGroup()) {
+      break;
+    }
+    var field = reader.getFieldNumber();
+    switch (field) {
+    case 1:
+      var value = new proto.services.dataAccess.proto.Post;
+      reader.readMessage(value,proto.services.dataAccess.proto.Post.deserializeBinaryFromReader);
+      msg.addPosts(value);
+      break;
+    default:
+      reader.skipField();
+      break;
+    }
+  }
+  return msg;
+};
+
+
+/**
+ * Class method variant: serializes the given message to binary data
+ * (in protobuf wire format), writing to the given BinaryWriter.
+ * @param {!proto.services.dataAccess.proto.PostList} message
+ * @param {!jspb.BinaryWriter} writer
+ */
+proto.services.dataAccess.proto.PostList.serializeBinaryToWriter = function(message, writer) {
+  message.serializeBinaryToWriter(writer);
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format).
+ * @return {!Uint8Array}
+ */
+proto.services.dataAccess.proto.PostList.prototype.serializeBinary = function() {
+  var writer = new jspb.BinaryWriter();
+  this.serializeBinaryToWriter(writer);
+  return writer.getResultBuffer();
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format),
+ * writing to the given BinaryWriter.
+ * @param {!jspb.BinaryWriter} writer
+ */
+proto.services.dataAccess.proto.PostList.prototype.serializeBinaryToWriter = function (writer) {
+  var f = undefined;
+  f = this.getPostsList();
+  if (f.length > 0) {
+    writer.writeRepeatedMessage(
+      1,
+      f,
+      proto.services.dataAccess.proto.Post.serializeBinaryToWriter
+    );
+  }
+};
+
+
+/**
  * repeated Post posts = 1;
  * If you change this array by adding, removing or replacing elements, or if you
  * replace the array itself, then you must call the setter to update it.
  * @return {!Array.<!proto.services.dataAccess.proto.Post>}
  */
-proto.services.dataAccess.proto.postList.prototype.getPostsList = function() {
+proto.services.dataAccess.proto.PostList.prototype.getPostsList = function() {
   return /** @type{!Array.<!proto.services.dataAccess.proto.Post>} */ (
     jspb.Message.getRepeatedWrapperField(this, proto.services.dataAccess.proto.Post, 1));
 };
 
 
 /** @param {!Array.<!proto.services.dataAccess.proto.Post>} value */
-proto.services.dataAccess.proto.postList.prototype.setPostsList = function(value) {
+proto.services.dataAccess.proto.PostList.prototype.setPostsList = function(value) {
   jspb.Message.setRepeatedWrapperField(this, 1, value);
 };
 
@@ -98,12 +180,12 @@ proto.services.dataAccess.proto.postList.prototype.setPostsList = function(value
  * @param {number=} opt_index
  * @return {!proto.services.dataAccess.proto.Post}
  */
-proto.services.dataAccess.proto.postList.prototype.addPosts = function(opt_value, opt_index) {
+proto.services.dataAccess.proto.PostList.prototype.addPosts = function(opt_value, opt_index) {
   return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.services.dataAccess.proto.Post, opt_index);
 };
 
 
-proto.services.dataAccess.proto.postList.prototype.clearPostsList = function() {
+proto.services.dataAccess.proto.PostList.prototype.clearPostsList = function() {
   this.setPostsList([]);
 };
 
