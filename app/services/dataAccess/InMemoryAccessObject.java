@@ -88,7 +88,7 @@ public class InMemoryAccessObject extends AbstractDataAccess {
 
         // return list of posts under a key, or empty list if key does not exist
         if (listOfPosts == null) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         } else {
             return listOfPosts;
         }

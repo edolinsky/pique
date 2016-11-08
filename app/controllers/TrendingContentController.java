@@ -2,6 +2,7 @@ package controllers;
 
 import com.google.inject.Inject;
 import play.mvc.*;
+import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.RedisAccessObject;
 import services.dataAccess.proto.PostListProto.PostList;
 import services.serializer.BinarySerializer;
@@ -15,7 +16,7 @@ import java.util.Optional;
 public class TrendingContentController extends Controller {
 
     @Inject
-    private RedisAccessObject dataSource = new RedisAccessObject();
+    private AbstractDataAccess dataSource = new RedisAccessObject();
     private BinarySerializer serializer = new BinarySerializer();
 
     /**
