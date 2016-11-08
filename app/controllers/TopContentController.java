@@ -15,7 +15,7 @@ import java.util.Optional;
  */
 public class TopContentController extends Controller {
 
-    @Inject
+
     private AbstractDataAccess dataSource = new RedisAccessObject();
     private BinarySerializer serializer = new BinarySerializer();
 

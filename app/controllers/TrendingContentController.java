@@ -14,8 +14,7 @@ import java.util.Optional;
  * to the application's home page.
  */
 public class TrendingContentController extends Controller {
-
-    @Inject
+    
     private AbstractDataAccess dataSource = new RedisAccessObject();
     private BinarySerializer serializer = new BinarySerializer();
 
