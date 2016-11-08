@@ -4,7 +4,12 @@ import com.google.inject.Inject;
 import play.mvc.*;
 import services.dataAccess.TestDataAccess;
 import services.dataAccess.InMemoryAccessObject;
+import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.RedisAccessObject;
+import services.dataAccess.proto.PostListProto.PostList;
+import services.serializer.BinarySerializer;
+
+import java.util.Optional;
 
 /**
  * This controller contains an action to handle HTTP requests
@@ -13,7 +18,10 @@ import services.dataAccess.RedisAccessObject;
 public class TrendingContentController extends Controller {
 
     @Inject
-    private TestDataAccess dataSource = new TestDataAccess();
+    private TestDataAccess testDataSource = new TestDataAccess();
+    private AbstractDataAccess dataSource = new RedisAccessObject();
+    private BinarySerializer serializer = new BinarySerializer();
+
     /**
      * An action that renders an HTML page with a welcome message.
      * The configuration in the <code>routes</code> file means that
@@ -22,10 +30,10 @@ public class TrendingContentController extends Controller {
      */
 
     public Result content() {
-        byte[] trendingContent = dataSource.peekAt("trending");
+        Optional<PostList> trendingContent = dataSource.peekAtPostList("display:trending");
 
-        if (trendingContent.length != 0) {
-            return ok(trendingContent);
+        if (trendingContent.isPresent()) {
+            return ok(serializer.serialize(trendingContent.get()));
         } else {
             return noContent();
         }
