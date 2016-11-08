@@ -9,7 +9,7 @@ import services.dataAccess.proto.PostProto;
  */
 
 public class TestDataAccess extends AbstractDataAccess {
-    private byte[] testData = {(byte)0x0f, (byte)0x54};
+    private byte[] testData = {(byte)0x55, (byte)0x54};
 
     public long addNewPost(String keyString, PostProto.Post post) {
         long x = 1;
