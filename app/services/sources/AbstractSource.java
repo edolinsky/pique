@@ -6,4 +6,13 @@ package services.sources;
  * @author Reid Oliveira, Sammie Jiang
  */
 public abstract class AbstractSource {
+	String sourceName;
+
+	public AbstractSource(String sourceName) {
+		this.sourceName = sourceName;
+	}
+
+	public String getSourceName() {
+		return sourceName;
+	}
 }
