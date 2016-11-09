@@ -1,58 +1,128 @@
 package services.dataAccess;
 
-import services.dataAccess.AbstractDataAccess;
-import services.dataAccess.proto.PostListProto;
-import services.dataAccess.proto.PostProto;
+import services.dataAccess.proto.PostListProto.PostList;
+import services.dataAccess.proto.PostProto.Post;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 
 /**
  * Created by erik on 23/10/16.
  */
 public class InMemoryAccessObject extends AbstractDataAccess {
 
-    private HashMap<byte[], ArrayList<byte[]>> dataStore;
+    private Map<String, List<Post>> postDataStore;
+    private Map<String, List<PostList>> postListDataStore;
 
     public InMemoryAccessObject() {
-        dataStore = new HashMap<>();
+        postDataStore = new HashMap<>();
+        postListDataStore = new HashMap<>();
     }
 
-    public long addNewPost(String keyString, PostProto.Post post) {
-        ArrayList<byte[]> listAtKeyString = dataStore.get(keyString.getBytes());
-        listAtKeyString.add(post.toByteArray());
+    @Override
+    public long addNewPost(String keyString, Post post) {
+
+        List<Post> listAtKeyString;
+
+        // If key exists in map, append post to list,
+        if (postDataStore.containsKey(keyString)) {
+            listAtKeyString = postDataStore.get(keyString);
+            listAtKeyString.add(post);
+
+            // otherwise, create new map entry containing post in list
+        } else {
+            listAtKeyString = new ArrayList<>();
+            listAtKeyString.add(post);
+            postDataStore.put(keyString, listAtKeyString);
+        }
         return listAtKeyString.size();
     }
 
-    public long addNewPostList(String keyString, PostListProto.PostList postList) {
-        ArrayList<byte[]> listAtKeyString = dataStore.get(keyString.getBytes());
-        listAtKeyString.add(postList.toByteArray());
+    @Override
+    public long addNewPosts(String keyString, List<Post> listOfPosts) {
+
+        List<Post> listAtKeyString;
+
+        // If key exists in map, append post to list
+        if (postDataStore.containsKey(keyString)) {
+            listAtKeyString = postDataStore.get(keyString);
+            listAtKeyString.addAll(listOfPosts);
+
+        } else {
+            // otherwise initialize key
+            listAtKeyString = postDataStore.put(keyString, new ArrayList<>(listOfPosts));
+        }
+
+        if (listAtKeyString == null) {
+            return 0;
+        } else {
+            return listAtKeyString.size();
+        }
+    }
+
+    @Override
+    public long addNewPostList(String keyString, PostList postList) {
+
+        List<PostList> listAtKeyString;
+
+        // if key exists, add postList at *beginning* of list
+        if (postListDataStore.containsKey(keyString)) {
+            listAtKeyString = postListDataStore.get(keyString);
+            listAtKeyString.add(0, postList);
+
+            // if key does not exist, create new map entry and insert postList
+        } else {
+            listAtKeyString = new ArrayList<>();
+            listAtKeyString.add(0, postList);
+            postListDataStore.put(keyString, listAtKeyString);
+        }
+
+        // todo: implement pruning of postListDataStore for long-term operation (max size)
+
         return listAtKeyString.size();
     }
 
-    public byte[] popOldestPost(String keyString) {
-        ArrayList<byte[]> listAtKeyString = dataStore.get(keyString.getBytes());
-        byte[] oldestPost = new byte[0];
+    @Override
+    public List<Post> getAllPosts(String keyString) {
 
-        if (listAtKeyString.size() > 0) {
+        List<Post> listOfPosts = postDataStore.get(keyString);
+
+        // return list of posts under a key, or empty list if key does not exist
+        if (listOfPosts == null) {
+            return Collections.emptyList();
+        } else {
+            return listOfPosts;
+        }
+    }
+
+    @Override
+    public Optional<Post> popOldestPost(String keyString) {
+
+        List<Post> listAtKeyString = postDataStore.get(keyString);
+        Post oldestPost = null;
+
+        if (listAtKeyString != null && listAtKeyString.size() > 0) {
+            // pop post if one exists
             oldestPost = listAtKeyString.get(0);
             listAtKeyString.remove(0);
         }
-        return oldestPost;
-    }
 
-    public byte[] peekAt(String keyString) {
-        return peekAt(keyString.getBytes());
-    }
-
-    public byte[] peekAt(byte[] key) {
-        ArrayList<byte[]> listAtKeyString = dataStore.get(key);
-        byte[] post = new byte[0];
-
-        if (listAtKeyString.size() > 0) {
-            post = listAtKeyString.get(0);
+        if (oldestPost == null) {
+            return Optional.empty();
+        } else {
+            return Optional.of(oldestPost);
         }
-        return post;
+    }
+
+    @Override
+    public Optional<PostList> peekAtPostList(String keyString) {
+        List<PostList> listAtKeyString = postListDataStore.get(keyString);
+
+        // peek at first postList if it exists
+        if (listAtKeyString == null) {
+            return Optional.empty();
+        } else {
+            return Optional.of(listAtKeyString.get(0));
+        }
     }
 
 }
