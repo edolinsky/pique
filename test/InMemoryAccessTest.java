@@ -206,25 +206,31 @@ public class InMemoryAccessTest {
     }
 
     @Test
-    public void getKeysInEmptyNameSpace() {
+    public void getKeysInEmptyNameSpace() { // result on query for non-existent keys should be empty
         assertEquals(Collections.emptyList(), inMemoryAccess.getKeysInNameSpace(""));
     }
 
     @Test
     public void getKeysInNonEmptyNameSpace() {
         inMemoryAccess.addNewPosts(testKeyString, posts);
+
+        // should return list containing only testKeyString
         assertEquals(testKeyString, inMemoryAccess.getKeysInNameSpace(AbstractDataAccess.TEST_NAMESPACE).get(0));
     }
 
     @Test
     public void deleteNKeysFromNonEmptyListOfPosts() {
         inMemoryAccess.addNewPosts(testKeyString, posts);
+
+        // delete first 5 posts in testKeyString, check that what remains matches the subList at index 5 and beyond
         inMemoryAccess.deleteFirstNPosts(testKeyString, 5);
         assertEquals(posts.subList(5, numTestPosts), inMemoryAccess.getAllPosts(testKeyString));
     }
 
     @Test
     public void deleteNKeysFromEmptyListOfPosts() {
+
+        // delete on empty should result in empty.
         inMemoryAccess.deleteFirstNPosts(testKeyString, 1);
         assertEquals(Collections.emptyList(), inMemoryAccess.getAllPosts(testKeyString));
     }
@@ -232,6 +238,8 @@ public class InMemoryAccessTest {
     @Test
     public void deleteMoreThanSizeKeysFromListOfPosts() {
         inMemoryAccess.addNewPosts(testKeyString, posts);
+
+        // deleting more than size posts should result in empty list at keyString
         inMemoryAccess.deleteFirstNPosts(testKeyString, numTestPosts + 1);
         assertEquals(Collections.emptyList(), inMemoryAccess.getAllPosts(testKeyString));
     }
@@ -239,8 +247,12 @@ public class InMemoryAccessTest {
     @Test
     public void deleteZeroKeysFromListOfPosts() {
         inMemoryAccess.addNewPosts(testKeyString, posts);
+
+        // calling delete on 0 keys should not change list
         inMemoryAccess.deleteFirstNPosts(testKeyString, 0);
         assertEquals(posts, inMemoryAccess.getAllPosts(testKeyString));
     }
+
+    // todo: implement test for postList Expiry, only if we can obtain the number of postLists in postListDataStore
 
 }

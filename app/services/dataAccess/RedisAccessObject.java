@@ -1,7 +1,6 @@
 package services.dataAccess;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.hibernate.validator.internal.metadata.descriptor.ReturnValueDescriptorImpl;
 import redis.clients.jedis.BinaryJedis;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
@@ -11,6 +10,10 @@ import services.dataAccess.proto.PostProto.Post;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static services.PublicConstants.DATA_SOURCE;
+import static services.PublicConstants.REDIS_PORT;
+import static services.PublicConstants.REDIS_URL;
 
 /**
  * Created by erik on 23/10/16.
@@ -23,8 +26,8 @@ public class RedisAccessObject extends AbstractDataAccess {
     public RedisAccessObject() {
 
         // initialize based on environment variables
-        String redisUrl = System.getenv("redis_url");
-        Integer redisPort = Integer.valueOf(System.getenv("redis_port"));
+        String redisUrl = System.getenv(REDIS_URL);
+        Integer redisPort = Integer.valueOf(System.getenv(REDIS_PORT));
         redisAccess = new BinaryJedis(redisUrl, redisPort);
     }
 

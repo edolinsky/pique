@@ -98,7 +98,7 @@ public abstract class AbstractDataAccess {
      * size elements are cleared.
      *
      * @param keyString string denoting key in data store
-     * @param numPosts number of posts to be deleted from beginning of list at keyString
+     * @param numPosts  number of posts to be deleted from beginning of list at keyString
      * @return string denoting status of trim operation
      */
     abstract public String deleteFirstNPosts(String keyString, Integer numPosts);

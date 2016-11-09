@@ -9,14 +9,15 @@ import static org.junit.Assume.assumeTrue;
 
 import java.util.*;
 
-import play.api.libs.iteratee.Enumeratee;
-import play.api.libs.iteratee.RunQueue;
 import redis.clients.jedis.BinaryJedis;
-import redis.clients.jedis.Response;
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.RedisAccessObject;
 import services.dataAccess.proto.PostProto.Post;
 import services.dataAccess.proto.PostListProto.PostList;
+
+import static services.PublicConstants.DATA_SOURCE;
+import static services.PublicConstants.REDIS_PORT;
+import static services.PublicConstants.REDIS_URL;
 
 
 /**
@@ -52,8 +53,8 @@ public class RedisAccessTest {
     private static PostList postList;
 
     // Class under test
-    private static String redisUrl = System.getenv("redis_url");
-    private static Integer redisPort = Integer.valueOf(System.getenv("redis_port"));
+    private static String redisUrl = System.getenv(REDIS_URL);
+    private static Integer redisPort = Integer.valueOf(System.getenv(REDIS_PORT));
     private static RedisAccessObject redisAccessObject;
 
     // direct connection to Redis for maintenance
@@ -63,7 +64,7 @@ public class RedisAccessTest {
     public static void redisTestSetUp() {
 
         // Initialize object under test and direct connection
-        redisTestsIncluded = System.getenv("data_source").equals("redis");
+        redisTestsIncluded = System.getenv(DATA_SOURCE).equals("redis");
         redisAccessObject = new RedisAccessObject();
         directToRedis = new BinaryJedis(redisUrl, redisPort);
 
@@ -277,25 +278,31 @@ public class RedisAccessTest {
     }
 
     @Test
-    public void getKeysInEmptyNameSpace() {
+    public void getKeysInEmptyNameSpace() { // result on query for non-existent keys should be empty
         assertEquals(Collections.emptyList(), redisAccessObject.getKeysInNameSpace(AbstractDataAccess.TEST_NAMESPACE));
     }
 
     @Test
     public void getKeysInNonEmptyNameSpace() {
         redisAccessObject.addNewPosts(testKeyString, posts);
+
+        // should return list containing only testKeyString
         assertEquals(testKeyString, redisAccessObject.getKeysInNameSpace(AbstractDataAccess.TEST_NAMESPACE).get(0));
     }
 
     @Test
     public void deleteNKeysFromNonEmptyListOfPosts() {
         redisAccessObject.addNewPosts(testKeyString, posts);
+
+        // delete first 5 posts in testKeyString, check that what remains matches the subList at index 5 and beyond
         redisAccessObject.deleteFirstNPosts(testKeyString, 5);
         assertEquals(posts.subList(5, numTestPosts), redisAccessObject.getAllPosts(testKeyString));
     }
 
     @Test
     public void deleteNKeysFromEmptyListOfPosts() {
+
+        // delete on empty should result in empty.
         redisAccessObject.deleteFirstNPosts(testKeyString, 1);
         assertEquals(Collections.emptyList(), redisAccessObject.getAllPosts(testKeyString));
     }
@@ -303,6 +310,8 @@ public class RedisAccessTest {
     @Test
     public void deleteMoreThanSizeKeysFromListOfPosts() {
         redisAccessObject.addNewPosts(testKeyString, posts);
+
+        // deleting more than size posts should result in empty list at keyString
         redisAccessObject.deleteFirstNPosts(testKeyString, numTestPosts + 1);
         assertEquals(Collections.emptyList(), redisAccessObject.getAllPosts(testKeyString));
     }
@@ -310,16 +319,21 @@ public class RedisAccessTest {
     @Test
     public void deleteZeroKeysFromListOfPosts() {
         redisAccessObject.addNewPosts(testKeyString, posts);
+
+        // calling delete on 0 keys should not change list
         redisAccessObject.deleteFirstNPosts(testKeyString, 0);
         assertEquals(posts, redisAccessObject.getAllPosts(testKeyString));
     }
 
     @Test
     public void testPostListExpiry() {
+
+        // load list at testKeyString past the maximum allocated number of postLists
         for (int i = 0; i < numTestPostLists; i++) {
             redisAccessObject.addNewPostList(testKeyString, postList);
         }
 
+        // check that the number of postLists has met and not exceeded the maximum
         directToRedis.connect();
         Long response = directToRedis.llen(testKeyString.getBytes());
         directToRedis.disconnect();
