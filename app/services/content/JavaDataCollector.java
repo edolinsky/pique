@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Queue;
 
 /**
- * This class interacts with an {@link JavaSource} to collect data through a Java
+ * This class interacts with an {@link Source} to collect data through a Java
  * library and an {@link AbstractDataAccess} to place the results
  *
  * @author Reid Oliveira, Sammie Jiang
