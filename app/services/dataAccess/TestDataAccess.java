@@ -1,8 +1,11 @@
 package services.dataAccess;
 
+import org.joda.time.DateTime;
 import services.dataAccess.proto.PostListProto.PostList;
 import services.dataAccess.proto.PostProto.Post;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,13 +15,36 @@ import java.util.Optional;
 
 public class TestDataAccess extends AbstractDataAccess {
 
-  private long x = 1;
+    private long x = 1;
 
-  private List<Post> testPostList;
-  private Optional<Post> testOptPost;
-  private Optional<PostList> testOptPostList;
+    private List<Post> testPostList;
+    private Optional<Post> testOptPost;
+    private Optional<PostList> testOptPostList;
 
-// For reference:
+    public TestDataAccess() {
+        PostList.Builder postListBuilder = PostList.newBuilder();
+
+        for (int i = 0; i < 50; i++) {
+            Post.Builder builder = Post.newBuilder();
+            DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+            builder.setId(String.valueOf(i));
+            builder.setTimestamp(df.format(DateTime.now().toDate()));
+            builder.addSource("name" + i);
+            builder.addSourceLink("https://test.org");
+            builder.setPopularityScore(0);
+            builder.setPopularityVelocity(0);
+            builder.setNumComments(0);
+            builder.setNumShares(0);
+            builder.setNumLikes(0);
+            builder.addText("text" + i);
+            postListBuilder.addPosts(builder.build());
+        }
+
+        testOptPostList = Optional.of(postListBuilder.build());
+
+    }
+
+    // For reference:
 
 /*  private class TestPost {
       String id = "1";
@@ -40,41 +66,27 @@ public class TestDataAccess extends AbstractDataAccess {
       String ext_link = null;
   } */
 
-  public long addNewPost(String keyString, Post post) {
-    return x;
-  }
-
-  public long addNewPosts(String keyString, List<Post> listOfPosts){
-    return x;
-  }
-
-  public long addNewPostList(String keyString, PostList postList) {
-    return x;
-  }
-
-  public List<Post> getAllPosts(String keyString) {
-    return testPostList;
-  }
-
-  public Optional<Post> popOldestPost(String keyString) {
-    return testOptPost;
-  }
-
-  public Optional<PostList> peekAtPostList(String keyString) {
-    Post post = Post.newBuilder()
-      .setId("1")
-      .setTimestamp("2016-11-08 19:25:00")
-      .setPopularityScore(10)
-      .build();
-
-    PostList list = PostList.newBuilder()
-      .setPosts(0, post)
-      .build();
-
-    if (list == null) {
-        return Optional.empty();
-    } else {
-        return Optional.of(list);
+    public long addNewPost(String keyString, Post post) {
+        return x;
     }
-  }
+
+    public long addNewPosts(String keyString, List<Post> listOfPosts) {
+        return x;
+    }
+
+    public long addNewPostList(String keyString, PostList postList) {
+        return x;
+    }
+
+    public List<Post> getAllPosts(String keyString) {
+        return testPostList;
+    }
+
+    public Optional<Post> popOldestPost(String keyString) {
+        return testOptPost;
+    }
+
+    public Optional<PostList> peekAtPostList(String keyString) {
+        return testOptPostList;
+    }
 }

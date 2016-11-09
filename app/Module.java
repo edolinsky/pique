@@ -2,6 +2,9 @@ import com.google.inject.AbstractModule;
 import java.time.Clock;
 
 import services.*;
+import services.dataAccess.AbstractDataAccess;
+import services.dataAccess.RedisAccessObject;
+import services.dataAccess.TestDataAccess;
 
 /**
  * This class is a Guice module that tells Guice how to bind several
@@ -25,6 +28,7 @@ public class Module extends AbstractModule {
         // Set AtomicCounter as the implementation for Counter.
         bind(Counter.class).to(AtomicCounter.class);
 
+        bind(AbstractDataAccess.class).to(TestDataAccess.class);
     }
 
 }
