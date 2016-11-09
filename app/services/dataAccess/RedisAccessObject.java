@@ -22,6 +22,7 @@ import static services.PublicConstants.REDIS_URL;
 public class RedisAccessObject extends AbstractDataAccess {
 
     private BinaryJedis redisAccess;
+    private static final int KEY_TIMEOUT = 86400; // number of seconds from postList update or access to expiry
 
     public RedisAccessObject() {
 
@@ -82,13 +83,18 @@ public class RedisAccessObject extends AbstractDataAccess {
     @Override
     public long addNewPostList(String keyString, PostList postList) {
 
+        byte[] key = keyString.getBytes();
+
         connect();
 
         // push to left of value list under key
-        long result = redisAccess.lpush(keyString.getBytes(), postList.toByteArray());
+        long result = redisAccess.lpush(key, postList.toByteArray());
 
         // trim list to contain only the first MAX_POSTLISTS PostLists.
-        redisAccess.ltrim(keyString.getBytes(), 0, MAX_POSTLISTS - 1);
+        redisAccess.ltrim(key, 0, MAX_POSTLISTS - 1);
+
+        // (re)set TTL on key to KEY_TIMEOUT seconds from now
+        redisAccess.expire(key, KEY_TIMEOUT);
 
         disconnect();
 
@@ -154,6 +160,7 @@ public class RedisAccessObject extends AbstractDataAccess {
 
         connect();  // connect to redis and get first element under key
         List<byte[]> entryList = redisAccess.lrange(key, 0, 0);
+        redisAccess.expire(key, KEY_TIMEOUT); // reset key timeout to KEY_TIMEOUT seconds from access
         disconnect();
 
         if (entryList.isEmpty()) {     // if we found something, take the first element

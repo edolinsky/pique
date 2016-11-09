@@ -15,6 +15,7 @@ public abstract class AbstractDataAccess {
     public static final String NAMESPACE_DELIMITER = ":";
 
     public static final String DISPLAY_NAMESPACE = "display";
+    public static final String HASHTAG_NAMESPACE = "hashtag";
     public static final String SOURCE_NAMESPACE = "source";
     public static final String TEST_NAMESPACE = "test";
     static final Integer MAX_POSTLISTS = 100;
