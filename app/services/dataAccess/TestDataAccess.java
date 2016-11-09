@@ -1,35 +1,44 @@
 package services.dataAccess;
 
-import org.springframework.stereotype.Service;
-import services.dataAccess.proto.PostListProto;
-import services.dataAccess.proto.PostProto;
+import services.dataAccess.proto.PostListProto.PostList;
+import services.dataAccess.proto.PostProto.Post;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by maria on 04/11/16.
  */
 
 public class TestDataAccess extends AbstractDataAccess {
-    private byte[] testData = {(byte)0x55, (byte)0x54};
 
-    public long addNewPost(String keyString, PostProto.Post post) {
-        long x = 1;
-        return x;
-    }
+  private long x = 1;
 
-    public long addNewPostList(String keyString, PostListProto.PostList postList) {
-        long x = 1;
-        return x;
-    }
+  private List<Post> testPostList;
+  private Optional<Post> testOptPost;
+  private Optional<PostList> testOptPostList;
 
-    public byte[] popOldestPost(String keyString) {
-        return testData;
-    }
+  public long addNewPost(String keyString, Post post) {
+    return x;
+  }
 
-    public byte[] peekAt(String keyString) {
-        return testData;
-    }
+  public long addNewPosts(String keyString, List<Post> listOfPosts){
+    return x;
+  }
 
-    public byte[] peekAt(byte[] key) {
-        return testData;
-    }
+  public long addNewPostList(String keyString, PostList postList) {
+    return x;
+  }
+
+  public List<Post> getAllPosts(String keyString) {
+    return testPostList;
+  }
+
+  public Optional<Post> popOldestPost(String keyString) {
+    return testOptPost;
+  }
+
+  public Optional<PostList> peekAtPostList(String keyString) {
+    return testOptPostList;
+  }
 }
