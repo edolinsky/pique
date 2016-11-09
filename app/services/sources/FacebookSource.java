@@ -6,9 +6,9 @@ package services.sources;
  * @author Reid Oliveira, Sammie Jiang
  */
 public class FacebookSource extends AbstractRestfulSource {
-	public static final String FACEBOOK = "facebook";
-	public static final String URL = "graph.facebook.com";
-	public static final String VERSION = "2.8";
+	private static final String FACEBOOK = "facebook";
+	private static final String URL = "graph.facebook.com";
+	private static final String VERSION = "2.8";
 
 	public FacebookSource() {
 		super(FACEBOOK, URL, VERSION);

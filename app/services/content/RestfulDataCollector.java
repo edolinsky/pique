@@ -80,8 +80,7 @@ public class RestfulDataCollector extends AbstractDataCollector {
 			// if we fail this we shouldn't fall over, just reschedule an attempt
 
 			// TODO notify of failure and fail gracefully
-		}
-		finally {
+		} finally {
 			if (connection != null) {
 				connection.disconnect();
 			}
