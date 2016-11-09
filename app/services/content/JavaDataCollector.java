@@ -2,27 +2,32 @@ package services.content;
 
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.proto.PostProto.Post;
-import services.sources.AbstractJavaSource;
+import services.sources.Source;
+import services.sources.TwitterSource;
+import twitter4j.Trend;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 /**
- * This class interacts with an {@link AbstractJavaSource} to collect data through a Java
+ * This class interacts with an {@link JavaSource} to collect data through a Java
  * library and an {@link AbstractDataAccess} to place the results
  *
  * @author Reid Oliveira, Sammie Jiang
  */
 public class JavaDataCollector extends AbstractDataCollector {
 
-	AbstractJavaSource source;
+	private TwitterSource source;
+	private Queue<Trend> trends = new LinkedList<>();
 
-	public JavaDataCollector(AbstractDataAccess dataAccess, AbstractJavaSource source) {
+	public JavaDataCollector(AbstractDataAccess dataAccess, TwitterSource source) {
 		super(dataAccess);
 		this.source = source;
 	}
 
 	@Override
-	public AbstractJavaSource getSource() {
+	public Source getSource() {
 		return source;
 	}
 
@@ -34,6 +39,12 @@ public class JavaDataCollector extends AbstractDataCollector {
 		 * work to the source object.
 		 */
 
-		return null;
+		if (trends.isEmpty()) {
+			trends.addAll(source.getTrends("canada", "vancouver"));
+		}
+
+		notifySubscribers();
+		return source.getMaxTrendingPosts(trends.poll());
+
 	}
 }
