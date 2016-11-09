@@ -2,6 +2,7 @@ package services.sorting;
 
 import com.google.inject.Singleton;
 import services.dataAccess.AbstractDataAccess;
+import services.dataAccess.InMemoryAccessObject;
 import services.dataAccess.RedisAccessObject;
 import services.dataAccess.proto.PostListProto.PostList;
 import services.dataAccess.proto.PostProto.Post;
@@ -16,8 +17,38 @@ import java.util.*;
 public class sortingNode {
 
     private static final Long PROCESS_INPUT_THRESHOLD = 100L;
+    private AbstractDataAccess dataSource;
+    private Object sortNotification= new Object();
 
-    private AbstractDataAccess dataSource = new RedisAccessObject();
+    public void sortingNode(Map<String,String> args) {
+        String mode = args.get("mode");
+
+        if (mode.equals("test")) {
+            dataSource = new InMemoryAccessObject();
+        } else {
+            dataSource = new RedisAccessObject();
+        }
+
+        startBackgroundThread();
+    }
+
+    private void startBackgroundThread() {
+        new Thread(() -> {
+
+            while (true) {
+
+                try {
+                    synchronized (sortNotification) {
+                        sortNotification.wait();
+                    }
+                } catch (InterruptedException Ie){
+                    System.out.println("Sorting Node Thread Exiting"); // todo: handle better
+                }
+
+                run();
+            }
+        });
+    }
 
     private void run() {
         List<Post> newPosts = new ArrayList<>();

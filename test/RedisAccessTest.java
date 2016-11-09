@@ -250,11 +250,14 @@ public class RedisAccessTest {
 
     @Test
     public void getNumPostsInEmptyNameSpace() {
+        assumeTrue(redisTestsIncluded);
         assertEquals(0, redisAccessObject.getNumPostsInNameSpace(AbstractDataAccess.TEST_NAMESPACE));
     }
 
     @Test
     public void getNumPostsInNonEmptyNameSpace() {
+        assumeTrue(redisTestsIncluded);
+
         final String testKeyStringZero = testKeyString + "0";
         final String testKeyStringOne = testKeyString + "1";
         final String negativeTestKeyString = "asdfghrtbgqer:test";
@@ -278,12 +281,17 @@ public class RedisAccessTest {
     }
 
     @Test
-    public void getKeysInEmptyNameSpace() { // result on query for non-existent keys should be empty
+    public void getKeysInEmptyNameSpace() {
+        assumeTrue(redisTestsIncluded);
+
+        // result on query for non-existent keys should be empty
         assertEquals(Collections.emptyList(), redisAccessObject.getKeysInNameSpace(AbstractDataAccess.TEST_NAMESPACE));
     }
 
     @Test
     public void getKeysInNonEmptyNameSpace() {
+        assumeTrue(redisTestsIncluded);
+
         redisAccessObject.addNewPosts(testKeyString, posts);
 
         // should return list containing only testKeyString
@@ -292,6 +300,8 @@ public class RedisAccessTest {
 
     @Test
     public void deleteNKeysFromNonEmptyListOfPosts() {
+        assumeTrue(redisTestsIncluded);
+
         redisAccessObject.addNewPosts(testKeyString, posts);
 
         // delete first 5 posts in testKeyString, check that what remains matches the subList at index 5 and beyond
@@ -301,6 +311,7 @@ public class RedisAccessTest {
 
     @Test
     public void deleteNKeysFromEmptyListOfPosts() {
+        assumeTrue(redisTestsIncluded);
 
         // delete on empty should result in empty.
         redisAccessObject.deleteFirstNPosts(testKeyString, 1);
@@ -309,6 +320,8 @@ public class RedisAccessTest {
 
     @Test
     public void deleteMoreThanSizeKeysFromListOfPosts() {
+        assumeTrue(redisTestsIncluded);
+
         redisAccessObject.addNewPosts(testKeyString, posts);
 
         // deleting more than size posts should result in empty list at keyString
@@ -318,6 +331,8 @@ public class RedisAccessTest {
 
     @Test
     public void deleteZeroKeysFromListOfPosts() {
+        assumeTrue(redisTestsIncluded);
+
         redisAccessObject.addNewPosts(testKeyString, posts);
 
         // calling delete on 0 keys should not change list
@@ -327,6 +342,7 @@ public class RedisAccessTest {
 
     @Test
     public void testPostListExpiry() {
+        assumeTrue(redisTestsIncluded);
 
         // load list at testKeyString past the maximum allocated number of postLists
         for (int i = 0; i < numTestPostLists; i++) {

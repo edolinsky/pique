@@ -76,6 +76,16 @@ public abstract class AbstractDataAccess {
      */
     abstract public Optional<PostList> peekAtPostList(String keyString);
 
+    /*
+     * Retrieves, but does not remove all postLists under keyString in data store
+     * If key does not exist, or list is empty, returns an empty list
+     *
+     * @param keyString string denoting key in data store
+     * @return the list of all postList entities under keyString in data store
+     */
+    // abstract public List<PostList> getAllPostLists(String keyString);
+    // todo: implement getAllPostLists
+
     /**
      * Returns the number of posts within a particular namespace within the data store. If namespace does not exist,
      * returns 0.
