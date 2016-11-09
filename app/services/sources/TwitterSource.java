@@ -1,6 +1,5 @@
 package services.sources;
 
-import services.PublicConstants;
 import services.dataAccess.proto.PostProto.Post;
 import twitter4j.HashtagEntity;
 import twitter4j.Location;
@@ -28,7 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static services.PublicConstants.TWITTER4J_ACCESSS_TOKEN;
+import static services.PublicConstants.TWITTER4J_ACCESS_TOKEN;
 import static services.PublicConstants.TWITTER4J_ACCESS_TOKEN_SECRET;
 import static services.PublicConstants.TWITTER4J_CONSUMER_KEY;
 import static services.PublicConstants.TWITTER4J_CONSUMER_SECRET;
@@ -40,14 +39,14 @@ import static services.PublicConstants.TWITTER4J_CONSUMER_SECRET;
  */
 public class TwitterSource extends AbstractJavaSource {
     
-    public static final String TWITTER = "twitter";
-    public static final String DEFAULT_TEXT = "N/A";
-	public static final Integer MAX_REQUEST_SIZE = 100;
+    private static final String TWITTER = "twitter";
+    private static final String DEFAULT_TEXT = "N/A";
+	private static final Integer MAX_REQUEST_SIZE = 100;
     
-	Map<String, Set<Location>> cachedCodes = new HashMap<>();
+	private Map<String, Set<Location>> cachedCodes = new HashMap<>();
 
 	// twitter object that acts as the router for all requests
-	Twitter twitter;
+	private Twitter twitter;
 
 	public TwitterSource() {
 		super(TWITTER);
@@ -57,7 +56,7 @@ public class TwitterSource extends AbstractJavaSource {
 		cb.setDebugEnabled(true)
 				.setOAuthConsumerKey(env.get(TWITTER4J_CONSUMER_KEY))
 				.setOAuthConsumerSecret(env.get(TWITTER4J_CONSUMER_SECRET))
-				.setOAuthAccessToken(env.get(TWITTER4J_ACCESSS_TOKEN))
+				.setOAuthAccessToken(env.get(TWITTER4J_ACCESS_TOKEN))
 				.setOAuthAccessTokenSecret(env.get(TWITTER4J_ACCESS_TOKEN_SECRET));
 		TwitterFactory tf = new TwitterFactory(cb.build());
 		twitter = tf.getInstance();
@@ -122,7 +121,9 @@ public class TwitterSource extends AbstractJavaSource {
 			Set<Location> cities = cachedCodes.get(country);
 
 			for (Location l : cities) {
-				if (l.getName().equalsIgnoreCase(city)) return Optional.of(l.getWoeid());
+				if (l.getName().equalsIgnoreCase(city)) {
+					return Optional.of(l.getWoeid());
+				}
 			}
 		}
 
@@ -161,8 +162,9 @@ public class TwitterSource extends AbstractJavaSource {
 	 * @return
 	 */
 	public List<Post> parseQueryResult(QueryResult result) {
-		if (result.getTweets() == null || result.getTweets().isEmpty())
+		if (result.getTweets() == null || result.getTweets().isEmpty()) {
 			return Collections.emptyList();
+		}
 
 		return result.getTweets().stream().map(this::createPost).collect(Collectors.toList());
 	}
@@ -174,8 +176,8 @@ public class TwitterSource extends AbstractJavaSource {
 		builder.setTimestamp(df.format(s.getCreatedAt()));
 		builder.addSource(s.getUser().getScreenName());
 		builder.addSourceLink("https://twitter.com"); // TODO get profile URL somehow
-		builder.setPopularityScore(0); //TODO
-		builder.setPopularityVelocity(0); //TODO
+		builder.setPopularityScore(0);
+		builder.setPopularityVelocity(0);
 		builder.setNumComments(0); //TODO or maybe not possible
 		setPostNumShares(s, builder);
 		builder.setNumLikes(s.getFavoriteCount());
