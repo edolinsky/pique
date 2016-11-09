@@ -8,6 +8,7 @@ import services.dataAccess.proto.PostListProto.PostList;
 import services.dataAccess.proto.PostProto.Post;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by erik on 08/11/16.
@@ -17,6 +18,12 @@ import java.util.*;
 public class sortingNode {
 
     private static final Long PROCESS_INPUT_THRESHOLD = 100L;
+    private static final int POPULARITY_THRESHOLD = 300;
+
+    private static final Double LIKE_WEIGHT = 0.9;
+    private static final Double COMMENT_WEIGHT = 0.5;
+    private static final Double SHARE_WEIGHT = 1.1;
+
     private AbstractDataAccess dataSource;
     private Object sortNotification= new Object();
 
@@ -102,8 +109,39 @@ public class sortingNode {
     }
 
     private List<Post> sortTopPosts(List<Post> listOfPosts) {
-        // todo: implement
-        return listOfPosts;
+        List<Post> topPosts = new ArrayList<>();
+
+        for (Post post : listOfPosts) {
+            post = calculatePopularity(post);
+            int popularity = post.getPopularityScore();
+            if (popularity > POPULARITY_THRESHOLD) {
+                topPosts.add(post);
+            }
+        }
+
+        topPosts.addAll(listOfPosts.stream()
+                .sorted(Comparator.comparingInt(Post::getPopularityScore))
+                .collect(Collectors.toList()));
+
+        return topPosts;
+    }
+
+    private Post calculatePopularity(Post post) {
+        int popularity = (int)(
+                COMMENT_WEIGHT * post.getNumComments()
+                + LIKE_WEIGHT * post.getNumLikes()
+                + SHARE_WEIGHT * post.getNumShares()
+        );
+
+        if (popularity < 0) {
+            popularity = 0;
+        } else if (popularity >= Integer.MAX_VALUE) {
+            popularity = Integer.MAX_VALUE;
+        }
+
+        post = post.toBuilder().setPopularityScore(popularity).build();
+
+        return post;
     }
 
     private List<Post> sortTrendingPosts(List<Post> listOfPosts) {
