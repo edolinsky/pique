@@ -7,18 +7,14 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 
-import java.util.UUID;
+import java.util.*;
 
 import play.api.libs.iteratee.RunQueue;
 import redis.clients.jedis.BinaryJedis;
+import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.RedisAccessObject;
 import services.dataAccess.proto.PostProto.Post;
 import services.dataAccess.proto.PostListProto.PostList;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 
 
 /**
@@ -42,7 +38,9 @@ public class RedisAccessTest {
     private static final Integer numTestPosts = 10;     // MUST be greater than 1.
 
     // generate unique ID within test namespace
-    private static final String testKeyString = "test:" + UUID.randomUUID().toString();
+    private static final String testKeyString = AbstractDataAccess.TEST_NAMESPACE
+            + AbstractDataAccess.NAMESPACE_DELIMITER
+            + UUID.randomUUID().toString();
     private static boolean redisTestsIncluded = false;
 
     // Sample test values
@@ -175,7 +173,7 @@ public class RedisAccessTest {
     public void addPostListToNonEmptyRedis() {
         assumeTrue(redisTestsIncluded);
 
-        // initialize temporary list with posts, andd add one post at index 0
+        // initialize temporary list with posts, and add one post at index 0
         ArrayList<Post> testList = new ArrayList<>(posts);
         testList.add(0, posts.get(0));  // add first element to beginning of test list
 
@@ -243,6 +241,46 @@ public class RedisAccessTest {
         // get postlist; test twice to ensure we are not popping.
         assertEquals(Optional.of(postList), redisAccessObject.peekAtPostList(testKeyString));
         assertEquals(Optional.of(postList), redisAccessObject.peekAtPostList(testKeyString));
+    }
+
+    @Test
+    public void getNumPostsInEmptyNameSpace() {
+        assertEquals(0, redisAccessObject.getNumPostsInNameSpace(AbstractDataAccess.TEST_NAMESPACE));
+    }
+
+    @Test
+    public void getNumPostsInNonEmptyNameSpace() {
+        final String testKeyStringZero = testKeyString + "0";
+        final String testKeyStringOne = testKeyString + "1";
+        final String negativeTestKeyString = "asdfghrtbgqer:test";
+
+        redisAccessObject.addNewPosts(testKeyString, posts);
+        redisAccessObject.addNewPosts(testKeyStringZero, posts);
+        redisAccessObject.addNewPosts(testKeyStringOne, posts);
+        redisAccessObject.addNewPosts(negativeTestKeyString, posts);
+
+        long numPostsInNameSpace = redisAccessObject.getNumPostsInNameSpace(AbstractDataAccess.TEST_NAMESPACE);
+
+        // clean up keys created locally by this test (not included in @After)
+        directToRedis.connect();
+        directToRedis.del(testKeyStringZero.getBytes());
+        directToRedis.del(testKeyStringOne.getBytes());
+        directToRedis.del(negativeTestKeyString.getBytes());
+        directToRedis.disconnect();
+
+        assertEquals(3 * numTestPosts, numPostsInNameSpace);
+
+    }
+
+    @Test
+    public void getKeysInEmptyNameSpace() {
+        assertEquals(Collections.emptyList(), redisAccessObject.getKeysInNameSpace(AbstractDataAccess.TEST_NAMESPACE));
+    }
+
+    @Test
+    public void getKeysInNonEmptyNameSpace() {
+        redisAccessObject.addNewPosts(testKeyString, posts);
+        assertEquals(testKeyString, redisAccessObject.getKeysInNameSpace(AbstractDataAccess.TEST_NAMESPACE).get(0));
     }
 
 }

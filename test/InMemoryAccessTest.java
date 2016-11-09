@@ -3,11 +3,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.InMemoryAccessObject;
 import services.dataAccess.proto.PostProto.Post;
 import services.dataAccess.proto.PostListProto.PostList;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,7 +22,8 @@ import static org.junit.Assume.assumeTrue;
 public class InMemoryAccessTest {
 
     private static InMemoryAccessObject inMemoryAccess = new InMemoryAccessObject();
-    private static final String testKeyString = "test:test";
+    private static final String testKeyString = AbstractDataAccess.TEST_NAMESPACE
+            + AbstractDataAccess.NAMESPACE_DELIMITER + "test";
     private static final Integer numTestPosts = 10;
     private static final ArrayList<Post> posts = new ArrayList<>();
     private static PostList postList;
@@ -35,7 +38,7 @@ public class InMemoryAccessTest {
         for (int i = 0; i < numTestPosts; i++) {
             Post.Builder postBuilder = Post.newBuilder();
             postBuilder.setId(String.valueOf(i));
-            postBuilder.addHashtag("#id" + String.valueOf(i));
+            postBuilder.addHashtag("id" + String.valueOf(i));
             postBuilder.addText("This is test post " + String.valueOf(i));
 
             tempPosts.add(postBuilder.build());
@@ -185,6 +188,32 @@ public class InMemoryAccessTest {
         // get postlist; test twice to ensure we are not popping.
         assertEquals(Optional.of(postList), inMemoryAccess.peekAtPostList(testKeyString));
         assertEquals(Optional.of(postList), inMemoryAccess.peekAtPostList(testKeyString));
+    }
+
+    @Test
+    public void getNumPostsInEmptyNameSpace() {
+        assertEquals(0, inMemoryAccess.getNumPostsInNameSpace(testKeyString));
+    }
+
+    @Test
+    public void getNumPostsInNonEmptyNameSpace() {
+        inMemoryAccess.addNewPosts(testKeyString, posts);
+        inMemoryAccess.addNewPosts(testKeyString + "0", posts);
+        inMemoryAccess.addNewPosts(testKeyString + "1", posts);
+        inMemoryAccess.addNewPosts("asdfghwrtbgqer:test", posts);
+
+        assertEquals(3 * numTestPosts, inMemoryAccess.getNumPostsInNameSpace(AbstractDataAccess.TEST_NAMESPACE));
+    }
+
+    @Test
+    public void getKeysInEmptyNameSpace() {
+        assertEquals(Collections.emptyList(), inMemoryAccess.getKeysInNameSpace(""));
+    }
+
+    @Test
+    public void getKeysInNonEmptyNameSpace() {
+        inMemoryAccess.addNewPosts(testKeyString, posts);
+        assertEquals(testKeyString, inMemoryAccess.getKeysInNameSpace(AbstractDataAccess.TEST_NAMESPACE).get(0));
     }
 
 }

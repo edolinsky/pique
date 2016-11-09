@@ -26,7 +26,9 @@ public class HashtagContentController extends Controller {
      */
 
     public Result content(String hashtag) {
-        Optional<PostList> hashtagContent = dataSource.peekAtPostList("display:" + hashtag);
+        Optional<PostList> hashtagContent = dataSource.peekAtPostList(
+                AbstractDataAccess.DISPLAY_NAMESPACE + AbstractDataAccess.NAMESPACE_DELIMITER + hashtag
+        );
 
         if (hashtagContent.isPresent()) {
             return ok(serializer.serialize(hashtagContent.get()));

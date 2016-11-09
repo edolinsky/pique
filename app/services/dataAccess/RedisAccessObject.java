@@ -1,6 +1,7 @@
 package services.dataAccess;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import org.hibernate.validator.internal.metadata.descriptor.ReturnValueDescriptorImpl;
 import redis.clients.jedis.BinaryJedis;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
@@ -8,9 +9,8 @@ import services.dataAccess.proto.PostListProto.PostList;
 import services.dataAccess.proto.PostProto.Post;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by erik on 23/10/16.
@@ -175,6 +175,49 @@ public class RedisAccessObject extends AbstractDataAccess {
         } else {
             return Optional.of(postList);
         }
+    }
+
+    @Override
+    public long getNumPostsInNameSpace(String nameSpace) {
+
+        // get all keys matching namespace (with delimiter)
+        List<String> keysInNameSpace = getKeysInNameSpace(nameSpace);
+        List<Response<Long>> responseList = new ArrayList<>();
+
+        // Connect to redis, with pipelined queries
+        connect();
+        Pipeline pipe = redisAccess.pipelined();
+        pipe.multi();
+
+        // get number of posts at each key in namespace, with responses stored in responseList
+        responseList.addAll(keysInNameSpace.stream().map(keyString -> pipe.llen(keyString.getBytes())).collect(Collectors.toList()));
+
+        // execute queries and disconnect
+        pipe.exec();
+
+        try {
+            pipe.close();
+        } catch (IOException IOe) {
+            System.out.println("Problems closing Redis Pipe"); // todo: handle better
+        }
+
+        disconnect();
+
+        // return sum of number of posts at each matching key
+        return responseList.stream().mapToLong(Response::get).sum();
+
+    }
+
+    @Override
+    public List<String> getKeysInNameSpace(String matchString) {
+
+        // retrieve set of keys matching matchString
+        connect();
+        Set<byte[]> byteList = redisAccess.keys((matchString + NAMESPACE_DELIMITER + "*").getBytes());
+        disconnect();
+
+        // convert set of bytes to list of strings and return
+        return byteList.stream().map(String::new).collect(Collectors.toList());
     }
 
 }

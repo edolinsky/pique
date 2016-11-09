@@ -29,7 +29,8 @@ public class TopContentController extends Controller {
 
     public Result content() {
 
-        Optional<PostList> topContent = dataSource.peekAtPostList("display:top");
+        Optional<PostList> topContent = dataSource.peekAtPostList(
+                AbstractDataAccess.DISPLAY_NAMESPACE + AbstractDataAccess.NAMESPACE_DELIMITER + "top");
 
         if (topContent.isPresent()) {
             return ok(serializer.serialize(topContent.get()));

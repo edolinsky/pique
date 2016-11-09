@@ -4,6 +4,7 @@ import services.dataAccess.proto.PostListProto.PostList;
 import services.dataAccess.proto.PostProto.Post;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by erik on 23/10/16.
@@ -123,6 +124,27 @@ public class InMemoryAccessObject extends AbstractDataAccess {
         } else {
             return Optional.of(listAtKeyString.get(0));
         }
+    }
+
+    @Override
+    public long getNumPostsInNameSpace(String nameSpace) {
+
+        // get all keys in desired nameSpace
+        List<String> keysInNameSpace = getKeysInNameSpace(nameSpace);
+
+        // sum size of list at each key
+        long count = 0;
+        for (String key : keysInNameSpace) {
+            count += postDataStore.get(key).size();
+        }
+
+        return count;
+    }
+
+    @Override
+    public List<String> getKeysInNameSpace(String matchString) {
+        // filter key set for keys matching keyString and return filtered list
+        return postDataStore.keySet().stream().filter(key -> key.contains(matchString + NAMESPACE_DELIMITER)).collect(Collectors.toList());
     }
 
 }

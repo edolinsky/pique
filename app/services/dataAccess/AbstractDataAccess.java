@@ -12,12 +12,18 @@ import java.util.Optional;
 
 public abstract class AbstractDataAccess {
 
+    public static final String NAMESPACE_DELIMITER = ":";
+
+    public static final String DISPLAY_NAMESPACE = "display";
+    public static final String SOURCE_NAMESPACE = "source";
+    public static final String TEST_NAMESPACE = "test";
+
     /**
      * Adds a new post to this data store's list of posts (end of queue) under a particular key.
      * If no key exists, a key-value pair is created and Post is the first element in the value list.
      *
      * @param keyString string denoting key in data store
-     * @param post Post object to be stored
+     * @param post      Post object to be stored
      * @return length of list of posts under keyString after insertion of new post
      */
     abstract public long addNewPost(String keyString, Post post);
@@ -26,7 +32,7 @@ public abstract class AbstractDataAccess {
      * Adds a series of posts to this data store's list of posts at a key, in order at the end of the queue.
      * If no key exists, a key-value pair is created and listOfPosts is stored in the value list.
      *
-     * @param keyString string denoting key in data store
+     * @param keyString   string denoting key in data store
      * @param listOfPosts list of posts to append to value list at key
      * @return length of list of posts under keyString after insertion of new posts
      */
@@ -37,7 +43,7 @@ public abstract class AbstractDataAccess {
      * If no key exists, a key-value pair is created and postList is stored at the beginning of the new value list.
      *
      * @param keyString string denoting key in data store
-     * @param postList postList entity to be entered at beginning of list under keyString
+     * @param postList  postList entity to be entered at beginning of list under keyString
      * @return size of list at keyString after insertion of new postList
      */
     abstract public long addNewPostList(String keyString, PostList postList);
@@ -67,5 +73,23 @@ public abstract class AbstractDataAccess {
      * @return The first element under keyString in data store, or the empty optional if not available
      */
     abstract public Optional<PostList> peekAtPostList(String keyString);
+
+    /**
+     * Returns the number of posts within a particular namespace within the data store. If namespace does not exist,
+     * returns 0.
+     *
+     * @param nameSpace string corresponding to the desired namespace (proceeds namespace delimiter in any unique key)
+     * @return the number of posts within all keys under nameSpace
+     */
+    abstract public long getNumPostsInNameSpace(String nameSpace);
+
+    /**
+     * Returns a list of all keys under a specified namespace. Returns an empty list if no keys exist under a specific
+     * namespace, or if namespace does not exist in data store.
+     *
+     * @param nameSpace string corresponding to the desired namespace (proceeds namespace delimiter in any unique key)
+     * @return A list containing all string keys under nameSpace
+     */
+    abstract List<String> getKeysInNameSpace(String nameSpace);
 
 }

@@ -14,7 +14,7 @@ import java.util.Optional;
  * to the application's home page.
  */
 public class TrendingContentController extends Controller {
-    
+
     private AbstractDataAccess dataSource = new RedisAccessObject();
     private BinarySerializer serializer = new BinarySerializer();
 
@@ -26,7 +26,8 @@ public class TrendingContentController extends Controller {
      */
 
     public Result content() {
-        Optional<PostList> trendingContent = dataSource.peekAtPostList("display:trending");
+        Optional<PostList> trendingContent = dataSource.peekAtPostList(
+                AbstractDataAccess.DISPLAY_NAMESPACE + AbstractDataAccess.NAMESPACE_DELIMITER + "trending");
 
         if (trendingContent.isPresent()) {
             return ok(serializer.serialize(trendingContent.get()));
