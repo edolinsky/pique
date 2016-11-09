@@ -77,7 +77,10 @@ public class InMemoryAccessObject extends AbstractDataAccess {
             postListDataStore.put(keyString, listAtKeyString);
         }
 
-        // todo: implement pruning of postListDataStore for long-term operation (max size)
+        // truncate oldest PostList if this list has reached maximum size
+        if (listAtKeyString.size() > MAX_POSTLISTS) {
+            listAtKeyString.remove(listAtKeyString.size() - 1);
+        }
 
         return listAtKeyString.size();
     }
@@ -142,9 +145,26 @@ public class InMemoryAccessObject extends AbstractDataAccess {
     }
 
     @Override
-    public List<String> getKeysInNameSpace(String matchString) {
+    public List<String> getKeysInNameSpace(String nameSpace) {
         // filter key set for keys matching keyString and return filtered list
-        return postDataStore.keySet().stream().filter(key -> key.contains(matchString + NAMESPACE_DELIMITER)).collect(Collectors.toList());
+        return postDataStore.keySet().stream().filter(key -> key.contains(nameSpace + NAMESPACE_DELIMITER)).collect(Collectors.toList());
+    }
+
+    @Override
+    public String deleteFirstNPosts(String keyString, Integer numPosts) {
+        List<Post> listAtKeyString = postDataStore.get(keyString);
+
+        if (listAtKeyString == null) {
+            return "EMPTY";
+        } else {
+            if (listAtKeyString.size() <= numPosts) {   // clear entire list
+                listAtKeyString.clear();
+            } else {
+                // clear subList from index 0 (inclusive) to index numPosts (exclusive)
+                listAtKeyString.subList(0, numPosts).clear();
+            }
+            return "OK";
+        }
     }
 
 }

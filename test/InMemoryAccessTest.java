@@ -216,4 +216,31 @@ public class InMemoryAccessTest {
         assertEquals(testKeyString, inMemoryAccess.getKeysInNameSpace(AbstractDataAccess.TEST_NAMESPACE).get(0));
     }
 
+    @Test
+    public void deleteNKeysFromNonEmptyListOfPosts() {
+        inMemoryAccess.addNewPosts(testKeyString, posts);
+        inMemoryAccess.deleteFirstNPosts(testKeyString, 5);
+        assertEquals(posts.subList(5, numTestPosts), inMemoryAccess.getAllPosts(testKeyString));
+    }
+
+    @Test
+    public void deleteNKeysFromEmptyListOfPosts() {
+        inMemoryAccess.deleteFirstNPosts(testKeyString, 1);
+        assertEquals(Collections.emptyList(), inMemoryAccess.getAllPosts(testKeyString));
+    }
+
+    @Test
+    public void deleteMoreThanSizeKeysFromListOfPosts() {
+        inMemoryAccess.addNewPosts(testKeyString, posts);
+        inMemoryAccess.deleteFirstNPosts(testKeyString, numTestPosts + 1);
+        assertEquals(Collections.emptyList(), inMemoryAccess.getAllPosts(testKeyString));
+    }
+
+    @Test
+    public void deleteZeroKeysFromListOfPosts() {
+        inMemoryAccess.addNewPosts(testKeyString, posts);
+        inMemoryAccess.deleteFirstNPosts(testKeyString, 0);
+        assertEquals(posts, inMemoryAccess.getAllPosts(testKeyString));
+    }
+
 }

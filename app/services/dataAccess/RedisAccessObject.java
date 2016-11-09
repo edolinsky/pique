@@ -83,6 +83,10 @@ public class RedisAccessObject extends AbstractDataAccess {
 
         // push to left of value list under key
         long result = redisAccess.lpush(keyString.getBytes(), postList.toByteArray());
+
+        // trim list to contain only the first MAX_POSTLISTS PostLists.
+        redisAccess.ltrim(keyString.getBytes(), 0, MAX_POSTLISTS - 1);
+
         disconnect();
 
         return result;
@@ -218,6 +222,16 @@ public class RedisAccessObject extends AbstractDataAccess {
 
         // convert set of bytes to list of strings and return
         return byteList.stream().map(String::new).collect(Collectors.toList());
+    }
+
+    @Override
+    public String deleteFirstNPosts(String keyString, Integer numPosts) {
+
+        connect();
+        String returnString = redisAccess.ltrim(keyString.getBytes(), numPosts, -1);
+        disconnect();
+
+        return returnString;
     }
 
 }

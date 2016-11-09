@@ -17,6 +17,7 @@ public abstract class AbstractDataAccess {
     public static final String DISPLAY_NAMESPACE = "display";
     public static final String SOURCE_NAMESPACE = "source";
     public static final String TEST_NAMESPACE = "test";
+    static final Integer MAX_POSTLISTS = 100;
 
     /**
      * Adds a new post to this data store's list of posts (end of queue) under a particular key.
@@ -90,6 +91,16 @@ public abstract class AbstractDataAccess {
      * @param nameSpace string corresponding to the desired namespace (proceeds namespace delimiter in any unique key)
      * @return A list containing all string keys under nameSpace
      */
-    abstract List<String> getKeysInNameSpace(String nameSpace);
+    abstract public List<String> getKeysInNameSpace(String nameSpace);
+
+    /**
+     * Deletes the first numPosts Posts under keyString. If numPosts is greater than the size of the list at keyString,
+     * size elements are cleared.
+     *
+     * @param keyString string denoting key in data store
+     * @param numPosts number of posts to be deleted from beginning of list at keyString
+     * @return string denoting status of trim operation
+     */
+    abstract public String deleteFirstNPosts(String keyString, Integer numPosts);
 
 }

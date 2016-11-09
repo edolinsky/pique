@@ -9,8 +9,10 @@ import static org.junit.Assume.assumeTrue;
 
 import java.util.*;
 
+import play.api.libs.iteratee.Enumeratee;
 import play.api.libs.iteratee.RunQueue;
 import redis.clients.jedis.BinaryJedis;
+import redis.clients.jedis.Response;
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.RedisAccessObject;
 import services.dataAccess.proto.PostProto.Post;
@@ -42,6 +44,8 @@ public class RedisAccessTest {
             + AbstractDataAccess.NAMESPACE_DELIMITER
             + UUID.randomUUID().toString();
     private static boolean redisTestsIncluded = false;
+    private static final Integer CURRENT_MAX_POSTLISTS = 100;
+    private static final Integer numTestPostLists = CURRENT_MAX_POSTLISTS + 10;
 
     // Sample test values
     private static final List<Post> posts = new ArrayList<>();
@@ -281,6 +285,47 @@ public class RedisAccessTest {
     public void getKeysInNonEmptyNameSpace() {
         redisAccessObject.addNewPosts(testKeyString, posts);
         assertEquals(testKeyString, redisAccessObject.getKeysInNameSpace(AbstractDataAccess.TEST_NAMESPACE).get(0));
+    }
+
+    @Test
+    public void deleteNKeysFromNonEmptyListOfPosts() {
+        redisAccessObject.addNewPosts(testKeyString, posts);
+        redisAccessObject.deleteFirstNPosts(testKeyString, 5);
+        assertEquals(posts.subList(5, numTestPosts), redisAccessObject.getAllPosts(testKeyString));
+    }
+
+    @Test
+    public void deleteNKeysFromEmptyListOfPosts() {
+        redisAccessObject.deleteFirstNPosts(testKeyString, 1);
+        assertEquals(Collections.emptyList(), redisAccessObject.getAllPosts(testKeyString));
+    }
+
+    @Test
+    public void deleteMoreThanSizeKeysFromListOfPosts() {
+        redisAccessObject.addNewPosts(testKeyString, posts);
+        redisAccessObject.deleteFirstNPosts(testKeyString, numTestPosts + 1);
+        assertEquals(Collections.emptyList(), redisAccessObject.getAllPosts(testKeyString));
+    }
+
+    @Test
+    public void deleteZeroKeysFromListOfPosts() {
+        redisAccessObject.addNewPosts(testKeyString, posts);
+        redisAccessObject.deleteFirstNPosts(testKeyString, 0);
+        assertEquals(posts, redisAccessObject.getAllPosts(testKeyString));
+    }
+
+    @Test
+    public void testPostListExpiry() {
+        for (int i = 0; i < numTestPostLists; i++) {
+            redisAccessObject.addNewPostList(testKeyString, postList);
+        }
+
+        directToRedis.connect();
+        Long response = directToRedis.llen(testKeyString.getBytes());
+        directToRedis.disconnect();
+
+        assertTrue(response.equals(CURRENT_MAX_POSTLISTS.longValue()));
+
     }
 
 }
