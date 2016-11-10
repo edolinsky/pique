@@ -32,14 +32,6 @@ public abstract class AbstractDataCollector {
 	public abstract Source getSource();
 
 	/**
-	 * Notifies all subscribers that data has been retrieved.
-	 * @return
-	 */
-	public long notifySubscribers() {
-		return 0L;
-	}
-
-	/**
 	 * Retrieves a list of posts from the source
 	 * @return
 	 */

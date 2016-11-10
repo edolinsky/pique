@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static services.PublicConstants.TWITTER4J_ACCESS_TOKEN;
@@ -67,7 +68,12 @@ public class TwitterSource implements Source {
         return "source:" + TWITTER;
     }
 
-	/**
+    @Override
+    public long getQueryDelta() {
+        return TimeUnit.MINUTES.toMillis(1);
+    }
+
+    /**
 	 * Gets tweets corresponding to the current trending topics on Twitter
 	 * @return
 	 */

@@ -1,5 +1,9 @@
 package services.content;
 
+import services.ThreadNotification;
+
+import java.util.Date;
+
 /**
  * An AutonmousDataCollector is a runnable collector that will continuously operate its given
  * {@link AbstractDataCollector}
@@ -9,13 +13,27 @@ package services.content;
 public class DataCollectionRunner implements Runnable {
 
 	AbstractDataCollector collector;
+    ThreadNotification notification;
 
-	public DataCollectionRunner(AbstractDataCollector collector) {
+	public DataCollectionRunner(AbstractDataCollector collector, ThreadNotification notify) {
 		this.collector = collector;
+        this.notification = notify;
 	}
 
 	@Override
 	public void run() {
-		collector.collect();
+
+        while (true) {
+            System.out.println("Notifier is sleeping for 3 seconds at " + new Date());
+            try {
+                Thread.sleep(collector.getSource().getQueryDelta());
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
+            synchronized (notification) {
+                collector.collect();
+                notification.notify();
+            }
+        }
 	}
 }

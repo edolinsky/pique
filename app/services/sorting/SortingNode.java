@@ -1,13 +1,20 @@
 package services.sorting;
 
 import com.google.inject.Singleton;
+import org.joda.time.DateTime;
+import play.Logger;
+import play.inject.ApplicationLifecycle;
+import scala.util.Sorting;
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.InMemoryAccessObject;
 import services.dataAccess.RedisAccessObject;
 import services.dataAccess.proto.PostListProto.PostList;
 import services.dataAccess.proto.PostProto.Post;
 
+import javax.inject.Inject;
+import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -15,7 +22,7 @@ import java.util.stream.Collectors;
  */
 
 @Singleton
-public class sortingNode {
+public class SortingNode implements Runnable {
 
     private static final Long PROCESS_INPUT_THRESHOLD = 100L;
     private static final int POPULARITY_THRESHOLD = 300;
@@ -27,37 +34,30 @@ public class sortingNode {
     private AbstractDataAccess dataSource;
     private Object sortNotification= new Object();
 
-    public void sortingNode(Map<String,String> args) {
-        String mode = args.get("mode");
-
-        if (mode.equals("test")) {
-            dataSource = new InMemoryAccessObject();
-        } else {
-            dataSource = new RedisAccessObject();
-        }
-
-        startBackgroundThread();
+    public SortingNode(AbstractDataAccess dataSource, Object sortNotification) {
+        this.dataSource = dataSource;
     }
 
-    private void startBackgroundThread() {
-        new Thread(() -> {
+    @Override
+    public void run() {
 
-            while (true) {
-
+        while (true) {
+            synchronized (sortNotification) {
                 try {
-                    synchronized (sortNotification) {
-                        sortNotification.wait();
-                    }
-                } catch (InterruptedException Ie){
-                    System.out.println("Sorting Node Thread Exiting"); // todo: handle better
+                    System.out.println("Waiter is waiting for the notifier at " + new Date());
+                    sortNotification.wait();
+                } catch (InterruptedException e) {
+                    System.out.println("Sorting Node Thread Exiting");
                 }
-
-                run();
             }
-        });
+
+            sort();
+
+        }
     }
 
-    private void run() {
+    private void sort() {
+
         List<Post> newPosts = new ArrayList<>();
 
         // Obtain number of posts available for processing and exit if this does not meet the threshold

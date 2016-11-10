@@ -7,6 +7,7 @@ import redis.clients.jedis.Response;
 import services.dataAccess.proto.PostListProto.PostList;
 import services.dataAccess.proto.PostProto.Post;
 
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,6 +20,7 @@ import static services.PublicConstants.REDIS_URL;
  * Created by erik on 23/10/16.
  */
 
+@Singleton
 public class RedisAccessObject extends AbstractDataAccess {
 
     private BinaryJedis redisAccess;

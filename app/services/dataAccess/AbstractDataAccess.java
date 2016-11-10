@@ -3,6 +3,7 @@ package services.dataAccess;
 import services.dataAccess.proto.PostListProto.PostList;
 import services.dataAccess.proto.PostProto.Post;
 
+import javax.inject.Singleton;
 import java.util.List;
 import java.util.Optional;
 
