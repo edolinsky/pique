@@ -16,6 +16,7 @@ import twitter4j.TwitterFactory;
 import twitter4j.URLEntity;
 import twitter4j.conf.ConfigurationBuilder;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,7 +38,7 @@ import static services.PublicConstants.TWITTER4J_CONSUMER_SECRET;
  *
  * @author Reid Oliveira, Sammie Jiang
  */
-public class TwitterSource extends AbstractJavaSource {
+public class TwitterSource implements Source {
     
     private static final String TWITTER = "twitter";
     private static final String DEFAULT_TEXT = "N/A";
@@ -49,18 +50,22 @@ public class TwitterSource extends AbstractJavaSource {
 	private Twitter twitter;
 
 	public TwitterSource() {
-		super(TWITTER);
-
-		Map<String, String> env = System.getenv();
 		ConfigurationBuilder cb = new ConfigurationBuilder();
 		cb.setDebugEnabled(true)
-				.setOAuthConsumerKey(env.get(TWITTER4J_CONSUMER_KEY))
-				.setOAuthConsumerSecret(env.get(TWITTER4J_CONSUMER_SECRET))
-				.setOAuthAccessToken(env.get(TWITTER4J_ACCESS_TOKEN))
-				.setOAuthAccessTokenSecret(env.get(TWITTER4J_ACCESS_TOKEN_SECRET));
+				.setOAuthConsumerKey(System.getenv(TWITTER4J_CONSUMER_KEY))
+				.setOAuthConsumerSecret(System.getenv(TWITTER4J_CONSUMER_SECRET))
+				.setOAuthAccessToken(System.getenv(TWITTER4J_ACCESS_TOKEN))
+				.setOAuthAccessTokenSecret(System.getenv(TWITTER4J_ACCESS_TOKEN_SECRET));
 		TwitterFactory tf = new TwitterFactory(cb.build());
 		twitter = tf.getInstance();
 	}
+
+
+
+    @Override
+    public String getSourceName() {
+        return "source:" + TWITTER;
+    }
 
 	/**
 	 * Gets tweets corresponding to the current trending topics on Twitter
@@ -92,20 +97,20 @@ public class TwitterSource extends AbstractJavaSource {
 	 * @return an {@link Optional} containing the trends, or an empty {@link Optional} if
 	 * {@link Trends} are not available for that country.
 	 */
-	public Optional<Trends> getTrends(String country, String city){
+	public List<Trend> getTrends(String country, String city){
 
 		try{
 			Optional<Integer> id = getLocationId(country, city);
 
 			if (id.isPresent()) {
-				return Optional.of(twitter.getPlaceTrends(id.get()));
+				return Arrays.asList(twitter.getPlaceTrends(id.get()).getTrends());
 			}
 		} catch (TwitterException e){
 			e.printStackTrace();
 			// TODO
 		}
 
-		return Optional.empty();
+		return Collections.emptyList();
 	}
 
 	/**
@@ -161,7 +166,7 @@ public class TwitterSource extends AbstractJavaSource {
 	 * @param result
 	 * @return
 	 */
-	public List<Post> parseQueryResult(QueryResult result) {
+	private List<Post> parseQueryResult(QueryResult result) {
 		if (result.getTweets() == null || result.getTweets().isEmpty()) {
 			return Collections.emptyList();
 		}
@@ -228,5 +233,4 @@ public class TwitterSource extends AbstractJavaSource {
 			}
 		}
 	}
-
 }
