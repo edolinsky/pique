@@ -8,6 +8,7 @@ import services.dataAccess.proto.PostProto.Post;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,6 +71,11 @@ public class TestDataAccess extends AbstractDataAccess {
     @Override
     protected Optional<PostList> getPostList(String keyString, Integer index) {
         return null;
+    }
+
+    @Override
+    protected List<PostList> getAllPostLists(String keyString) {
+        return Collections.singletonList(testOptPostList.get());
     }
 
     @Override

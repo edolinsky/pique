@@ -1,5 +1,6 @@
 package services.sorting;
 
+import services.ThreadNotification;
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.proto.PostListProto.PostList;
 import services.dataAccess.proto.PostProto.Post;
@@ -30,10 +31,11 @@ public class SortingNode implements Runnable {
     private static final Double SHARE_WEIGHT = 1.1;
 
     private AbstractDataAccess dataSource;
-    private Object sortNotification = new Object();
+    private ThreadNotification sortNotification;
 
-    public SortingNode(AbstractDataAccess dataSource, Object sortNotification) {
+    public SortingNode(AbstractDataAccess dataSource, ThreadNotification sortNotification) {
         this.dataSource = dataSource;
+        this.sortNotification = sortNotification;
     }
 
     @Override
