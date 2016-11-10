@@ -79,6 +79,11 @@ public class TestDataAccess extends AbstractDataAccess {
     }
 
     @Override
+    protected List<PostList> getAllPostLists(String keyString) {
+        return null;
+    }
+
+    @Override
     protected String deleteFirstNPosts(String keyString, Integer numPosts) {
         return null;
     }

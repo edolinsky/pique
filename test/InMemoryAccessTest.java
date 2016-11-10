@@ -195,7 +195,7 @@ public class InMemoryAccessTest {
     }
 
     @Test
-    public void addHashTagPostListToNonEmptuMemory() {
+    public void addHashTagPostListToNonEmptyMemory() {
         inMemoryAccess.addNewHashTagPostList(testKeyString, postList);
         inMemoryAccess.addNewHashTagPostList(testKeyString, postList);
         assertEquals(Optional.of(postList), inMemoryAccess.getHashTagPostList(testKeyString, 1));

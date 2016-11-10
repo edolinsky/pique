@@ -266,6 +266,46 @@ public class RedisAccessTest {
     }
 
     @Test
+    public void addDisplayPostToEmpty() {
+        // add postList to empty keyspace; should create new keyspace with this postList at beginning
+        redisAccessObject.addNewDisplayPostList(testKeyString, postList);
+        assertEquals(Optional.of(postList), redisAccessObject.getDisplayPostList(testKeyString, 0));
+    }
+
+    @Test
+    public void addHashTagPostListToEmpty() {
+        assumeTrue(redisTestsIncluded);
+
+        redisAccessObject.addNewHashTagPostList(testKeyString, postList);
+        assertEquals(Optional.of(postList), redisAccessObject.getHashTagPostList(testKeyString, 0));
+    }
+
+    @Test
+    public void addDisplayPostListToNonEmptyMemory() {
+        redisAccessObject.addNewDisplayPostList(testKeyString, postList);
+        redisAccessObject.addNewDisplayPostList(testKeyString, postList);
+        assertEquals(Optional.of(postList), redisAccessObject.getDisplayPostList(testKeyString, 1));
+    }
+
+    @Test
+    public void addHashTagPostListToNonEmptyMemory() {
+        redisAccessObject.addNewHashTagPostList(testKeyString, postList);
+        redisAccessObject.addNewHashTagPostList(testKeyString, postList);
+        assertEquals(Optional.of(postList), redisAccessObject.getHashTagPostList(testKeyString, 1));
+    }
+
+    @Test
+    public void getOutOfBoundsPostList() {
+
+        redisAccessObject.addNewDisplayPostList(testKeyString, postList);
+        assertEquals(Optional.empty(), redisAccessObject.getDisplayPostList(testKeyString, Integer.MAX_VALUE));
+    }
+
+    /*
+     * getNumPosts Tests
+     */
+
+    @Test
     public void getNumPostsInEmptyNameSpace() {
         assumeTrue(redisTestsIncluded);
         assertEquals(0, redisAccessObject.getNumPostsInNameSpace(""));
@@ -303,6 +343,10 @@ public class RedisAccessTest {
 
     }
 
+    /*
+     * getKeysInNameSpace Tests
+     */
+
     @Test
     public void getKeysInEmptyNameSpace() {
         assumeTrue(redisTestsIncluded);
@@ -324,8 +368,12 @@ public class RedisAccessTest {
                 redisAccessObject.getKeysInNameSpace(AbstractDataAccess.getSourceNamespace()).get(0));
     }
 
+    /*
+     * deleteNPosts Tests
+     */
+
     @Test
-    public void deleteNKeysFromNonEmptyListOfPosts() {
+    public void deleteNPostsFromNonEmptyListOfPosts() {
         assumeTrue(redisTestsIncluded);
 
         redisAccessObject.addNewPostsFromSource(testKeyString, posts);
@@ -336,7 +384,7 @@ public class RedisAccessTest {
     }
 
     @Test
-    public void deleteNKeysFromEmptyListOfPosts() {
+    public void deleteNPostsFromEmptyListOfPosts() {
         assumeTrue(redisTestsIncluded);
 
         // delete on empty should result in empty.
@@ -345,7 +393,7 @@ public class RedisAccessTest {
     }
 
     @Test
-    public void deleteMoreThanSizeKeysFromListOfPosts() {
+    public void deleteMoreThanSizePostsFromListOfPosts() {
         assumeTrue(redisTestsIncluded);
 
         redisAccessObject.addNewPostsFromSource(testKeyString, posts);
@@ -356,7 +404,7 @@ public class RedisAccessTest {
     }
 
     @Test
-    public void deleteZeroKeysFromListOfPosts() {
+    public void deleteZeroPostsFromListOfPosts() {
         assumeTrue(redisTestsIncluded);
 
         redisAccessObject.addNewPostsFromSource(testKeyString, posts);
@@ -365,6 +413,10 @@ public class RedisAccessTest {
         redisAccessObject.deleteFirstNPostsFromSourceQueue(testKeyString, 0);
         assertEquals(posts, redisAccessObject.getAllPostsFromSource(testKeyString));
     }
+
+    /*
+     * Expiry Tests
+     */
 
     @Test
     public void testPostListExpiry() {

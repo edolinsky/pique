@@ -4,7 +4,7 @@ import org.junit.Ignore;
 /**
  * Created by erik on 09/11/16.
  */
-public class sortingNodeTest {
+public class SortingNodeTest {
 
     @BeforeClass
     public void sortingNodeTestSetup() {
