@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import play.Logger;
+
 /**
  * Created by erik on 08/11/16.
  */
@@ -28,7 +30,7 @@ public class SortingNode implements Runnable {
     private static final Double SHARE_WEIGHT = 1.1;
 
     private AbstractDataAccess dataSource;
-    private Object sortNotification= new Object();
+    private Object sortNotification = new Object();
 
     public SortingNode(AbstractDataAccess dataSource, Object sortNotification) {
         this.dataSource = dataSource;
@@ -40,10 +42,10 @@ public class SortingNode implements Runnable {
         while (true) {
             synchronized (sortNotification) {
                 try {
-                    System.out.println("Waiter is waiting for the notifier at " + new Date());
+                    Logger.info("Waiter is waiting for the notifier at " + new Date());
                     sortNotification.wait();
                 } catch (InterruptedException e) {
-                    System.out.println("Sorting Node Thread Exiting");
+                    Logger.error("Sorting Node Thread Exiting");
                 }
             }
 
@@ -119,10 +121,10 @@ public class SortingNode implements Runnable {
     }
 
     private Post calculatePopularity(Post post) {
-        int popularity = (int)(
+        int popularity = (int) (
                 COMMENT_WEIGHT * post.getNumComments()
-                + LIKE_WEIGHT * post.getNumLikes()
-                + SHARE_WEIGHT * post.getNumShares()
+                        + LIKE_WEIGHT * post.getNumLikes()
+                        + SHARE_WEIGHT * post.getNumShares()
         );
 
         if (popularity < 0) {

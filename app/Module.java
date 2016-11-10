@@ -2,6 +2,7 @@ import com.google.inject.AbstractModule;
 import java.time.Clock;
 
 import controllers.ContentController;
+import play.Logger;
 import services.*;
 import services.content.DataCollectionRunner;
 import services.dataAccess.AbstractDataAccess;
@@ -25,6 +26,7 @@ public class Module extends AbstractModule {
     public void configure() {
         bind(AbstractDataAccess.class).to(InMemoryAccessObject.class);
         bind(ContentController.class);
+        Logger.info("module created");
     }
 
 }

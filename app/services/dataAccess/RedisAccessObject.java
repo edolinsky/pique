@@ -1,6 +1,7 @@
 package services.dataAccess;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import play.Logger;
 import redis.clients.jedis.BinaryJedis;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
@@ -74,7 +75,7 @@ public class RedisAccessObject extends AbstractDataAccess {
         try {
             pipe.close();
         } catch (IOException IOe) {
-            System.out.println("Problems closing Redis Pipe"); // todo: handle better
+            Logger.error("Problems closing Redis Pipe"); // todo: handle better
         }
 
         disconnect();
@@ -119,7 +120,7 @@ public class RedisAccessObject extends AbstractDataAccess {
                 postList.add(post);
             } catch (InvalidProtocolBufferException iPBE) {
                 // todo: better error handling
-                System.out.println("Invalid Protocol Buffer");
+                Logger.warn("Invalid Protocol Buffer");
             }
         }
 
@@ -143,7 +144,7 @@ public class RedisAccessObject extends AbstractDataAccess {
                 oldestPost = Post.parseFrom(result);
             } catch (InvalidProtocolBufferException iPBE) {
                 //todo: handle this more elegantly
-                System.out.println("Invalid Protocol Buffer");
+                Logger.warn("Invalid Protocol Buffer");
             }
 
         }
@@ -167,7 +168,7 @@ public class RedisAccessObject extends AbstractDataAccess {
             }
         } catch (InvalidProtocolBufferException iPBE) {
             //todo: handle this more elegantly.
-            System.out.println("Invalid Protocol Buffer");
+            Logger.warn("Invalid Protocol Buffer");
         }
 
         if (postList == null) {
@@ -198,7 +199,7 @@ public class RedisAccessObject extends AbstractDataAccess {
         try {
             pipe.close();
         } catch (IOException IOe) {
-            System.out.println("Problems closing Redis Pipe"); // todo: handle better
+            Logger.error("Problems closing Redis Pipe"); // todo: handle better
         }
 
         disconnect();

@@ -1,5 +1,6 @@
 package services.content;
 
+import play.Logger;
 import services.ThreadNotification;
 
 import javax.inject.Inject;
@@ -25,7 +26,7 @@ public class DataCollectionRunner implements Runnable {
 	public void run() {
 
         while (true) {
-            System.out.println("Notifier is sleeping for 3 seconds at " + new Date());
+            Logger.info("Notifier is sleeping for 3 seconds at " + new Date());
             try {
                 Thread.sleep(collector.getSource().getQueryDelta());
             } catch (InterruptedException e1) {

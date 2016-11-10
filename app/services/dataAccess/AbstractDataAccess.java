@@ -15,10 +15,10 @@ public abstract class AbstractDataAccess {
 
     static final String NAMESPACE_DELIMITER = ":";
 
-    static final String DISPLAY_NAMESPACE = "display";
-    static final String HASHTAG_NAMESPACE = "hashtag";
-    static final String SOURCE_NAMESPACE = "source";
-    static final String TEST_NAMESPACE = "test";
+    private static final String DISPLAY_NAMESPACE = "display";
+    private static final String HASHTAG_NAMESPACE = "hashtag";
+    private static final String SOURCE_NAMESPACE = "source";
+    private static final String TEST_NAMESPACE = "test";
     static final Integer MAX_POSTLISTS = 100;
 
 
@@ -114,7 +114,7 @@ public abstract class AbstractDataAccess {
      * @param keyString string denoting key in data store
      * @return the list of all postList entities under keyString in data store
      */
-    // abstract public List<PostList> getAllPostLists(String keyString);
+    // abstract protected List<PostList> getAllPostLists(String keyString);
     // todo: implement getAllPostLists
 
     /**
