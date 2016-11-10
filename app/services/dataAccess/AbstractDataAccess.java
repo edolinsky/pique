@@ -52,6 +52,24 @@ public abstract class AbstractDataAccess {
     abstract protected Optional<Post> popFirstPost(String keyString);
 
     /**
+     * Retrieves all Posts under a particular keyString
+     *
+     * @param keyString string denoting key in data store
+     * @return list of Posts at keyString; empty list if keyString does not exist in data store
+     */
+    abstract protected List<Post> getAllPosts(String keyString);
+
+    /**
+     * Deletes the first numPosts Posts under keyString. If numPosts is greater than the size of the list at keyString,
+     * size elements are cleared.
+     *
+     * @param keyString string denoting key in data store
+     * @param numPosts  number of posts to be deleted from beginning of list at keyString
+     * @return string denoting status of trim operation
+     */
+    abstract protected String deleteFirstNPosts(String keyString, Integer numPosts);
+
+    /**
      * Adds a new postList entity to the beginning of this data store's list of postLists under a particular key.
      * If no key exists, a key-value pair is created and postList is stored at the beginning of the new value list.
      *
@@ -60,14 +78,6 @@ public abstract class AbstractDataAccess {
      * @return size of list at keyString after insertion of new postList
      */
     abstract protected long addNewPostList(String keyString, PostList postList);
-
-    /**
-     * Retrieves all Posts under a particular keyString
-     *
-     * @param keyString string denoting key in data store
-     * @return list of Posts at keyString; empty list if keyString does not exist in data store
-     */
-    abstract protected List<Post> getAllPosts(String keyString);
 
     /**
      * Retrieves, but does not remove postList entity at specified index of the stack at keyString in data store
@@ -80,14 +90,13 @@ public abstract class AbstractDataAccess {
     abstract protected Optional<PostList> getPostList(String keyString, Integer index);
 
     /**
-     * Deletes the first numPosts Posts under keyString. If numPosts is greater than the size of the list at keyString,
-     * size elements are cleared.
+     * Retrieves, but does not remove all postLists under keyString in data store
+     * If key does not exist, or list is empty, returns an empty list
      *
      * @param keyString string denoting key in data store
-     * @param numPosts  number of posts to be deleted from beginning of list at keyString
-     * @return string denoting status of trim operation
+     * @return the list of all postList entities under keyString in data store
      */
-    abstract protected String deleteFirstNPosts(String keyString, Integer numPosts);
+    abstract protected List<PostList> getAllPostLists(String keyString);
 
     /**
      * Returns the number of posts within a particular namespace within the data store. If namespace does not exist,
@@ -106,16 +115,6 @@ public abstract class AbstractDataAccess {
      * @return A list containing all string keys under nameSpace
      */
     abstract public List<String> getKeysInNameSpace(String nameSpace);
-
-    /*
-     * Retrieves, but does not remove all postLists under keyString in data store
-     * If key does not exist, or list is empty, returns an empty list
-     *
-     * @param keyString string denoting key in data store
-     * @return the list of all postList entities under keyString in data store
-     */
-    // abstract protected List<PostList> getAllPostLists(String keyString);
-    // todo: implement getAllPostLists
 
     /**
      * Adds a new post to this data store's list of posts (end of queue) under a particular key in the source namespace.

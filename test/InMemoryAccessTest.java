@@ -307,6 +307,4 @@ public class InMemoryAccessTest {
         assertEquals(posts, inMemoryAccess.getAllPostsFromSource(testKeyString));
     }
 
-    // todo: implement test for postList Expiry, only if we can obtain the number of postLists in postListDataStore
-
 }

@@ -84,51 +84,7 @@ public class RedisAccessObject extends AbstractDataAccess {
     }
 
     @Override
-    protected long addNewPostList(String keyString, PostList postList) {
-
-        byte[] key = keyString.getBytes();
-
-        connect();
-
-        // push to left of value list under key
-        long result = redisAccess.lpush(key, postList.toByteArray());
-
-        // trim list to contain only the first MAX_POSTLISTS PostLists.
-        redisAccess.ltrim(key, 0, MAX_POSTLISTS - 1);
-
-        // (re)set TTL on key to KEY_TIMEOUT seconds from now
-        redisAccess.expire(key, KEY_TIMEOUT);
-
-        disconnect();
-
-        return result;
-    }
-
-    @Override
-    public List<Post> getAllPosts(String keyString) {
-
-        connect();  // get all posts under a particular key (-1 refers to the last post in list)
-        List<byte[]> byteList = redisAccess.lrange(keyString.getBytes(), 0, -1);
-        disconnect();
-
-        List<Post> postList = new ArrayList<>();
-
-        // parse each post returned into Post objects
-        for (byte[] bytes : byteList) {
-            try {
-                Post post = Post.parseFrom(bytes);
-                postList.add(post);
-            } catch (InvalidProtocolBufferException iPBE) {
-                // todo: better error handling
-                Logger.warn("Invalid Protocol Buffer");
-            }
-        }
-
-        return postList;
-    }
-
-    @Override
-    public Optional<Post> popFirstPost(String keyString) {
+    protected Optional<Post> popFirstPost(String keyString) {
         Post oldestPost = null;
 
         connect();
@@ -158,6 +114,60 @@ public class RedisAccessObject extends AbstractDataAccess {
     }
 
     @Override
+    protected List<Post> getAllPosts(String keyString) {
+
+        connect();  // get all posts under a particular key (-1 refers to the last post in list)
+        List<byte[]> byteList = redisAccess.lrange(keyString.getBytes(), 0, -1);
+        disconnect();
+
+        List<Post> postList = new ArrayList<>();
+
+        // parse each post returned into Post objects
+        for (byte[] bytes : byteList) {
+            try {
+                Post post = Post.parseFrom(bytes);
+                postList.add(post);
+            } catch (InvalidProtocolBufferException iPBE) {
+                // todo: better error handling
+                Logger.warn("Invalid Protocol Buffer");
+            }
+        }
+
+        return postList;
+    }
+
+    @Override
+    protected String deleteFirstNPosts(String keyString, Integer numPosts) {
+
+        connect();
+        String returnString = redisAccess.ltrim(keyString.getBytes(), numPosts, -1);
+        disconnect();
+
+        return returnString;
+    }
+
+    @Override
+    protected long addNewPostList(String keyString, PostList postList) {
+
+        byte[] key = keyString.getBytes();
+
+        connect();
+
+        // push to left of value list under key
+        long result = redisAccess.lpush(key, postList.toByteArray());
+
+        // trim list to contain only the first MAX_POSTLISTS PostLists.
+        redisAccess.ltrim(key, 0, MAX_POSTLISTS - 1);
+
+        // (re)set TTL on key to KEY_TIMEOUT seconds from now
+        redisAccess.expire(key, KEY_TIMEOUT);
+
+        disconnect();
+
+        return result;
+    }
+
+    @Override
     protected Optional<PostList> getPostList(String keyString, Integer index) {
         PostList postList = null;
 
@@ -176,6 +186,28 @@ public class RedisAccessObject extends AbstractDataAccess {
         } else {
             return Optional.of(postList);
         }
+    }
+
+    @Override
+    protected List<PostList> getAllPostLists(String keyString) {
+        connect();  // get all posts under a particular key (-1 refers to the last post in list)
+        List<byte[]> byteList = redisAccess.lrange(keyString.getBytes(), 0, -1);
+        disconnect();
+
+        List<PostList> listOfPostLists = new ArrayList<>();
+
+        // parse each post returned into Post objects
+        for (byte[] bytes : byteList) {
+            try {
+                PostList postList = PostList.parseFrom(bytes);
+                listOfPostLists.add(postList);
+            } catch (InvalidProtocolBufferException iPBE) {
+                // todo: better error handling
+                Logger.warn("Invalid Protocol Buffer");
+            }
+        }
+
+        return listOfPostLists;
     }
 
     @Override
@@ -222,17 +254,6 @@ public class RedisAccessObject extends AbstractDataAccess {
         // convert set of bytes to list of strings and return
         return byteList.stream().map(String::new).collect(Collectors.toList());
     }
-
-    @Override
-    protected String deleteFirstNPosts(String keyString, Integer numPosts) {
-
-        connect();
-        String returnString = redisAccess.ltrim(keyString.getBytes(), numPosts, -1);
-        disconnect();
-
-        return returnString;
-    }
-
 
     /**
      * Retrieves the byte array stored at the specified index in Redis under keyString. The byte array can then be

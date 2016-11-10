@@ -62,6 +62,55 @@ public class InMemoryAccessObject extends AbstractDataAccess {
     }
 
     @Override
+    protected Optional<Post> popFirstPost(String keyString) {
+
+        List<Post> listAtKeyString = postDataStore.get(keyString);
+        Post oldestPost = null;
+
+        if (listAtKeyString != null && listAtKeyString.size() > 0) {
+            // pop post if one exists
+            oldestPost = listAtKeyString.get(0);
+            listAtKeyString.remove(0);
+        }
+
+        if (oldestPost == null) {
+            return Optional.empty();
+        } else {
+            return Optional.of(oldestPost);
+        }
+    }
+
+    @Override
+    protected List<Post> getAllPosts(String keyString) {
+
+        List<Post> listOfPosts = postDataStore.get(keyString);
+
+        // return list of posts under a key, or empty list if key does not exist
+        if (listOfPosts == null) {
+            return Collections.emptyList();
+        } else {
+            return listOfPosts;
+        }
+    }
+
+    @Override
+    protected String deleteFirstNPosts(String keyString, Integer numPosts) {
+        List<Post> listAtKeyString = postDataStore.get(keyString);
+
+        if (listAtKeyString == null) {
+            return "EMPTY";
+        } else {
+            if (listAtKeyString.size() <= numPosts) {   // clear entire list
+                listAtKeyString.clear();
+            } else {
+                // clear subList from index 0 (inclusive) to index numPosts (exclusive)
+                listAtKeyString.subList(0, numPosts).clear();
+            }
+            return "OK";
+        }
+    }
+
+    @Override
     protected long addNewPostList(String keyString, PostList postList) {
 
         List<PostList> listAtKeyString;
@@ -86,37 +135,6 @@ public class InMemoryAccessObject extends AbstractDataAccess {
         return listAtKeyString.size();
     }
 
-    @Override
-    protected List<Post> getAllPosts(String keyString) {
-
-        List<Post> listOfPosts = postDataStore.get(keyString);
-
-        // return list of posts under a key, or empty list if key does not exist
-        if (listOfPosts == null) {
-            return Collections.emptyList();
-        } else {
-            return listOfPosts;
-        }
-    }
-
-    @Override
-    public Optional<Post> popFirstPost(String keyString) {
-
-        List<Post> listAtKeyString = postDataStore.get(keyString);
-        Post oldestPost = null;
-
-        if (listAtKeyString != null && listAtKeyString.size() > 0) {
-            // pop post if one exists
-            oldestPost = listAtKeyString.get(0);
-            listAtKeyString.remove(0);
-        }
-
-        if (oldestPost == null) {
-            return Optional.empty();
-        } else {
-            return Optional.of(oldestPost);
-        }
-    }
 
     @Override
     protected Optional<PostList> getPostList(String keyString, Integer index) {
@@ -127,6 +145,18 @@ public class InMemoryAccessObject extends AbstractDataAccess {
             return Optional.empty();
         } else {
             return Optional.of(listAtKeyString.get(index));
+        }
+    }
+
+    @Override
+    protected List<PostList> getAllPostLists(String keyString) {
+        List<PostList> listOfPostLists = postListDataStore.get(keyString);
+
+        // return list of posts under a key, or empty list if key does not exist
+        if (listOfPostLists == null) {
+            return Collections.emptyList();
+        } else {
+            return listOfPostLists;
         }
     }
 
@@ -149,23 +179,6 @@ public class InMemoryAccessObject extends AbstractDataAccess {
     public List<String> getKeysInNameSpace(String nameSpace) {
         // filter key set for keys matching keyString and return filtered list
         return postDataStore.keySet().stream().filter(key -> key.contains(nameSpace + NAMESPACE_DELIMITER)).collect(Collectors.toList());
-    }
-
-    @Override
-    protected String deleteFirstNPosts(String keyString, Integer numPosts) {
-        List<Post> listAtKeyString = postDataStore.get(keyString);
-
-        if (listAtKeyString == null) {
-            return "EMPTY";
-        } else {
-            if (listAtKeyString.size() <= numPosts) {   // clear entire list
-                listAtKeyString.clear();
-            } else {
-                // clear subList from index 0 (inclusive) to index numPosts (exclusive)
-                listAtKeyString.subList(0, numPosts).clear();
-            }
-            return "OK";
-        }
     }
 
 }
