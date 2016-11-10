@@ -25,7 +25,7 @@ public class Module extends AbstractModule {
     public void configure() {
         bind(SortingNode.class);
         bind(DataCollectionRunner.class);
-        bind(AbstractDataAccess.class).to(InMemoryAccessObject.class);
+        bind(AbstractDataAccess.class).to(RedisAccessObject.class);
         bind(ContentController.class).asEagerSingleton();
     }
 
