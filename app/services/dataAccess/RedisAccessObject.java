@@ -47,7 +47,7 @@ public class RedisAccessObject extends AbstractDataAccess {
     }
 
     @Override
-    public long addNewPost(String keyString, Post post) {
+    protected long addNewPost(String keyString, Post post) {
 
         connect();
 
@@ -59,7 +59,7 @@ public class RedisAccessObject extends AbstractDataAccess {
     }
 
     @Override
-    public long addNewPosts(String keyString, List<Post> listOfPosts) {
+    protected long addNewPosts(String keyString, List<Post> listOfPosts) {
 
         connect();
         Pipeline pipe = redisAccess.pipelined();
@@ -83,7 +83,7 @@ public class RedisAccessObject extends AbstractDataAccess {
     }
 
     @Override
-    public long addNewPostList(String keyString, PostList postList) {
+    protected long addNewPostList(String keyString, PostList postList) {
 
         byte[] key = keyString.getBytes();
 
@@ -106,7 +106,7 @@ public class RedisAccessObject extends AbstractDataAccess {
     @Override
     public List<Post> getAllPosts(String keyString) {
 
-        connect();  // get all posts under a particular key (denoted by range 0 to -1)
+        connect();  // get all posts under a particular key (-1 refers to the last post in list)
         List<byte[]> byteList = redisAccess.lrange(keyString.getBytes(), 0, -1);
         disconnect();
 
@@ -127,7 +127,7 @@ public class RedisAccessObject extends AbstractDataAccess {
     }
 
     @Override
-    public Optional<Post> popOldestPost(String keyString) {
+    public Optional<Post> popFirstPost(String keyString) {
         Post oldestPost = null;
 
         connect();
@@ -156,28 +156,12 @@ public class RedisAccessObject extends AbstractDataAccess {
         }
     }
 
-    private Optional<byte[]> peekAtByte(String keyString) {
-
-        byte[] key = keyString.getBytes();
-
-        connect();  // connect to redis and get first element under key
-        List<byte[]> entryList = redisAccess.lrange(key, 0, 0);
-        redisAccess.expire(key, KEY_TIMEOUT); // reset key timeout to KEY_TIMEOUT seconds from access
-        disconnect();
-
-        if (entryList.isEmpty()) {     // if we found something, take the first element
-            return Optional.empty();
-        } else {
-            return Optional.of(entryList.get(0));
-        }
-    }
-
     @Override
-    public Optional<PostList> peekAtPostList(String keyString) {
+    protected Optional<PostList> getPostList(String keyString, Integer index) {
         PostList postList = null;
 
         try {
-            Optional<byte[]> postListByte = peekAtByte(keyString);
+            Optional<byte[]> postListByte = getByte(keyString, index);
             if (postListByte.isPresent()) {
                 postList = PostList.parseFrom(postListByte.get());
             }
@@ -225,11 +209,13 @@ public class RedisAccessObject extends AbstractDataAccess {
     }
 
     @Override
-    public List<String> getKeysInNameSpace(String matchString) {
+    public List<String> getKeysInNameSpace(String nameSpace) {
 
         // retrieve set of keys matching matchString
         connect();
-        Set<byte[]> byteList = redisAccess.keys((matchString + NAMESPACE_DELIMITER + "*").getBytes());
+
+        // match all keys with namespace by using wildcard '*'
+        Set<byte[]> byteList = redisAccess.keys((nameSpace + NAMESPACE_DELIMITER + "*").getBytes());
         disconnect();
 
         // convert set of bytes to list of strings and return
@@ -237,13 +223,38 @@ public class RedisAccessObject extends AbstractDataAccess {
     }
 
     @Override
-    public String deleteFirstNPosts(String keyString, Integer numPosts) {
+    protected String deleteFirstNPosts(String keyString, Integer numPosts) {
 
         connect();
         String returnString = redisAccess.ltrim(keyString.getBytes(), numPosts, -1);
         disconnect();
 
         return returnString;
+    }
+
+
+    /**
+     * Retrieves the byte array stored at the specified index in Redis under keyString. The byte array can then be
+     * parsed into either a Post or PostList.
+     *
+     * @param keyString string corresponding to key in Redis (complete with namespace and delimiter)
+     * @param index desired index of list under keyString
+     * @return Optional of byte array stored at index, empty if not found.
+     */
+    private Optional<byte[]> getByte(String keyString, Integer index) {
+
+        byte[] key = keyString.getBytes();
+
+        connect();  // connect to redis and get element under key at index
+        List<byte[]> entryList = redisAccess.lrange(key, index, index);
+        redisAccess.expire(key, KEY_TIMEOUT); // reset key timeout to KEY_TIMEOUT seconds from access
+        disconnect();
+
+        if (entryList.isEmpty()) {     // if we found something, take the first element
+            return Optional.empty();
+        } else {
+            return Optional.of(entryList.get(0));
+        }
     }
 
 }

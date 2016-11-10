@@ -41,11 +41,9 @@ public class RedisAccessTest {
     private static final Integer numTestPosts = 10;     // MUST be greater than 1.
 
     // generate unique ID within test namespace
-    private static final String testKeyString = AbstractDataAccess.TEST_NAMESPACE
-            + AbstractDataAccess.NAMESPACE_DELIMITER
-            + UUID.randomUUID().toString();
+    private static final String testKeyString = "test" + UUID.randomUUID().toString();
     private static boolean redisTestsIncluded = false;
-    private static final Integer CURRENT_MAX_POSTLISTS = 100;
+    private static final Integer CURRENT_MAX_POSTLISTS = AbstractDataAccess.getMaxPostlists();
     private static final Integer numTestPostLists = CURRENT_MAX_POSTLISTS + 10;
 
     // Sample test values
@@ -97,17 +95,29 @@ public class RedisAccessTest {
         assumeTrue(redisTestsIncluded);
 
         directToRedis.connect();
-        directToRedis.del(testKeyString.getBytes());
+        directToRedis.del((AbstractDataAccess.getDisplayNamespace()
+                + AbstractDataAccess.getNamespaceDelimiter()
+                + testKeyString).getBytes());
+        directToRedis.del((AbstractDataAccess.getHashtagNamespace()
+                + AbstractDataAccess.getNamespaceDelimiter()
+                + testKeyString).getBytes());
+        directToRedis.del((AbstractDataAccess.getSourceNamespace()
+                + AbstractDataAccess.getNamespaceDelimiter()
+                + testKeyString).getBytes());
         directToRedis.disconnect();
     }
+
+    /*
+     * Post Management Tests
+     */
 
     @Test
     public void addPostToEmptyRedis() {
         assumeTrue(redisTestsIncluded);
 
         // Add new post to completely empty store. Should create new key entry, with new post at front of key
-        redisAccessObject.addNewPost(testKeyString, posts.get(0));
-        assertEquals(posts.get(0), redisAccessObject.getAllPosts(testKeyString).get(0));
+        redisAccessObject.addNewPostFromSource(testKeyString, posts.get(0));
+        assertEquals(posts.get(0), redisAccessObject.getAllPostsFromSource(testKeyString).get(0));
     }
 
     @Test
@@ -115,11 +125,11 @@ public class RedisAccessTest {
         assumeTrue(redisTestsIncluded);
 
         // Initialize store with multiple posts, and add a single key
-        redisAccessObject.addNewPosts(testKeyString, posts);
-        redisAccessObject.addNewPost(testKeyString, posts.get(0));
+        redisAccessObject.addNewPostsFromSource(testKeyString, posts);
+        redisAccessObject.addNewPostFromSource(testKeyString, posts.get(0));
 
         // new post has been added to end of posts
-        assertEquals(posts.get(0), redisAccessObject.getAllPosts(testKeyString).get(numTestPosts));
+        assertEquals(posts.get(0), redisAccessObject.getAllPostsFromSource(testKeyString).get(numTestPosts));
     }
 
     @Test
@@ -127,9 +137,9 @@ public class RedisAccessTest {
         assumeTrue(redisTestsIncluded);
 
         // add multiple posts to an empty key. Should create new key entry, with posts in order
-        redisAccessObject.addNewPosts(testKeyString, posts);
+        redisAccessObject.addNewPostsFromSource(testKeyString, posts);
 
-        assertEquals(posts, redisAccessObject.getAllPosts(testKeyString));
+        assertEquals(posts, redisAccessObject.getAllPostsFromSource(testKeyString));
     }
 
     @Test
@@ -137,11 +147,11 @@ public class RedisAccessTest {
         assumeTrue(redisTestsIncluded);
 
         // Add 2 sets of posts
-        redisAccessObject.addNewPosts(testKeyString, posts);
-        redisAccessObject.addNewPosts(testKeyString, posts);
+        redisAccessObject.addNewPostsFromSource(testKeyString, posts);
+        redisAccessObject.addNewPostsFromSource(testKeyString, posts);
 
         // new posts have been added in order and succeed old posts
-        assertEquals(posts, redisAccessObject.getAllPosts(testKeyString).subList(numTestPosts, 2 * numTestPosts));
+        assertEquals(posts, redisAccessObject.getAllPostsFromSource(testKeyString).subList(numTestPosts, 2 * numTestPosts));
     }
 
     @Test
@@ -149,7 +159,7 @@ public class RedisAccessTest {
         assumeTrue(redisTestsIncluded);
 
         // Need to see that we handle an empty response correctly
-        assertFalse(redisAccessObject.popOldestPost(testKeyString).isPresent());
+        assertFalse(redisAccessObject.popFirstPostFromSource(testKeyString).isPresent());
     }
 
     @Test
@@ -157,25 +167,25 @@ public class RedisAccessTest {
         assumeTrue(redisTestsIncluded);
 
         // add posts
-        redisAccessObject.addNewPosts(testKeyString, posts);
+        redisAccessObject.addNewPostsFromSource(testKeyString, posts);
 
         // see if we pop them in order
         for (int i = 0; i < numTestPosts; i++) {
-            assertEquals(Optional.of(posts.get(i)), redisAccessObject.popOldestPost(testKeyString));
+            assertEquals(Optional.of(posts.get(i)), redisAccessObject.popFirstPostFromSource(testKeyString));
         }
     }
 
     @Test
-    public void addPostListToEmptyRedis() {
+    public void addListOfPostsToEmptyRedis() {
         assumeTrue(redisTestsIncluded);
 
         // add posts to empty keyspace; should create new keyspace with those posts in order
-        redisAccessObject.addNewPosts(testKeyString, posts);
-        assertEquals(posts, redisAccessObject.getAllPosts(testKeyString));
+        redisAccessObject.addNewPostsFromSource(testKeyString, posts);
+        assertEquals(posts, redisAccessObject.getAllPostsFromSource(testKeyString));
     }
 
     @Test
-    public void addPostListToNonEmptyRedis() {
+    public void addListOfOddOrderedPostsToNonEmptyRedis() {
         assumeTrue(redisTestsIncluded);
 
         // initialize temporary list with posts, and add one post at index 0
@@ -183,11 +193,11 @@ public class RedisAccessTest {
         testList.add(0, posts.get(0));  // add first element to beginning of test list
 
         // add first post to redis, then remaining posts
-        redisAccessObject.addNewPost(testKeyString, posts.get(0));
-        redisAccessObject.addNewPosts(testKeyString, posts);
+        redisAccessObject.addNewPostFromSource(testKeyString, posts.get(0));
+        redisAccessObject.addNewPostsFromSource(testKeyString, posts);
 
         // check if posts were added in correct order
-        assertEquals(testList, redisAccessObject.getAllPosts(testKeyString));
+        assertEquals(testList, redisAccessObject.getAllPostsFromSource(testKeyString));
     }
 
     @Test
@@ -195,7 +205,7 @@ public class RedisAccessTest {
         assumeTrue(redisTestsIncluded);
 
         // check for proper empty return value
-        List<Post> emptyList = redisAccessObject.getAllPosts(testKeyString);
+        List<Post> emptyList = redisAccessObject.getAllPostsFromSource(testKeyString);
         assertEquals(new ArrayList<Post>(), emptyList);
     }
 
@@ -204,8 +214,8 @@ public class RedisAccessTest {
         assumeTrue(redisTestsIncluded);
 
         // check for successful return, in-order
-        redisAccessObject.addNewPosts(testKeyString, posts);
-        assertEquals(posts, redisAccessObject.getAllPosts(testKeyString));
+        redisAccessObject.addNewPostsFromSource(testKeyString, posts);
+        assertEquals(posts, redisAccessObject.getAllPostsFromSource(testKeyString));
     }
 
     @Test
@@ -213,7 +223,7 @@ public class RedisAccessTest {
         assumeTrue(redisTestsIncluded);
 
         // check for proper error handling on empty keyspace
-        assertEquals(Optional.empty(), redisAccessObject.popOldestPost(testKeyString));
+        assertEquals(Optional.empty(), redisAccessObject.popFirstPostFromSource(testKeyString));
     }
 
     @Test
@@ -221,19 +231,23 @@ public class RedisAccessTest {
         assumeTrue(redisTestsIncluded);
 
         // initialize with posts, and pop one post
-        redisAccessObject.addNewPosts(testKeyString, posts);
-        redisAccessObject.popOldestPost(testKeyString);
+        redisAccessObject.addNewPostsFromSource(testKeyString, posts);
+        redisAccessObject.popFirstPostFromSource(testKeyString);
 
         // pop second post to see if popped in order
-        assertEquals(Optional.of(posts.get(1)), redisAccessObject.popOldestPost(testKeyString));
+        assertEquals(Optional.of(posts.get(1)), redisAccessObject.popFirstPostFromSource(testKeyString));
     }
+
+    /*
+     * PostList Management Tests
+     */
 
     @Test
     public void peekAtEmptyPostList() {
         assumeTrue(redisTestsIncluded);
 
         // check for error handling on empty PostList
-        assertFalse(redisAccessObject.peekAtPostList(testKeyString).isPresent());
+        assertFalse(redisAccessObject.getDisplayPostList(testKeyString, 0).isPresent());
     }
 
     @Test
@@ -241,17 +255,20 @@ public class RedisAccessTest {
         assumeTrue(redisTestsIncluded);
 
         // initialize postlist
-        redisAccessObject.addNewPostList(testKeyString, postList);
+        redisAccessObject.addNewDisplayPostList(testKeyString, postList);
+        redisAccessObject.addNewDisplayPostList(testKeyString, postList);
 
         // get postlist; test twice to ensure we are not popping.
-        assertEquals(Optional.of(postList), redisAccessObject.peekAtPostList(testKeyString));
-        assertEquals(Optional.of(postList), redisAccessObject.peekAtPostList(testKeyString));
+        assertEquals(Optional.of(postList), redisAccessObject.getDisplayPostList(testKeyString, 0));
+        assertEquals(Optional.of(postList), redisAccessObject.getDisplayPostList(testKeyString, 0));
+        assertEquals(Optional.of(postList), redisAccessObject.getDisplayPostList(testKeyString, 1));
+        assertEquals(Optional.of(postList), redisAccessObject.getDisplayPostList(testKeyString, 1));
     }
 
     @Test
     public void getNumPostsInEmptyNameSpace() {
         assumeTrue(redisTestsIncluded);
-        assertEquals(0, redisAccessObject.getNumPostsInNameSpace(AbstractDataAccess.TEST_NAMESPACE));
+        assertEquals(0, redisAccessObject.getNumPostsInNameSpace(""));
     }
 
     @Test
@@ -260,20 +277,26 @@ public class RedisAccessTest {
 
         final String testKeyStringZero = testKeyString + "0";
         final String testKeyStringOne = testKeyString + "1";
-        final String negativeTestKeyString = "asdfghrtbgqer:test";
+        final String negativeTestKeyString = AbstractDataAccess.getTestNamespace();
 
-        redisAccessObject.addNewPosts(testKeyString, posts);
-        redisAccessObject.addNewPosts(testKeyStringZero, posts);
-        redisAccessObject.addNewPosts(testKeyStringOne, posts);
-        redisAccessObject.addNewPosts(negativeTestKeyString, posts);
+        redisAccessObject.addNewPostsFromSource(testKeyString, posts);
+        redisAccessObject.addNewPostsFromSource(testKeyStringZero, posts);
+        redisAccessObject.addNewPostsFromSource(testKeyStringOne, posts);
+        redisAccessObject.addNewDisplayPostList(negativeTestKeyString, postList);
 
-        long numPostsInNameSpace = redisAccessObject.getNumPostsInNameSpace(AbstractDataAccess.TEST_NAMESPACE);
+        long numPostsInNameSpace = redisAccessObject.getNumPostsInNameSpace(AbstractDataAccess.getSourceNamespace());
 
         // clean up keys created locally by this test (not included in @After)
         directToRedis.connect();
-        directToRedis.del(testKeyStringZero.getBytes());
-        directToRedis.del(testKeyStringOne.getBytes());
-        directToRedis.del(negativeTestKeyString.getBytes());
+        directToRedis.del((AbstractDataAccess.getSourceNamespace()
+                + AbstractDataAccess.getNamespaceDelimiter()
+                + testKeyStringZero).getBytes());
+        directToRedis.del((AbstractDataAccess.getSourceNamespace()
+                + AbstractDataAccess.getNamespaceDelimiter()
+                + testKeyStringOne).getBytes());
+        directToRedis.del((AbstractDataAccess.getDisplayNamespace()
+                + AbstractDataAccess.getNamespaceDelimiter()
+                + negativeTestKeyString).getBytes());
         directToRedis.disconnect();
 
         assertEquals(3 * numTestPosts, numPostsInNameSpace);
@@ -285,28 +308,31 @@ public class RedisAccessTest {
         assumeTrue(redisTestsIncluded);
 
         // result on query for non-existent keys should be empty
-        assertEquals(Collections.emptyList(), redisAccessObject.getKeysInNameSpace(AbstractDataAccess.TEST_NAMESPACE));
+        assertEquals(Collections.emptyList(), redisAccessObject.getKeysInNameSpace(AbstractDataAccess.getTestNamespace()));
     }
 
     @Test
     public void getKeysInNonEmptyNameSpace() {
         assumeTrue(redisTestsIncluded);
 
-        redisAccessObject.addNewPosts(testKeyString, posts);
+        redisAccessObject.addNewPostsFromSource(testKeyString, posts);
 
         // should return list containing only testKeyString
-        assertEquals(testKeyString, redisAccessObject.getKeysInNameSpace(AbstractDataAccess.TEST_NAMESPACE).get(0));
+        assertEquals(AbstractDataAccess.getSourceNamespace()
+                + AbstractDataAccess.getNamespaceDelimiter()
+                + testKeyString,
+                redisAccessObject.getKeysInNameSpace(AbstractDataAccess.getSourceNamespace()).get(0));
     }
 
     @Test
     public void deleteNKeysFromNonEmptyListOfPosts() {
         assumeTrue(redisTestsIncluded);
 
-        redisAccessObject.addNewPosts(testKeyString, posts);
+        redisAccessObject.addNewPostsFromSource(testKeyString, posts);
 
         // delete first 5 posts in testKeyString, check that what remains matches the subList at index 5 and beyond
-        redisAccessObject.deleteFirstNPosts(testKeyString, 5);
-        assertEquals(posts.subList(5, numTestPosts), redisAccessObject.getAllPosts(testKeyString));
+        redisAccessObject.deleteFirstNPostsFromSourceQueue(testKeyString, 5);
+        assertEquals(posts.subList(5, numTestPosts), redisAccessObject.getAllPostsFromSource(testKeyString));
     }
 
     @Test
@@ -314,30 +340,30 @@ public class RedisAccessTest {
         assumeTrue(redisTestsIncluded);
 
         // delete on empty should result in empty.
-        redisAccessObject.deleteFirstNPosts(testKeyString, 1);
-        assertEquals(Collections.emptyList(), redisAccessObject.getAllPosts(testKeyString));
+        redisAccessObject.deleteFirstNPostsFromSourceQueue(testKeyString, 1);
+        assertEquals(Collections.emptyList(), redisAccessObject.getAllPostsFromSource(testKeyString));
     }
 
     @Test
     public void deleteMoreThanSizeKeysFromListOfPosts() {
         assumeTrue(redisTestsIncluded);
 
-        redisAccessObject.addNewPosts(testKeyString, posts);
+        redisAccessObject.addNewPostsFromSource(testKeyString, posts);
 
         // deleting more than size posts should result in empty list at keyString
-        redisAccessObject.deleteFirstNPosts(testKeyString, numTestPosts + 1);
-        assertEquals(Collections.emptyList(), redisAccessObject.getAllPosts(testKeyString));
+        redisAccessObject.deleteFirstNPostsFromSourceQueue(testKeyString, numTestPosts + 1);
+        assertEquals(Collections.emptyList(), redisAccessObject.getAllPostsFromSource(testKeyString));
     }
 
     @Test
     public void deleteZeroKeysFromListOfPosts() {
         assumeTrue(redisTestsIncluded);
 
-        redisAccessObject.addNewPosts(testKeyString, posts);
+        redisAccessObject.addNewPostsFromSource(testKeyString, posts);
 
         // calling delete on 0 keys should not change list
-        redisAccessObject.deleteFirstNPosts(testKeyString, 0);
-        assertEquals(posts, redisAccessObject.getAllPosts(testKeyString));
+        redisAccessObject.deleteFirstNPostsFromSourceQueue(testKeyString, 0);
+        assertEquals(posts, redisAccessObject.getAllPostsFromSource(testKeyString));
     }
 
     @Test
@@ -346,12 +372,14 @@ public class RedisAccessTest {
 
         // load list at testKeyString past the maximum allocated number of postLists
         for (int i = 0; i < numTestPostLists; i++) {
-            redisAccessObject.addNewPostList(testKeyString, postList);
+            redisAccessObject.addNewHashTagPostList(testKeyString, postList);
         }
 
         // check that the number of postLists has met and not exceeded the maximum
         directToRedis.connect();
-        Long response = directToRedis.llen(testKeyString.getBytes());
+        Long response = directToRedis.llen((AbstractDataAccess.getHashtagNamespace()
+                + AbstractDataAccess.getNamespaceDelimiter()
+                + testKeyString).getBytes());
         directToRedis.disconnect();
 
         assertTrue(response.equals(CURRENT_MAX_POSTLISTS.longValue()));

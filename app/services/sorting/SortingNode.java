@@ -57,43 +57,39 @@ public class SortingNode implements Runnable {
         List<Post> newPosts = new ArrayList<>();
 
         // Obtain number of posts available for processing and exit if this does not meet the threshold
-        Long numAvailablePosts = dataSource.getNumPostsInNameSpace(AbstractDataAccess.SOURCE_NAMESPACE);
+        Long numAvailablePosts = dataSource.getNumPostsInSources();
         if (numAvailablePosts < PROCESS_INPUT_THRESHOLD) {
             return;
         }
 
         // Obtain all source channels, obtain all posts from each, and delete these posts from the source channels
-        List<String> sourceKeys = dataSource.getKeysInNameSpace(AbstractDataAccess.SOURCE_NAMESPACE);
+        List<String> sourceKeys = dataSource.getSources();
         for (String key : sourceKeys) {
-            List<Post> postsFromSource = dataSource.getAllPosts(key);   // get all posts provided by source
+            List<Post> postsFromSource = dataSource.getAllPostsFromSource(key);   // get all posts provided by source
 
             newPosts.addAll(postsFromSource);                           // load posts into memory
-            dataSource.deleteFirstNPosts(key, postsFromSource.size());  // delete all posts that have been gathered
+            // delete all posts that have been gathered
+            dataSource.deleteFirstNPostsFromSourceQueue(key, postsFromSource.size());
         }
 
-        dataSource.addNewPostList(
-                AbstractDataAccess.DISPLAY_NAMESPACE + AbstractDataAccess.NAMESPACE_DELIMITER + "top",
-                preparePostList(sortTopPosts(newPosts))
+        dataSource.addNewDisplayPostList("top", preparePostList(sortTopPosts(newPosts))
         );
 
 
         /*
         // Sort trending posts, process into postList, and add to trending channel
-        dataSource.addNewPostList(
-                AbstractDataAccess.DISPLAY_NAMESPACE + AbstractDataAccess.NAMESPACE_DELIMITER + "trending",
-                preparePostList(sortTrendingPosts(newPosts))
+        dataSource.addNewDisplayPostList("trending", preparePostList(sortTrendingPosts(newPosts))
         );
 
         // Bin posts containing particular hashtags together, and add to individual channels
         Map<String, List<Post>> postsByHashTag = sortPostsByHashTag(newPosts);
 
         for (Map.Entry<String, List<Post>> e : postsByHashTag.entrySet()) {
-            dataSource.addNewPostList(
-                    AbstractDataAccess.HASHTAG_NAMESPACE + AbstractDataAccess.NAMESPACE_DELIMITER + e.getKey(),
-                    preparePostList(e.getValue())
+            dataSource.addNewHashTagPostList(e.getKey(), preparePostList(e.getValue())
             );
         }
         */
+
 
     }
 

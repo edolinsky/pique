@@ -22,8 +22,7 @@ import static org.junit.Assume.assumeTrue;
 public class InMemoryAccessTest {
 
     private static InMemoryAccessObject inMemoryAccess = new InMemoryAccessObject();
-    private static final String testKeyString = AbstractDataAccess.TEST_NAMESPACE
-            + AbstractDataAccess.NAMESPACE_DELIMITER + "test";
+    private static final String testKeyString = "test";
     private static final Integer numTestPosts = 10;
     private static final ArrayList<Post> posts = new ArrayList<>();
     private static PostList postList;
@@ -57,92 +56,89 @@ public class InMemoryAccessTest {
         inMemoryAccess = new InMemoryAccessObject();
     }
 
+
+    /*
+     * Post Queue Management Tests
+     */
+
     @Test
     public void addPostToEmptyMemory() {
 
         // Add new post to completely empty store. Should create new key entry, with new post at front of key
-        inMemoryAccess.addNewPost(testKeyString, posts.get(0));
-        assertEquals(posts.get(0), inMemoryAccess.getAllPosts(testKeyString).get(0));
+        inMemoryAccess.addNewPostFromSource(testKeyString, posts.get(0));
+        assertEquals(posts.get(0), inMemoryAccess.getAllPostsFromSource(testKeyString).get(0));
     }
 
     @Test
     public void addPostToNonEmptyMemory() {
 
         // Initialize store with multiple posts, and add a single key
-        inMemoryAccess.addNewPosts(testKeyString, posts);
-        inMemoryAccess.addNewPost(testKeyString, posts.get(0));
+        inMemoryAccess.addNewPostsFromSource(testKeyString, posts);
+        inMemoryAccess.addNewPostFromSource(testKeyString, posts.get(0));
 
         // new post has been added to end of posts
-        assertEquals(posts.get(0), inMemoryAccess.getAllPosts(testKeyString).get(numTestPosts));
+        assertEquals(posts.get(0), inMemoryAccess.getAllPostsFromSource(testKeyString).get(numTestPosts));
     }
 
     @Test
     public void addPostsToEmptyMemory() {
 
         // add multiple posts to an empty key. Should create new key entry, with posts in order
-        inMemoryAccess.addNewPosts(testKeyString, posts);
+        inMemoryAccess.addNewPostsFromSource(testKeyString, posts);
 
-        assertEquals(posts, inMemoryAccess.getAllPosts(testKeyString));
+        assertEquals(posts, inMemoryAccess.getAllPostsFromSource(testKeyString));
     }
 
     @Test
     public void addPostsToNonEmptyMemory() {
 
         // Add 2 sets of posts
-        inMemoryAccess.addNewPosts(testKeyString, posts);
-        inMemoryAccess.addNewPosts(testKeyString, posts);
+        inMemoryAccess.addNewPostsFromSource(testKeyString, posts);
+        inMemoryAccess.addNewPostsFromSource(testKeyString, posts);
 
         // new posts have been added in order and succeed old posts
-        assertEquals(posts, inMemoryAccess.getAllPosts(testKeyString).subList(numTestPosts, 2 * numTestPosts));
+        assertEquals(posts, inMemoryAccess.getAllPostsFromSource(testKeyString).subList(numTestPosts, 2 * numTestPosts));
     }
 
     @Test
     public void popEmptyPostMemory() {
 
         // Need to see that we handle an empty response correctly
-        assertFalse(inMemoryAccess.popOldestPost(testKeyString).isPresent());
+        assertFalse(inMemoryAccess.popFirstPostFromSource(testKeyString).isPresent());
     }
 
     @Test
     public void popNonEmptyPostMemory() {
 
         // add posts
-        inMemoryAccess.addNewPosts(testKeyString, posts);
+        inMemoryAccess.addNewPostsFromSource(testKeyString, posts);
 
         // see if we pop them in order
         for (int i = 0; i < numTestPosts; i++) {
-            assertEquals(Optional.of(posts.get(i)), inMemoryAccess.popOldestPost(testKeyString));
+            assertEquals(Optional.of(posts.get(i)), inMemoryAccess.popFirstPostFromSource(testKeyString));
         }
     }
 
     @Test
-    public void addPostListToEmptyMemory() {
-
-        // add posts to empty keyspace; should create new keyspace with those posts in order
-        inMemoryAccess.addNewPosts(testKeyString, posts);
-        assertEquals(posts, inMemoryAccess.getAllPosts(testKeyString));
-    }
-
-    @Test
-    public void addPostListToNonEmptyMemory() {
+    public void addPostsToNonEmptyMemoryInOddOrder() {
 
         // initialize temporary list with posts, and add one post at index 0
         ArrayList<Post> testList = new ArrayList<>(posts);
         testList.add(0, posts.get(0));  // add first element to beginning of test list
 
         // add first post to memory, then remaining posts
-        inMemoryAccess.addNewPost(testKeyString, posts.get(0));
-        inMemoryAccess.addNewPosts(testKeyString, posts);
+        inMemoryAccess.addNewPostFromSource(testKeyString, posts.get(0));
+        inMemoryAccess.addNewPostsFromSource(testKeyString, posts);
 
         // check if posts were added in correct order
-        assertEquals(testList, inMemoryAccess.getAllPosts(testKeyString));
+        assertEquals(testList, inMemoryAccess.getAllPostsFromSource(testKeyString));
     }
 
     @Test
     public void getEmptyListofPosts() {
 
         // check for proper empty return value
-        List<Post> emptyList = inMemoryAccess.getAllPosts(testKeyString);
+        List<Post> emptyList = inMemoryAccess.getAllPostsFromSource(testKeyString);
         assertEquals(new ArrayList<Post>(), emptyList);
     }
 
@@ -150,45 +146,93 @@ public class InMemoryAccessTest {
     public void getNonEmptyListofPosts() {
 
         // check for successful return, in-order
-        inMemoryAccess.addNewPosts(testKeyString, posts);
-        assertEquals(posts, inMemoryAccess.getAllPosts(testKeyString));
+        inMemoryAccess.addNewPostsFromSource(testKeyString, posts);
+        assertEquals(posts, inMemoryAccess.getAllPostsFromSource(testKeyString));
     }
 
     @Test
     public void popOldestPostFromEmpty() {
 
         // check for proper error handling on empty keyspace
-        assertEquals(Optional.empty(), inMemoryAccess.popOldestPost(testKeyString));
+        assertEquals(Optional.empty(), inMemoryAccess.popFirstPostFromSource(testKeyString));
     }
 
     @Test
     public void popOldestPostFromNonEmpty() {
 
         // initialize with posts, and pop one post
-        inMemoryAccess.addNewPosts(testKeyString, posts);
-        inMemoryAccess.popOldestPost(testKeyString);
+        inMemoryAccess.addNewPostsFromSource(testKeyString, posts);
+        inMemoryAccess.popFirstPostFromSource(testKeyString);
 
         // pop second post to see if popped in order
-        assertEquals(Optional.of(posts.get(1)), inMemoryAccess.popOldestPost(testKeyString));
+        assertEquals(Optional.of(posts.get(1)), inMemoryAccess.popFirstPostFromSource(testKeyString));
+    }
+
+    /*
+     * PostList management tests
+     */
+
+    @Test
+    public void addDisplayPostListToEmptyMemory() {
+
+        // add postList to empty keyspace; should create new keyspace with this postList at beginning
+        inMemoryAccess.addNewDisplayPostList(testKeyString, postList);
+        assertEquals(Optional.of(postList), inMemoryAccess.getDisplayPostList(testKeyString, 0));
+    }
+
+    @Test
+    public void addHashTagPostListToEmptyMemory() {
+
+        // add postList to empty hashtag keyspace; should create new keyspace with this postList at beginning
+        inMemoryAccess.addNewHashTagPostList(testKeyString, postList);
+        assertEquals(Optional.of(postList), inMemoryAccess.getHashTagPostList(testKeyString, 0));
+    }
+
+    @Test
+    public void addDisplayPostListToNonEmptyMemory() {
+        inMemoryAccess.addNewDisplayPostList(testKeyString, postList);
+        inMemoryAccess.addNewDisplayPostList(testKeyString, postList);
+        assertEquals(Optional.of(postList), inMemoryAccess.getDisplayPostList(testKeyString, 1));
+    }
+
+    @Test
+    public void addHashTagPostListToNonEmptuMemory() {
+        inMemoryAccess.addNewHashTagPostList(testKeyString, postList);
+        inMemoryAccess.addNewHashTagPostList(testKeyString, postList);
+        assertEquals(Optional.of(postList), inMemoryAccess.getHashTagPostList(testKeyString, 1));
     }
 
     @Test
     public void peekAtEmptyPostList() {
 
         // check for error handling on empty PostList
-        assertFalse(inMemoryAccess.peekAtPostList(testKeyString).isPresent());
+        assertFalse(inMemoryAccess.getDisplayPostList(testKeyString, 0).isPresent());
     }
 
     @Test
-    public void peekAtNonEmptyPostList() {
+    public void getNonEmptyPostList() {
 
         // initialize postlist
-        inMemoryAccess.addNewPostList(testKeyString, postList);
+        inMemoryAccess.addNewDisplayPostList(testKeyString, postList);
+        inMemoryAccess.addNewDisplayPostList(testKeyString, postList);
 
-        // get postlist; test twice to ensure we are not popping.
-        assertEquals(Optional.of(postList), inMemoryAccess.peekAtPostList(testKeyString));
-        assertEquals(Optional.of(postList), inMemoryAccess.peekAtPostList(testKeyString));
+        // get postlist; test each twice to ensure we are not popping.
+        assertEquals(Optional.of(postList), inMemoryAccess.getDisplayPostList(testKeyString, 0));
+        assertEquals(Optional.of(postList), inMemoryAccess.getDisplayPostList(testKeyString, 0));
+        assertEquals(Optional.of(postList), inMemoryAccess.getDisplayPostList(testKeyString, 1));
+        assertEquals(Optional.of(postList), inMemoryAccess.getDisplayPostList(testKeyString, 1));
     }
+
+    @Test
+    public void getOutOfBoundsPostList() {
+
+        inMemoryAccess.addNewDisplayPostList(testKeyString, postList);
+        assertEquals(Optional.empty(), inMemoryAccess.getDisplayPostList(testKeyString, Integer.MAX_VALUE));
+    }
+
+    /*
+     * getNumPostsInNameSpace tests
+     */
 
     @Test
     public void getNumPostsInEmptyNameSpace() {
@@ -197,13 +241,17 @@ public class InMemoryAccessTest {
 
     @Test
     public void getNumPostsInNonEmptyNameSpace() {
-        inMemoryAccess.addNewPosts(testKeyString, posts);
-        inMemoryAccess.addNewPosts(testKeyString + "0", posts);
-        inMemoryAccess.addNewPosts(testKeyString + "1", posts);
-        inMemoryAccess.addNewPosts("asdfghwrtbgqer:test", posts);
+        inMemoryAccess.addNewPostsFromSource(testKeyString, posts);
+        inMemoryAccess.addNewPostsFromSource(testKeyString + "0", posts);
+        inMemoryAccess.addNewPostsFromSource(testKeyString + "1", posts);
+        inMemoryAccess.addNewHashTagPostList("asdfghwrtbgqer", postList); // hashtag namespace should not collide
 
-        assertEquals(3 * numTestPosts, inMemoryAccess.getNumPostsInNameSpace(AbstractDataAccess.TEST_NAMESPACE));
+        assertEquals(3 * numTestPosts, inMemoryAccess.getNumPostsInNameSpace("source"));
     }
+
+    /*
+     * getKeysInNameSpace tests
+     */
 
     @Test
     public void getKeysInEmptyNameSpace() { // result on query for non-existent keys should be empty
@@ -212,45 +260,52 @@ public class InMemoryAccessTest {
 
     @Test
     public void getKeysInNonEmptyNameSpace() {
-        inMemoryAccess.addNewPosts(testKeyString, posts);
+        inMemoryAccess.addNewPostsFromSource(testKeyString, posts);
 
         // should return list containing only testKeyString
-        assertEquals(testKeyString, inMemoryAccess.getKeysInNameSpace(AbstractDataAccess.TEST_NAMESPACE).get(0));
+        assertEquals( AbstractDataAccess.getSourceNamespace()
+                + AbstractDataAccess.getNamespaceDelimiter()
+                + testKeyString,
+                inMemoryAccess.getKeysInNameSpace("source").get(0));
     }
 
+    /*
+     * deleteNPosts tests
+     */
+
     @Test
-    public void deleteNKeysFromNonEmptyListOfPosts() {
-        inMemoryAccess.addNewPosts(testKeyString, posts);
+    public void deleteNPostsFromNonEmptyListOfPosts() {
+        inMemoryAccess.addNewPostsFromSource(testKeyString, posts);
 
         // delete first 5 posts in testKeyString, check that what remains matches the subList at index 5 and beyond
-        inMemoryAccess.deleteFirstNPosts(testKeyString, 5);
-        assertEquals(posts.subList(5, numTestPosts), inMemoryAccess.getAllPosts(testKeyString));
+        inMemoryAccess.deleteFirstNPostsFromSourceQueue(testKeyString, 5);
+        assertEquals(posts.subList(5, numTestPosts), inMemoryAccess.getAllPostsFromSource(testKeyString));
     }
 
     @Test
-    public void deleteNKeysFromEmptyListOfPosts() {
+    public void deleteNPostsFromEmptyListOfPosts() {
 
         // delete on empty should result in empty.
-        inMemoryAccess.deleteFirstNPosts(testKeyString, 1);
-        assertEquals(Collections.emptyList(), inMemoryAccess.getAllPosts(testKeyString));
+        inMemoryAccess.deleteFirstNPostsFromSourceQueue(testKeyString, 1);
+        assertEquals(Collections.emptyList(), inMemoryAccess.getAllPostsFromSource(testKeyString));
     }
 
     @Test
-    public void deleteMoreThanSizeKeysFromListOfPosts() {
-        inMemoryAccess.addNewPosts(testKeyString, posts);
+    public void deleteMoreThanSizePostsFromListOfPosts() {
+        inMemoryAccess.addNewPostsFromSource(testKeyString, posts);
 
         // deleting more than size posts should result in empty list at keyString
-        inMemoryAccess.deleteFirstNPosts(testKeyString, numTestPosts + 1);
-        assertEquals(Collections.emptyList(), inMemoryAccess.getAllPosts(testKeyString));
+        inMemoryAccess.deleteFirstNPostsFromSourceQueue(testKeyString, numTestPosts + 1);
+        assertEquals(Collections.emptyList(), inMemoryAccess.getAllPostsFromSource(testKeyString));
     }
 
     @Test
     public void deleteZeroKeysFromListOfPosts() {
-        inMemoryAccess.addNewPosts(testKeyString, posts);
+        inMemoryAccess.addNewPostsFromSource(testKeyString, posts);
 
         // calling delete on 0 keys should not change list
-        inMemoryAccess.deleteFirstNPosts(testKeyString, 0);
-        assertEquals(posts, inMemoryAccess.getAllPosts(testKeyString));
+        inMemoryAccess.deleteFirstNPostsFromSourceQueue(testKeyString, 0);
+        assertEquals(posts, inMemoryAccess.getAllPostsFromSource(testKeyString));
     }
 
     // todo: implement test for postList Expiry, only if we can obtain the number of postLists in postListDataStore

@@ -1,7 +1,9 @@
 package services.dataAccess;
 
 import org.joda.time.DateTime;
+import services.dataAccess.proto.PostListProto;
 import services.dataAccess.proto.PostListProto.PostList;
+import services.dataAccess.proto.PostProto;
 import services.dataAccess.proto.PostProto.Post;
 
 import java.text.DateFormat;
@@ -52,6 +54,11 @@ public class TestDataAccess extends AbstractDataAccess {
         return x;
     }
 
+    @Override
+    protected Optional<Post> popFirstPost(String keyString) {
+        return null;
+    }
+
     public long addNewPostList(String keyString, PostList postList) {
         return x;
     }
@@ -60,12 +67,14 @@ public class TestDataAccess extends AbstractDataAccess {
         return testPostList;
     }
 
-    public Optional<Post> popOldestPost(String keyString) {
-        return testOptPost;
+    @Override
+    protected Optional<PostList> getPostList(String keyString, Integer index) {
+        return null;
     }
 
-    public Optional<PostList> peekAtPostList(String keyString) {
-        return testOptPostList;
+    @Override
+    protected String deleteFirstNPosts(String keyString, Integer numPosts) {
+        return null;
     }
 
     @Override
@@ -78,8 +87,12 @@ public class TestDataAccess extends AbstractDataAccess {
         return null;
     }
 
-    @Override
-    public String deleteFirstNPosts(String keyString, Integer numPosts) {
-        return null;
+    public Optional<Post> popOldestPost(String keyString) {
+        return testOptPost;
     }
+
+    public Optional<PostList> peekAtPostList(String keyString) {
+        return testOptPostList;
+    }
+
 }

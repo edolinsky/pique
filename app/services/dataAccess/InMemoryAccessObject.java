@@ -3,6 +3,7 @@ package services.dataAccess;
 import services.dataAccess.proto.PostListProto.PostList;
 import services.dataAccess.proto.PostProto.Post;
 
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -20,7 +21,7 @@ public class InMemoryAccessObject extends AbstractDataAccess {
     }
 
     @Override
-    public long addNewPost(String keyString, Post post) {
+    protected long addNewPost(String keyString, Post post) {
 
         List<Post> listAtKeyString;
 
@@ -39,7 +40,7 @@ public class InMemoryAccessObject extends AbstractDataAccess {
     }
 
     @Override
-    public long addNewPosts(String keyString, List<Post> listOfPosts) {
+    protected long addNewPosts(String keyString, List<Post> listOfPosts) {
 
         List<Post> listAtKeyString;
 
@@ -61,7 +62,7 @@ public class InMemoryAccessObject extends AbstractDataAccess {
     }
 
     @Override
-    public long addNewPostList(String keyString, PostList postList) {
+    protected long addNewPostList(String keyString, PostList postList) {
 
         List<PostList> listAtKeyString;
 
@@ -86,7 +87,7 @@ public class InMemoryAccessObject extends AbstractDataAccess {
     }
 
     @Override
-    public List<Post> getAllPosts(String keyString) {
+    protected List<Post> getAllPosts(String keyString) {
 
         List<Post> listOfPosts = postDataStore.get(keyString);
 
@@ -99,7 +100,7 @@ public class InMemoryAccessObject extends AbstractDataAccess {
     }
 
     @Override
-    public Optional<Post> popOldestPost(String keyString) {
+    public Optional<Post> popFirstPost(String keyString) {
 
         List<Post> listAtKeyString = postDataStore.get(keyString);
         Post oldestPost = null;
@@ -118,14 +119,14 @@ public class InMemoryAccessObject extends AbstractDataAccess {
     }
 
     @Override
-    public Optional<PostList> peekAtPostList(String keyString) {
+    protected Optional<PostList> getPostList(String keyString, Integer index) {
         List<PostList> listAtKeyString = postListDataStore.get(keyString);
 
-        // peek at first postList if it exists
-        if (listAtKeyString == null) {
+        // get entry at index if it exists
+        if (listAtKeyString == null || index >= listAtKeyString.size()) {
             return Optional.empty();
         } else {
-            return Optional.of(listAtKeyString.get(0));
+            return Optional.of(listAtKeyString.get(index));
         }
     }
 
@@ -151,7 +152,7 @@ public class InMemoryAccessObject extends AbstractDataAccess {
     }
 
     @Override
-    public String deleteFirstNPosts(String keyString, Integer numPosts) {
+    protected String deleteFirstNPosts(String keyString, Integer numPosts) {
         List<Post> listAtKeyString = postDataStore.get(keyString);
 
         if (listAtKeyString == null) {

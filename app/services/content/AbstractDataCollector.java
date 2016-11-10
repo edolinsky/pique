@@ -43,7 +43,7 @@ public abstract class AbstractDataCollector {
 	 * @return the new size of the list of posts after the list is added
 	 */
 	public long store(List<Post> posts){
-		return dataAccess.addNewPosts(getSource().getSourceName(), posts);
+		return dataAccess.addNewPostsFromSource(getSource().getSourceName(), posts);
 	}
 
 	/**

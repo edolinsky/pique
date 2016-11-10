@@ -31,9 +31,7 @@ public class HashtagContentController extends Controller {
      */
 
     public Result content(String hashtag) {
-        Optional<PostList> hashtagContent = dataSource.peekAtPostList(
-                AbstractDataAccess.DISPLAY_NAMESPACE + AbstractDataAccess.NAMESPACE_DELIMITER + hashtag
-        );
+        Optional<PostList> hashtagContent = dataSource.getHashTagPostList(hashtag, 0); // todo: implement paging
 
         if (hashtagContent.isPresent()) {
             return ok(serializer.serialize(hashtagContent.get()));

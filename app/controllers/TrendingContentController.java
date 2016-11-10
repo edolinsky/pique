@@ -31,8 +31,7 @@ public class TrendingContentController extends Controller {
      */
 
     public Result content() {
-        Optional<PostList> trendingContent = dataSource.peekAtPostList(
-                AbstractDataAccess.DISPLAY_NAMESPACE + AbstractDataAccess.NAMESPACE_DELIMITER + "trending");
+        Optional<PostList> trendingContent = dataSource.getDisplayPostList("trending", 0); // todo: implement paging
 
         if (trendingContent.isPresent()) {
             return ok(serializer.serialize(trendingContent.get()));
