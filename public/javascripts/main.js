@@ -61,8 +61,83 @@ function createElements(httpResponse, tag) {
       postObj.id = "postObj";
       postObj.className = "postObj";
 
-      var text = document.createTextNode(post.text_[0]);
-      postObj.appendChild(text);
+      var tr1 = document.createElement("div");
+      postObj.appendChild(tr1);
+
+      var td1a = document.createElement("div");
+      td1a.style.display = "inline";
+      td1a.style.float = "left";
+      td1a.style.padding = "2px";
+      td1a.style.color = "SteelBlue";
+      tr1.appendChild(td1a);
+      var posterList = document.createTextNode(post.source_);
+      td1a.appendChild(posterList);
+
+      var td1b = document.createElement("div");
+      td1b.style.display = "inline";
+      td1b.style.float = "right";
+      td1b.style.padding = "2px";
+      td1b.style.color = "LightSteelBlue";
+      tr1.appendChild(td1b);
+      var time = document.createTextNode(post.timestamp_);
+      td1b.appendChild(time);
+
+      var tr2 = document.createElement("div");
+      postObj.appendChild(tr2);
+      var td2a = document.createElement("div");
+      tr2.appendChild(td2a);
+      var textList = document.createTextNode(post.text_);
+      td2a.appendChild(textList);
+
+      var tr3 = document.createElement("div");
+      postObj.appendChild(tr3);
+      for (var j = 0; j < post.hashtag_.length; j++) {
+        var td3 = document.createElement("div");
+        td3.style.color = "SteelBlue";
+        td3.style.display = "inline";
+        tr3.appendChild(td3);
+
+        var hashtag = document.createTextNode(post.hashtag_[j] + "  ");
+        td3.appendChild(hashtag);
+      }
+
+      var tr4 = document.createElement("div");
+      postObj.appendChild(tr4);
+      var td4a = document.createElement("div");
+      tr4.appendChild(td4a);
+      var imgList = document.createTextNode(post.imgLink_);
+      td4a.appendChild(imgList);
+
+      var tr5 = document.createElement("div");
+      postObj.appendChild(tr5);
+      var bk = document.createElement("br");
+      tr5.appendChild(bk);
+
+      var td5a = document.createElement("div");
+      td5a.style.display = "inline";
+      td5a.style.padding = "10px";
+      tr5.appendChild(td5a);
+      var likes = document.createTextNode("Likes: " + post.numLikes_);
+      td5a.appendChild(likes);
+
+      var td5b = document.createElement("div");
+      td5b.style.display = "inline";
+      td5b.style.padding = "10px";
+      tr5.appendChild(td5b);
+      var shares = document.createTextNode("Shares: " + post.numShares_);
+      td5b.appendChild(shares);
+
+      var td5c = document.createElement("div");
+      td5c.style.display = "inline";
+      td5c.style.padding = "10px";
+      tr5.appendChild(td5c);
+      var comments = document.createTextNode("Comments: " + post.numComments_);
+      td5c.appendChild(comments);
+
+      // when the user clicks on the post it will bring them to the original
+      var postLink = document.createElement("a");
+      postLink.href = post.sourceLink_;
+      postObj.appendChild(postLink);
 
       if(i % 3 == 0) {
         // start a new row, create three columns for it
