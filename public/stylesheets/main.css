@@ -15,16 +15,6 @@ div.postObj:hover {
   transform: scale(1.1);
 }
 
-.banner span {
-  background-color: white; <!--DarkSlateGrey; -->
-  position: absolute;
-  left: 0;
-  right: 0;
-  padding: 15px;
-  height: 60px;
-  background-size: 100%;
-}
-
 .button {
   display: inline-block;
   border-radius: 4px;
