@@ -44,28 +44,6 @@ public class TestDataAccess extends AbstractDataAccess {
 
     }
 
-    // For reference:
-
-/*  private class TestPost {
-      String id = "1";
-      String timestamp = "2";
-
-      String source = "3";
-      String source_link = "4";
-
-      int popularity_score = 5;
-      int popularity_velocity = 6;
-
-      int num_comments = 7;
-      int num_shares = 8;
-      int num_likes = 9;
-      String hashtag = "Hey";
-
-      String text = "This is the text in the post. Woohoo!";
-      String img_link = null;
-      String ext_link = null;
-  } */
-
     public long addNewPost(String keyString, Post post) {
         return x;
     }
@@ -88,5 +66,20 @@ public class TestDataAccess extends AbstractDataAccess {
 
     public Optional<PostList> peekAtPostList(String keyString) {
         return testOptPostList;
+    }
+
+    @Override
+    public long getNumPostsInNameSpace(String nameSpace) {
+        return 0;
+    }
+
+    @Override
+    public List<String> getKeysInNameSpace(String nameSpace) {
+        return null;
+    }
+
+    @Override
+    public String deleteFirstNPosts(String keyString, Integer numPosts) {
+        return null;
     }
 }

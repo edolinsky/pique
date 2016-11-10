@@ -16,7 +16,6 @@ public class DataCollectionRunner implements Runnable {
 	AbstractDataCollector collector;
     ThreadNotification notification;
 
-    @Inject
 	public DataCollectionRunner(AbstractDataCollector collector, ThreadNotification notify) {
 		this.collector = collector;
         this.notification = notify;

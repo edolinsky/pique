@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
  * Created by erik on 08/11/16.
  */
 
-@Singleton
 public class SortingNode implements Runnable {
 
     private static final Long PROCESS_INPUT_THRESHOLD = 100L;
@@ -31,7 +30,6 @@ public class SortingNode implements Runnable {
     private AbstractDataAccess dataSource;
     private Object sortNotification= new Object();
 
-    @Inject
     public SortingNode(AbstractDataAccess dataSource, Object sortNotification) {
         this.dataSource = dataSource;
     }

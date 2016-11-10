@@ -23,10 +23,8 @@ public class Module extends AbstractModule {
 
     @Override
     public void configure() {
-        bind(SortingNode.class);
-        bind(DataCollectionRunner.class);
         bind(AbstractDataAccess.class).to(RedisAccessObject.class);
-        bind(ContentController.class).asEagerSingleton();
+        bind(ContentController.class);
     }
 
 }
