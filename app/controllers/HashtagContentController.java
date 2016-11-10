@@ -33,7 +33,7 @@ public class HashtagContentController extends Controller {
      */
 
     public Result content(String hashtag) {
-        Optional<PostList> hashtagContent = dataSource.getHashTagPostList(hashtag, 0); // todo: implement paging
+        Optional<PostList> hashtagContent = dataSource.peekAtPostList("display:" + hashtag);
 
         Logger.trace("Hashtag Content Requested: " + hashtag);
         if (hashtagContent.isPresent()) {

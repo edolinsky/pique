@@ -32,14 +32,17 @@ public class TestDataAccess extends AbstractDataAccess {
             DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
             builder.setId(String.valueOf(i));
             builder.setTimestamp(df.format(DateTime.now().toDate()));
-            builder.addSource("name" + i);
-            builder.addSourceLink("https://test.org");
+            builder.addSource("Entertainment Weekly");
+            builder.addSourceLink("https://twitter.com");
+            builder.addImgLink("http://image.com");
             builder.setPopularityScore(0);
             builder.setPopularityVelocity(0);
-            builder.setNumComments(0);
-            builder.setNumShares(0);
-            builder.setNumLikes(0);
-            builder.addText("text" + i);
+            builder.setNumComments(966);
+            builder.setNumShares(23);
+            builder.setNumLikes(1201);
+            builder.addHashtag("#EW");
+            builder.addHashtag("#election");
+            builder.addText("Supernatural's Misha Collins tears up talking about election results: 'I am not going to give up'");
             postListBuilder.addPosts(builder.build());
         }
 

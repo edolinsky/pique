@@ -15,26 +15,6 @@ function requestPage(myURL, callback, tag) {
 
 function createElements(httpResponse, tag) {
 
-//  Post {
-//      string id = 1;
-//      string timestamp = 2;
-
-//      repeated string source = 3;
-//      repeated string source_link = 4;
-
-//      int32 popularity_score = 5;
-//      int32 popularity_velocity = 6;
-
-//      int32 num_comments = 7;
-//      int32 num_shares = 8;
-//      int32 num_likes = 9;
-//      repeated string hashtag = 10;
-
-//      repeated string text = 11;
-//      repeated string img_link = 12;
-//      repeated string ext_link = 13;
-//  }
-
   var postList = JSON.parse(httpResponse);
 
   var page = document.getElementById("page");
@@ -50,21 +30,95 @@ function createElements(httpResponse, tag) {
 
   var container = document.createElement("div");
   container.id = "container";
-  container.className = "container";
 
   page.appendChild(container);
 
   for (var i = 0; i < postList.posts_.length; i++) {
+
       var post = postList.posts_[i];
 
       var postObj = document.createElement("div");
       postObj.id = "postObj";
       postObj.className = "postObj";
 
-      var text = document.createTextNode(post.text_[0]);
-      postObj.appendChild(text);
+      // let's create our post object
+      var tr1 = document.createElement("div");
+      postObj.appendChild(tr1);
+      var td1a = document.createElement("div");
+      td1a.style.display = "inline";
+      td1a.style.float = "left";
+      td1a.style.padding = "2px";
+      td1a.style.color = "SteelBlue";
+      tr1.appendChild(td1a);
+      var posterList = document.createTextNode(post.source_);
+      td1a.appendChild(posterList);
+      var td1b = document.createElement("div");
+      td1b.style.display = "inline";
+      td1b.style.float = "right";
+      td1b.style.padding = "2px";
+      td1b.style.color = "LightSteelBlue";
+      tr1.appendChild(td1b);
+      var time = document.createTextNode(post.timestamp_);
+      td1b.appendChild(time);
 
+      var tr2 = document.createElement("div");
+      postObj.appendChild(tr2);
+      var td2a = document.createElement("div");
+      tr2.appendChild(td2a);
+      var textList = document.createTextNode(post.text_);
+      td2a.appendChild(textList);
+
+      var tr3 = document.createElement("div");
+      postObj.appendChild(tr3);
+      for (var j = 0; j < post.hashtag_.length; j++) {
+        var td3 = document.createElement("div");
+        td3.style.color = "SteelBlue";
+        td3.style.display = "inline";
+        tr3.appendChild(td3);
+        var hashtag = document.createTextNode(post.hashtag_[j] + "  ");
+        td3.appendChild(hashtag);
+      }
+
+      var tr4 = document.createElement("div");
+      postObj.appendChild(tr4);
+      var td4a = document.createElement("div");
+      tr4.appendChild(td4a);
+      var imgList = document.createTextNode(post.imgLink_);
+      td4a.appendChild(imgList);
+
+      var tr5 = document.createElement("div");
+      postObj.appendChild(tr5);
+      var bk = document.createElement("br");
+      tr5.appendChild(bk);
+      var td5a = document.createElement("div");
+      td5a.style.display = "inline";
+      td5a.style.padding = "10px";
+      tr5.appendChild(td5a);
+      var likes = document.createTextNode("Likes: " + post.numLikes_);
+      td5a.appendChild(likes);
+      var td5b = document.createElement("div");
+      td5b.style.display = "inline";
+      td5b.style.padding = "10px";
+      tr5.appendChild(td5b);
+      var shares = document.createTextNode("Shares: " + post.numShares_);
+      td5b.appendChild(shares);
+      var td5c = document.createElement("div");
+      td5c.style.display = "inline";
+      td5c.style.padding = "10px";
+      tr5.appendChild(td5c);
+      var comments = document.createTextNode("Comments: " + post.numComments_);
+      td5c.appendChild(comments);
+
+      // when the user clicks on the post it will bring them to the original
+      var postLink = document.createElement("a");
+      postLink.href = post.sourceLink_;
+      postLink.style.textDecoration = "none";
+      postLink.style.color = "black";
+      postLink.appendChild(postObj);
+
+      // now that our post object is created, display it on the page
       if(i % 3 == 0) {
+
         // start a new row, create three columns for it
         var row = document.createElement("div");
         row.className = "row";
@@ -87,7 +141,7 @@ function createElements(httpResponse, tag) {
         row.appendChild(col3);
 
         // put it in the first column
-        col1.appendChild(postObj);
+        col1.appendChild(postLink);
 
       } else if(i % 3 == 1) {
 
@@ -95,7 +149,7 @@ function createElements(httpResponse, tag) {
 
         // put it in the second column
         var col = document.getElementById("col" + rowNum + "b");
-        col.appendChild(postObj);
+        col.appendChild(postLink);
 
       } else {
 
@@ -103,9 +157,8 @@ function createElements(httpResponse, tag) {
 
         // put it in the third column
         var col = document.getElementById("col" + rowNum + "c");
-        col.appendChild(postObj);
+        col.appendChild(postLink);
       }
-
   }
 }
 function topFunction() {
