@@ -1,23 +1,33 @@
 package controllers;
 
-import com.google.inject.Inject;
+import akka.actor.ActorSystem;
 import play.mvc.*;
+import scala.concurrent.ExecutionContextExecutor;
 import services.dataAccess.RedisAccessObject;
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.proto.PostListProto.PostList;
 import services.serializer.BinarySerializer;
+import services.serializer.JsonSerializer;
+import services.serializer.Serializer;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Optional;
 
 /**
  * This controller contains an action to handle HTTP requests
  * to the application's home page.
  */
+@Singleton
 public class HashtagContentController extends Controller {
 
-    private AbstractDataAccess dataSource = new RedisAccessObject();
-    private BinarySerializer serializer = new BinarySerializer();
+    private final AbstractDataAccess dataSource;
+    private final JsonSerializer serializer = new JsonSerializer();
 
+    @Inject
+    public HashtagContentController(AbstractDataAccess dataSource) {
+        this.dataSource = dataSource;
+    }
     /**
      * An action that renders an HTML page with a welcome message.
      * The configuration in the <code>routes</code> file means that
