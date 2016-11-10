@@ -2,6 +2,7 @@ package services.content;
 
 import services.ThreadNotification;
 
+import javax.inject.Inject;
 import java.util.Date;
 
 /**
@@ -15,6 +16,7 @@ public class DataCollectionRunner implements Runnable {
 	AbstractDataCollector collector;
     ThreadNotification notification;
 
+    @Inject
 	public DataCollectionRunner(AbstractDataCollector collector, ThreadNotification notify) {
 		this.collector = collector;
         this.notification = notify;

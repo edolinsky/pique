@@ -1,20 +1,17 @@
 package services.sorting;
 
-import com.google.inject.Singleton;
-import org.joda.time.DateTime;
-import play.Logger;
-import play.inject.ApplicationLifecycle;
-import scala.util.Sorting;
 import services.dataAccess.AbstractDataAccess;
-import services.dataAccess.InMemoryAccessObject;
-import services.dataAccess.RedisAccessObject;
 import services.dataAccess.proto.PostListProto.PostList;
 import services.dataAccess.proto.PostProto.Post;
 
 import javax.inject.Inject;
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import javax.inject.Singleton;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -34,6 +31,7 @@ public class SortingNode implements Runnable {
     private AbstractDataAccess dataSource;
     private Object sortNotification= new Object();
 
+    @Inject
     public SortingNode(AbstractDataAccess dataSource, Object sortNotification) {
         this.dataSource = dataSource;
     }
