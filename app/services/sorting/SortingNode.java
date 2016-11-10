@@ -99,14 +99,14 @@ public class SortingNode implements Runnable {
 
     }
 
-    private PostList preparePostList(List<Post> listOfPosts) {
+    public PostList preparePostList(List<Post> listOfPosts) {
         PostList.Builder postListBuilder = PostList.newBuilder();
         postListBuilder.addAllPosts(listOfPosts);
 
         return postListBuilder.build();
     }
 
-    private List<Post> sortTopPosts(List<Post> listOfPosts) {
+    public List<Post> sortTopPosts(List<Post> listOfPosts) {
         List<Post> topPosts = new ArrayList<>();
 
         for (Post post : listOfPosts) {
@@ -124,7 +124,17 @@ public class SortingNode implements Runnable {
         return topPosts;
     }
 
-    private Post calculatePopularity(Post post) {
+    public List<Post> sortTrendingPosts(List<Post> listOfPosts) {
+        // todo: implement
+        return listOfPosts;
+    }
+
+    public Map<String, List<Post>> sortPostsByHashTag(List<Post> listOfPosts) {
+        // todo: implement
+        return Collections.emptyMap();
+    }
+
+    public Post calculatePopularity(Post post) {
         int popularity = (int) (
                 COMMENT_WEIGHT * post.getNumComments()
                         + LIKE_WEIGHT * post.getNumLikes()
@@ -140,15 +150,5 @@ public class SortingNode implements Runnable {
         post = post.toBuilder().setPopularityScore(popularity).build();
 
         return post;
-    }
-
-    private List<Post> sortTrendingPosts(List<Post> listOfPosts) {
-        // todo: implement
-        return listOfPosts;
-    }
-
-    private Map<String, List<Post>> sortPostsByHashTag(List<Post> listOfPosts) {
-        // todo: implement
-        return Collections.emptyMap();
     }
 }
