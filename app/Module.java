@@ -23,7 +23,7 @@ public class Module extends AbstractModule {
 
     @Override
     public void configure() {
-        bind(AbstractDataAccess.class).to(RedisAccessObject.class);
+        bind(AbstractDataAccess.class).to(InMemoryAccessObject.class);
         bind(ContentController.class);
     }
 
