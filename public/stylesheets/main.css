@@ -3,6 +3,36 @@ body {
   padding-left: 20px;
 }
 
+#postObj {
+  border-radius: 25px;
+  border: 8px solid SteelBlue;
+  padding: 20px;
+  margin: 5px;
+  width: 350px;
+  height: 180px;
+}
+
+.postObj {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: 0.5s;
+}
+
+.postObj:after {
+  content: '»';
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  right: -20px;
+  transition: 0.5s;
+}
+
+.postObj:hover {
+  padding-right: 25px;
+}
+
+/* Navigation bar */
 .btn.btn-default.navbar-btn {
   border: none;
   background-color: #FFF;
@@ -26,7 +56,7 @@ body {
   border-radius: 15px;
   border: 1px #000 solid;
   padding: 5px 5px 5px 25px;
-  position: absolute;
+  /*position: absolute;*/
   top: 0;
   left: 0;
   z-index: 5;
