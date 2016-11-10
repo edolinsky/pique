@@ -26,15 +26,18 @@ public class DataCollectionRunner implements Runnable {
 	public void run() {
 
         while (true) {
-            Logger.info("Notifier is sleeping for 3 seconds at " + new Date());
+            synchronized (notification) {
+                long numPosts = collector.collect();
+                Logger.info("Collected " + numPosts + " posts at " + new Date());
+                notification.notify();
+            }
+
             try {
+                Logger.info("Collector:" + collector.getSource().getSourceName() + " is sleeping at "
+                        + new Date());
                 Thread.sleep(collector.getSource().getQueryDelta());
             } catch (InterruptedException e1) {
                 e1.printStackTrace();
-            }
-            synchronized (notification) {
-                collector.collect();
-                notification.notify();
             }
         }
 	}

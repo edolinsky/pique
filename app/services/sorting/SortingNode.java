@@ -42,7 +42,7 @@ public class SortingNode implements Runnable {
         while (true) {
             synchronized (sortNotification) {
                 try {
-                    Logger.info("Waiter is waiting for the notifier at " + new Date());
+                    Logger.info("Sorter is waiting at " + new Date());
                     sortNotification.wait();
                 } catch (InterruptedException e) {
                     Logger.error("Sorting Node Thread Exiting");
@@ -56,6 +56,7 @@ public class SortingNode implements Runnable {
 
     private void sort() {
 
+        Logger.info("Sorting posts at " + new Date());
         List<Post> newPosts = new ArrayList<>();
 
         // Obtain number of posts available for processing and exit if this does not meet the threshold
