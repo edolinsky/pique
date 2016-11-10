@@ -1,9 +1,8 @@
 package services.content;
 
 import services.dataAccess.AbstractDataAccess;
-import services.dataAccess.proto.PostProto;
 import services.dataAccess.proto.PostProto.Post;
-import services.sources.AbstractRestfulSource;
+import services.sources.RestfulSource;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -19,22 +18,22 @@ import static services.PublicConstants.HTTP_GET;
 
 /**
  * This class is capable of making RESTful API calls to collect data, given an
- * {@link AbstractRestfulSource} to collect from and an {@link AbstractDataAccess} to place the
+ * {@link RestfulSource} to collect from and an {@link AbstractDataAccess} to place the
  * results
  *
  * @author Reid Oliveira, Sammie Jiang
  */
 public class RestfulDataCollector extends AbstractDataCollector {
 
-	AbstractRestfulSource source;
+	private RestfulSource source;
 
-	public RestfulDataCollector(AbstractDataAccess dataAccess, AbstractRestfulSource source) {
+	public RestfulDataCollector(AbstractDataAccess dataAccess, RestfulSource source) {
 		super(dataAccess);
 		this.source = source;
 	}
 
 	@Override
-	public AbstractRestfulSource getSource() {
+	public RestfulSource getSource() {
 		return source;
 	}
 
@@ -58,7 +57,7 @@ public class RestfulDataCollector extends AbstractDataCollector {
 			//Send request
 			DataOutputStream wr = new DataOutputStream (
 					connection.getOutputStream());
-			// TODO wr.writeBytes(source.generateRequest);
+			wr.writeBytes(source.generateRequest(new String[0])); // TODO
 			wr.close();
 
 			//Get Response
@@ -72,7 +71,7 @@ public class RestfulDataCollector extends AbstractDataCollector {
 			}
 			rd.close();
 
-
+			notifySubscribers();
 			//TODO create Post object from response object
 			return Collections.emptyList();
 

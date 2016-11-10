@@ -1,6 +1,4 @@
-import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import services.dataAccess.proto.PostProto.Post;
 import services.sources.TwitterSource;
@@ -31,14 +29,8 @@ public class TwitterSourceTest {
 
 	@Test
 	public void testGetTrends() {
-		Optional<Trends> trends = twitterSource.getTrends("canada", "vancouver");
-		assertTrue(trends.isPresent());
-		assertTrue(trends.get().getTrends().length != 0);
-	}
-
-	@Test @Ignore
-	public void testParse() {
-		// should get a sample QueryResult and save it to parse over each time for this test.
+		List<Trend> trends = twitterSource.getTrends("canada", "vancouver");
+		assertFalse(trends.isEmpty());
 	}
 
 	/**
