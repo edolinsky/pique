@@ -26,7 +26,7 @@
                 <div class="col-sm-4">
                     <h2 class ="post_headline">Headline</h2>
                     <p>Some content here, perhaps a tweet</p>
-                    <a href="#" id="modalPost"><i class="glyphicon glyphicon-eye-open"></i></a>
+                    <a href="#" class="modalPost"><i class="glyphicon glyphicon-eye-open"></i></a>
                 </div>
             }
             </div>
@@ -60,7 +60,7 @@
 
     <script>
             $(document).ready(function(){
-                $("#modalPost").click(function(){
+                $(".modalPost").click(function(){
                     $("#myModal").modal({backdrop: true});
                 });
             });
