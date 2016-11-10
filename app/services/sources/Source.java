@@ -5,5 +5,7 @@ package services.sources;
  *
  * @author Reid Oliveira, Sammie Jiang
  */
-public abstract class AbstractSource {
+public interface Source {
+
+	public String getSourceName();
 }
