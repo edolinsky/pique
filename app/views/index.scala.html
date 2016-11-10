@@ -17,19 +17,54 @@
     * template and passing a `String` message.
     *@
     <!--  <h1>@message</h1> -->
+    <div class="container">
 
-    <div class = "page">
-    @for(i <- 1 to 20) {
-        <div class = "row">
-        @for(j <- 1 to 3) {
-            <div class="col-sm-4">
-                <h2 class ="post_headline">Headline</h2>
-                <p>Some content here, perhaps a tweet</p>
-                <a href="#" data-toggle="modal" data-target="#bannerformmodal"><i class="glyphicon glyphicon-eye-open"></i></a>
+        <div class = "page">
+        @for(i <- 1 to 20) {
+            <div class = "row">
+            @for(j <- 1 to 3) {
+                <div class="col-sm-4">
+                    <h2 class ="post_headline">Headline</h2>
+                    <p>Some content here, perhaps a tweet</p>
+                    <a href="#" id="modalPost"><i class="glyphicon glyphicon-eye-open"></i></a>
+                </div>
+            }
             </div>
         }
         </div>
-    }
+
+            <!-- Trigger the modal with a button -->
+        <!--<button type="button" class="btn btn-info btn-md" id="myBtn">Some Post</button>-->
+
+            <!-- Modal -->
+        <div class="modal fade" id="myModal" role="dialog">
+            <div class="modal-dialog">
+
+                    <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Twitter Post</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Status update #ThisIsAStatus.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
     </div>
+
+    <script>
+            $(document).ready(function(){
+                $("#modalPost").click(function(){
+                    $("#myModal").modal({backdrop: true});
+                });
+            });
+    </script>
+
 
 }
