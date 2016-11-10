@@ -15,10 +15,97 @@ function requestPage(myURL, callback, tag) {
 
 function createElements(httpResponse, tag) {
 
-  var all = document.getElementsByClassName("post_headline");
+//  Post {
+//      string id = 1;
+//      string timestamp = 2;
 
-  for (var i=0, max=all.length; i < max; i++) {
-       all[i].innerText = httpResponse;
+//      repeated string source = 3;
+//      repeated string source_link = 4;
+
+//      int32 popularity_score = 5;
+//      int32 popularity_velocity = 6;
+
+//      int32 num_comments = 7;
+//      int32 num_shares = 8;
+//      int32 num_likes = 9;
+//      repeated string hashtag = 10;
+
+//      repeated string text = 11;
+//      repeated string img_link = 12;
+//      repeated string ext_link = 13;
+//  }
+
+  var postList = JSON.parse(httpResponse);
+
+  var page = document.getElementById("page");
+
+  // clear out current posts if any exist on the page already
+  if (document.contains(document.getElementById("container"))) {
+      var container = document.getElementById("container");
+      while (container.firstChild) {
+          container.removeChild(container.firstChild);
+      }
+      container.remove();
+  }
+
+  var container = document.createElement("div");
+  container.id = "container";
+  container.className = "container";
+
+  page.appendChild(container);
+
+  for (var i = 0; i < postList.posts_.length; i++) {
+      var post = postList.posts_[i];
+
+      var postObj = document.createElement("div");
+      postObj.id = "postObj";
+      postObj.className = "postObj";
+
+      var text = document.createTextNode(post.text_[0]);
+      postObj.appendChild(text);
+
+      if(i % 3 == 0) {
+        // start a new row, create three columns for it
+        var row = document.createElement("div");
+        row.className = "row";
+
+        container.appendChild(row);
+
+        var col1 = document.createElement("div");
+        col1.className = "col-sm-4";
+        col1.id = "col" + i + "a";
+        row.appendChild(col1);
+
+        var col2 = document.createElement("div");
+        col2.className = "col-sm-4";
+        col2.id = "col" + i + "b";
+        row.appendChild(col2);
+
+        var col3 = document.createElement("div");
+        col3.className = "col-sm-4";
+        col3.id = "col" + i + "c";
+        row.appendChild(col3);
+
+        // put it in the first column
+        col1.appendChild(postObj);
+
+      } else if(i % 3 == 1) {
+
+        var rowNum = i-1;
+
+        // put it in the second column
+        var col = document.getElementById("col" + rowNum + "b");
+        col.appendChild(postObj);
+
+      } else {
+
+        var rowNum = i-2;
+
+        // put it in the third column
+        var col = document.getElementById("col" + rowNum + "c");
+        col.appendChild(postObj);
+      }
+
   }
 }
 function topFunction() {

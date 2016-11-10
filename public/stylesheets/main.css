@@ -1,3 +1,32 @@
+#postObj {
+  border-radius: 25px;
+  border: 8px solid SteelBlue;
+  padding: 20px;
+  margin: 5px;
+  width: 350px;
+  height: 180px;
+}
+
+.postObj {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: 0.5s;
+}
+
+.postObj:after {
+  content: '»';
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  right: -20px;
+  transition: 0.5s;
+}
+
+.postObj:hover {
+  padding-right: 25px;
+}
+
 .banner span {
   background-color: white; <!--DarkSlateGrey; -->
   position: absolute;
