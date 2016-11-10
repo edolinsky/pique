@@ -1,24 +1,28 @@
 package controllers;
 
-import com.google.inject.Inject;
 import play.mvc.*;
 import services.dataAccess.AbstractDataAccess;
-import services.dataAccess.RedisAccessObject;
 import services.dataAccess.proto.PostListProto.PostList;
-import services.serializer.BinarySerializer;
+import services.serializer.JsonSerializer;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Optional;
 
 /**
  * This controller contains an action to handle HTTP requests
  * to the application's home page.
  */
+@Singleton
 public class TopContentController extends Controller {
 
+    private AbstractDataAccess dataSource;
+    private JsonSerializer serializer = new JsonSerializer();
 
-    private AbstractDataAccess dataSource = new RedisAccessObject();
-    private BinarySerializer serializer = new BinarySerializer();
-
+    @Inject
+    public TopContentController(AbstractDataAccess dataSource) {
+        this.dataSource = dataSource;
+    }
 
     /**
      * An action that renders an HTML page with a welcome message.

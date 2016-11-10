@@ -1,11 +1,18 @@
-.banner span {
-  background-color: white; <!--DarkSlateGrey; -->
-  position: absolute;
-  left: 0;
-  right: 0;
-  padding: 15px;
-  height: 60px;
-  background-size: 100%;
+.postObj {
+  border-radius: 25px;
+  border: 5px solid SteelBlue;
+  padding: 20px;
+  margin: 5px;
+  width: 350px;
+  height: 200px;
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: 0.5s ease-in-out;
+}
+
+div.postObj:hover {
+  transform: scale(1.1);
 }
 
 .button {
