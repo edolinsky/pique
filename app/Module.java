@@ -28,7 +28,7 @@ public class Module extends AbstractModule {
         // Set AtomicCounter as the implementation for Counter.
         bind(Counter.class).to(AtomicCounter.class);
 
-        bind(AbstractDataAccess.class).to(TestDataAccess.class);
+        bind(AbstractDataAccess.class).to(RedisAccessObject.class);
     }
 
 }

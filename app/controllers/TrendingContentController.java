@@ -3,9 +3,7 @@ package controllers;
 import play.mvc.*;
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.proto.PostListProto.PostList;
-import services.serializer.BinarySerializer;
 import services.serializer.JsonSerializer;
-import services.serializer.Serializer;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
