@@ -1,6 +1,7 @@
 package services.sorting;
 
 import services.ThreadNotification;
+import com.google.common.collect.Lists;
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.proto.PostListProto.PostList;
 import services.dataAccess.proto.PostProto.Post;
@@ -116,9 +117,9 @@ public class SortingNode implements Runnable {
             }
         }
 
-        topPosts.addAll(listOfPosts.stream()
+        topPosts.addAll(Lists.reverse(listOfPosts.stream()
                 .sorted(Comparator.comparingInt(Post::getPopularityScore))
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList())));
 
         return topPosts;
     }
