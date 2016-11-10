@@ -50,17 +50,22 @@ public class TwitterSource implements Source {
 	private Twitter twitter;
 
 	public TwitterSource() {
-
-		Map<String, String> env = System.getenv();
 		ConfigurationBuilder cb = new ConfigurationBuilder();
 		cb.setDebugEnabled(true)
-				.setOAuthConsumerKey(env.get(TWITTER4J_CONSUMER_KEY))
-				.setOAuthConsumerSecret(env.get(TWITTER4J_CONSUMER_SECRET))
-				.setOAuthAccessToken(env.get(TWITTER4J_ACCESS_TOKEN))
-				.setOAuthAccessTokenSecret(env.get(TWITTER4J_ACCESS_TOKEN_SECRET));
+				.setOAuthConsumerKey(System.getenv(TWITTER4J_CONSUMER_KEY))
+				.setOAuthConsumerSecret(System.getenv(TWITTER4J_CONSUMER_SECRET))
+				.setOAuthAccessToken(System.getenv(TWITTER4J_ACCESS_TOKEN))
+				.setOAuthAccessTokenSecret(System.getenv(TWITTER4J_ACCESS_TOKEN_SECRET));
 		TwitterFactory tf = new TwitterFactory(cb.build());
 		twitter = tf.getInstance();
 	}
+
+
+
+    @Override
+    public String getSourceName() {
+        return "source:" + TWITTER;
+    }
 
 	/**
 	 * Gets tweets corresponding to the current trending topics on Twitter
@@ -227,10 +232,5 @@ public class TwitterSource implements Source {
 				builder.addExtLink(urlArray[k].getURL());
 			}
 		}
-	}
-
-	@Override
-	public String getSourceName() {
-		return TWITTER;
 	}
 }
