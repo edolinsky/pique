@@ -22,14 +22,10 @@
     @for(i <- 1 to 20) {
         <div class = "row">
         @for(j <- 1 to 3) {
-            <div class="col-sm-4 post">
-            </div>
+            <div class="col-sm-4 post"></div>
         }
         </div>
     }
-
-            <!-- Trigger the modal with a button -->
-        <!--<button type="button" class="btn btn-info btn-md" id="myBtn">Some Post</button>-->
 
             <!-- Modal -->
         <div class="modal fade" id="myModal" role="dialog">
@@ -55,7 +51,8 @@
 
     <script>
             $(document).ready(function(){
-                $(".modalPost").click(function(){
+                <!--$("#myBtn").click-->
+                $(".container").click(function() {
                     $("#myModal").modal({backdrop: true});
                 });
             });

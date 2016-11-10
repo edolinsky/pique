@@ -181,8 +181,11 @@ function createElements(httpResponse, tag) {
         col.appendChild(postObj);
       }
 
+
   }
 }
+
+
 function topFunction() {
   var returnval = requestPage("/top", createElements, "Top Post");
 }
