@@ -5,6 +5,8 @@ import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.RedisAccessObject;
 import services.dataAccess.proto.PostListProto.PostList;
 import services.serializer.BinarySerializer;
+import services.serializer.JsonSerializer;
+import services.serializer.Serializer;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -18,7 +20,7 @@ import java.util.Optional;
 public class TopContentController extends Controller {
 
     private AbstractDataAccess dataSource;
-    private BinarySerializer serializer = new BinarySerializer();
+    private JsonSerializer serializer = new JsonSerializer();
 
     @Inject
     public TopContentController(AbstractDataAccess dataSource) {
