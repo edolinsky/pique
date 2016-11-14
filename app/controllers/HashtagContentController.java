@@ -1,5 +1,6 @@
 package controllers;
 
+import play.Logger;
 import play.mvc.*;
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.proto.PostListProto.PostList;
@@ -23,6 +24,7 @@ public class HashtagContentController extends Controller {
     public HashtagContentController(AbstractDataAccess dataSource) {
         this.dataSource = dataSource;
     }
+
     /**
      * An action that renders an HTML page with a welcome message.
      * The configuration in the <code>routes</code> file means that
@@ -31,8 +33,9 @@ public class HashtagContentController extends Controller {
      */
 
     public Result content(String hashtag) {
-        Optional<PostList> hashtagContent = dataSource.peekAtPostList("display:" + hashtag);
+        Optional<PostList> hashtagContent = dataSource.getHashTagPostList(hashtag, 0); // todo: implement paging
 
+        Logger.trace("Hashtag Content Requested: " + hashtag);
         if (hashtagContent.isPresent()) {
             return ok(serializer.serialize(hashtagContent.get()));
         } else {

@@ -30,6 +30,7 @@ function createElements(httpResponse, tag) {
 
   var container = document.createElement("div");
   container.id = "container";
+  container.className = "container";
 
   page.appendChild(container);
 
@@ -41,9 +42,9 @@ function createElements(httpResponse, tag) {
       postObj.id = "postObj";
       postObj.className = "postObj";
 
-      // let's create our post object
       var tr1 = document.createElement("div");
       postObj.appendChild(tr1);
+
       var td1a = document.createElement("div");
       td1a.style.display = "inline";
       td1a.style.float = "left";
@@ -52,6 +53,7 @@ function createElements(httpResponse, tag) {
       tr1.appendChild(td1a);
       var posterList = document.createTextNode(post.source_);
       td1a.appendChild(posterList);
+
       var td1b = document.createElement("div");
       td1b.style.display = "inline";
       td1b.style.float = "right";
@@ -75,6 +77,7 @@ function createElements(httpResponse, tag) {
         td3.style.color = "SteelBlue";
         td3.style.display = "inline";
         tr3.appendChild(td3);
+
         var hashtag = document.createTextNode(post.hashtag_[j] + "  ");
         td3.appendChild(hashtag);
       }
@@ -90,18 +93,21 @@ function createElements(httpResponse, tag) {
       postObj.appendChild(tr5);
       var bk = document.createElement("br");
       tr5.appendChild(bk);
+
       var td5a = document.createElement("div");
       td5a.style.display = "inline";
       td5a.style.padding = "10px";
       tr5.appendChild(td5a);
       var likes = document.createTextNode("Likes: " + post.numLikes_);
       td5a.appendChild(likes);
+
       var td5b = document.createElement("div");
       td5b.style.display = "inline";
       td5b.style.padding = "10px";
       tr5.appendChild(td5b);
       var shares = document.createTextNode("Shares: " + post.numShares_);
       td5b.appendChild(shares);
+
       var td5c = document.createElement("div");
       td5c.style.display = "inline";
       td5c.style.padding = "10px";
@@ -112,11 +118,8 @@ function createElements(httpResponse, tag) {
       // when the user clicks on the post it will bring them to the original
       var postLink = document.createElement("a");
       postLink.href = post.sourceLink_;
-      postLink.style.textDecoration = "none";
-      postLink.style.color = "black";
-      postLink.appendChild(postObj);
+      postObj.appendChild(postLink);
 
-      // now that our post object is created, display it on the page
       if(i % 3 == 0) {
 
         // start a new row, create three columns for it
@@ -141,7 +144,7 @@ function createElements(httpResponse, tag) {
         row.appendChild(col3);
 
         // put it in the first column
-        col1.appendChild(postLink);
+        col1.appendChild(postObj);
 
       } else if(i % 3 == 1) {
 
@@ -149,7 +152,7 @@ function createElements(httpResponse, tag) {
 
         // put it in the second column
         var col = document.getElementById("col" + rowNum + "b");
-        col.appendChild(postLink);
+        col.appendChild(postObj);
 
       } else {
 
@@ -157,10 +160,12 @@ function createElements(httpResponse, tag) {
 
         // put it in the third column
         var col = document.getElementById("col" + rowNum + "c");
-        col.appendChild(postLink);
+        col.appendChild(postObj);
       }
+
   }
 }
+
 function topFunction() {
   var returnval = requestPage("/top", createElements, "Top Post");
 }

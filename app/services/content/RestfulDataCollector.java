@@ -71,7 +71,6 @@ public class RestfulDataCollector extends AbstractDataCollector {
 			}
 			rd.close();
 
-			notifySubscribers();
 			//TODO create Post object from response object
 			return Collections.emptyList();
 

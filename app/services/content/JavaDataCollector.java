@@ -43,7 +43,6 @@ public class JavaDataCollector extends AbstractDataCollector {
 			trends.addAll(source.getTrends("canada", "vancouver"));
 		}
 
-		notifySubscribers();
 		return source.getMaxTrendingPosts(trends.poll());
 
 	}

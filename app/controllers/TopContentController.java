@@ -1,5 +1,6 @@
 package controllers;
 
+import play.Logger;
 import play.mvc.*;
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.proto.PostListProto.PostList;
@@ -33,7 +34,8 @@ public class TopContentController extends Controller {
 
     public Result content() {
 
-        Optional<PostList> topContent = dataSource.peekAtPostList("display:top");
+        Logger.trace("Top Content Requested");
+        Optional<PostList> topContent = dataSource.getDisplayPostList("top", 0); // todo: implement paging
 
         if (topContent.isPresent()) {
             return ok(serializer.serialize(topContent.get()));

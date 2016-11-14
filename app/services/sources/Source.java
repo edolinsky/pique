@@ -8,4 +8,5 @@ package services.sources;
 public interface Source {
 
 	public String getSourceName();
+	public long getQueryDelta();
 }

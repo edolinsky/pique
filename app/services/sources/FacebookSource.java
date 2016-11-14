@@ -26,6 +26,11 @@ public class FacebookSource implements RestfulSource {
 	}
 
 	@Override
+	public long getQueryDelta() {
+		return 0;
+	}
+
+	@Override
 	public String generateRequest(String[] params) {
 		return null;
 	}

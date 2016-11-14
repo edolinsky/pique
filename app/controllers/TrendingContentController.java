@@ -1,5 +1,6 @@
 package controllers;
 
+import play.Logger;
 import play.mvc.*;
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.proto.PostListProto.PostList;
@@ -23,6 +24,7 @@ public class TrendingContentController extends Controller {
     public TrendingContentController(AbstractDataAccess dataSource) {
         this.dataSource = dataSource;
     }
+
     /**
      * An action that renders an HTML page with a welcome message.
      * The configuration in the <code>routes</code> file means that
@@ -31,8 +33,9 @@ public class TrendingContentController extends Controller {
      */
 
     public Result content() {
-        Optional<PostList> trendingContent = dataSource.peekAtPostList("display:trending");
+        Optional<PostList> trendingContent = dataSource.getDisplayPostList("trending", 0); // todo: implement paging
 
+        Logger.trace("Trending Content Requested");
         if (trendingContent.isPresent()) {
             return ok(serializer.serialize(trendingContent.get()));
         } else {

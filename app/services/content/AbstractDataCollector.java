@@ -32,14 +32,6 @@ public abstract class AbstractDataCollector {
 	public abstract Source getSource();
 
 	/**
-	 * Notifies all subscribers that data has been retrieved.
-	 * @return
-	 */
-	public long notifySubscribers() {
-		return 0L;
-	}
-
-	/**
 	 * Retrieves a list of posts from the source
 	 * @return
 	 */
@@ -51,15 +43,17 @@ public abstract class AbstractDataCollector {
 	 * @return the new size of the list of posts after the list is added
 	 */
 	public long store(List<Post> posts){
-		return dataAccess.addNewPosts(getSource().getSourceName(), posts);
+		return dataAccess.addNewPostsFromSource(getSource().getSourceName(), posts);
 	}
 
 	/**
 	 * Grabs a list of posts and puts it into the data tier
-	 * @return
+	 * @return the number of posts collected
 	 */
 	public long collect() {
-		return store(fetch());
+		List<Post> posts = fetch();
+        store(posts);
+        return posts.size();
 	}
 
 

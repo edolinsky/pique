@@ -38,7 +38,7 @@ public class JavaDataCollectorTest {
 		List<Post> toStore = collector.fetch();
 		collector.store(toStore);
 
-		List<Post> retrieved = data.getAllPosts(collector.getSource().getSourceName());
+		List<Post> retrieved = data.getAllPostsFromSource(collector.getSource().getSourceName());
 
 		assertEquals(toStore, retrieved);
 
