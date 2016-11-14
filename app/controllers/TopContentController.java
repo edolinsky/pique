@@ -32,10 +32,10 @@ public class TopContentController extends Controller {
      * <code>GET</code> request with a path of <code>/</code>.
      */
 
-    public Result content() {
+    public Result content(int page) {
 
         Logger.trace("Top Content Requested");
-        Optional<PostList> topContent = dataSource.getDisplayPostList("top", 0); // todo: implement paging
+        Optional<PostList> topContent = dataSource.getDisplayPostList("top", page);
 
         if (topContent.isPresent()) {
             return ok(serializer.serialize(topContent.get()));

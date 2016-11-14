@@ -32,8 +32,8 @@ public class HashtagContentController extends Controller {
      * <code>GET</code> request with a path of <code>/</code>.
      */
 
-    public Result content(String hashtag) {
-        Optional<PostList> hashtagContent = dataSource.getHashTagPostList(hashtag, 0); // todo: implement paging
+    public Result content(String hashtag, int page) {
+        Optional<PostList> hashtagContent = dataSource.getHashTagPostList(hashtag, page);
 
         Logger.trace("Hashtag Content Requested: " + hashtag);
         if (hashtagContent.isPresent()) {

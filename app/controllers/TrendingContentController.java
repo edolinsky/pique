@@ -32,8 +32,8 @@ public class TrendingContentController extends Controller {
      * <code>GET</code> request with a path of <code>/</code>.
      */
 
-    public Result content() {
-        Optional<PostList> trendingContent = dataSource.getDisplayPostList("trending", 0); // todo: implement paging
+    public Result content(int page) {
+        Optional<PostList> trendingContent = dataSource.getDisplayPostList("trending", page);
 
         Logger.trace("Trending Content Requested");
         if (trendingContent.isPresent()) {
