@@ -32,10 +32,20 @@ public class HashtagContentController extends Controller {
      * <code>GET</code> request with a path of <code>/</code>.
      */
 
-    public Result content(String hashtag, int page) {
-        Optional<PostList> hashtagContent = dataSource.getHashTagPostList(hashtag, page);
-
+    public Result content(String hashtag, String page) {
         Logger.trace("Hashtag Content Requested: " + hashtag);
+
+        int pageNum;
+
+        try {
+            pageNum = Integer.parseInt(page);
+        } catch (NumberFormatException nfE) {
+            Logger.trace("Hashtag Content invalid page: " + nfE.getMessage());
+            pageNum = 0;    // default to page 0 if given invalid number
+        }
+
+        Optional<PostList> hashtagContent = dataSource.getHashTagPostList(hashtag, pageNum);
+
         if (hashtagContent.isPresent()) {
             return ok(serializer.serialize(hashtagContent.get()));
         } else {

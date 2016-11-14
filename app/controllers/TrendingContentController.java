@@ -32,10 +32,20 @@ public class TrendingContentController extends Controller {
      * <code>GET</code> request with a path of <code>/</code>.
      */
 
-    public Result content(int page) {
-        Optional<PostList> trendingContent = dataSource.getDisplayPostList("trending", page);
-
+    public Result content(String page) {
         Logger.trace("Trending Content Requested");
+
+        int pageNum;
+
+        try {
+            pageNum = Integer.parseInt(page);
+        } catch (NumberFormatException nfE) {
+            Logger.trace("Trending Content invalid page: " + nfE.getMessage());
+            pageNum = 0;    // default to page 0 if given invalid number
+        }
+
+        Optional<PostList> trendingContent = dataSource.getDisplayPostList("trending", pageNum);
+
         if (trendingContent.isPresent()) {
             return ok(serializer.serialize(trendingContent.get()));
         } else {

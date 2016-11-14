@@ -32,10 +32,18 @@ public class TopContentController extends Controller {
      * <code>GET</code> request with a path of <code>/</code>.
      */
 
-    public Result content(int page) {
+    public Result content(String page) {
+        int pageNum;
+
+        try {
+            pageNum = Integer.parseInt(page);
+        } catch (NumberFormatException nfE) {
+            Logger.trace("Top Content invalid page: " + nfE.getMessage());
+            pageNum = 0;    // default to page 0 if given invalid number
+        }
 
         Logger.trace("Top Content Requested");
-        Optional<PostList> topContent = dataSource.getDisplayPostList("top", page);
+        Optional<PostList> topContent = dataSource.getDisplayPostList("top", pageNum);
 
         if (topContent.isPresent()) {
             return ok(serializer.serialize(topContent.get()));
