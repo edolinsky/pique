@@ -1,6 +1,7 @@
 package services;
 
 public class PublicConstants {
+    public static final String RUNTIME_ENVIRONMENT = "runtime_env";
 
     public static final String HTTP_GET = "GET";
 
