@@ -11,21 +11,16 @@
  * argument is a `String` with the title of the page, the second
  * argument is an `Html` object containing the body of the page.
  *@
-@main("Pique") {
+@main("Pique", scripts) {
     @*
     * Get an `Html` object by calling the built-in Play welcome
     * template and passing a `String` message.
     *@
     <!--  <h1>@message</h1> -->
 
+
     <div class = "container" id = "page">
-    @for(i <- 1 to 20) {
-        <div class = "row">
-        @for(j <- 1 to 3) {
-            <div class="col-sm-4 post"></div>
-        }
-        </div>
-    }
+
 
             <!-- Modal -->
         <div class="modal fade" id="myModal" role="dialog">
@@ -54,6 +49,13 @@
     </div>
 
     <script>
+
+    </script>
+
+}
+
+@scripts = {
+    <script type="text/javascript">
             $(document).ready(function(){
                 <!--$("#myBtn").click-->
                 $(".container").click(function() {
@@ -61,5 +63,4 @@
                 });
             });
     </script>
-
 }
