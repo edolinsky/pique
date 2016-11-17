@@ -67,7 +67,7 @@ public abstract class AbstractDataAccess {
      * @param numPosts  number of posts to be deleted from beginning of list at keyString
      * @return string denoting status of trim operation
      */
-    abstract protected String deleteFirstNPosts(String keyString, Integer numPosts);
+    abstract protected String deleteFirstNPosts(String keyString, Integer numPosts); // todo: change return type
 
     /**
      * Adds a new postList entity to the beginning of this data store's list of postLists under a particular key.

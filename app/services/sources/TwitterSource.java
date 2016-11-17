@@ -65,7 +65,7 @@ public class TwitterSource implements Source {
 
     @Override
     public String getSourceName() {
-        return "source:" + TWITTER;
+        return TWITTER;
     }
 
     @Override

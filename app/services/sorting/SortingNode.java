@@ -18,13 +18,9 @@ import java.util.stream.Collectors;
 
 import play.Logger;
 
-/**
- * Created by erik on 08/11/16.
- */
-
 public class SortingNode implements Runnable {
 
-    private static final Long PROCESS_INPUT_THRESHOLD = 100L;
+    private static final Long PROCESS_INPUT_THRESHOLD = 300L;
     private static final int POPULARITY_THRESHOLD = 300;
 
     private static final Double LIKE_WEIGHT = 0.9;

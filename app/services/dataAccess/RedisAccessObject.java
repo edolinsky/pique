@@ -138,6 +138,9 @@ public class RedisAccessObject extends AbstractDataAccess {
 
     @Override
     protected String deleteFirstNPosts(String keyString, Integer numPosts) {
+        if (numPosts < 0) {
+            return "Invalid numPosts parameter"; // todo: handle better
+        }
 
         connect();
         String returnString = redisAccess.ltrim(keyString.getBytes(), numPosts, -1);
@@ -181,7 +184,7 @@ public class RedisAccessObject extends AbstractDataAccess {
             Logger.warn("Invalid Protocol Buffer");
         }
 
-        if (postList == null) {
+        if (postList == null || index < 0) {
             return Optional.empty();
         } else {
             return Optional.of(postList);
@@ -272,7 +275,7 @@ public class RedisAccessObject extends AbstractDataAccess {
         redisAccess.expire(key, KEY_TIMEOUT); // reset key timeout to KEY_TIMEOUT seconds from access
         disconnect();
 
-        if (entryList.isEmpty()) {     // if we found something, take the first element
+        if (entryList.isEmpty() || index < 0) {     // if we found something, take the first element
             return Optional.empty();
         } else {
             return Optional.of(entryList.get(0));
