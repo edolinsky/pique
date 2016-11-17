@@ -17,7 +17,7 @@ import net.dean.jraw.http.NetworkException;
  * @author Reid Oliveira, Sammie Jiang
  */
 
-public class RedditSource {
+public class RedditSource implements Source {
 
 
     private static final String REDDIT = "reddit";
