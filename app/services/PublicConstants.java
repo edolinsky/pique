@@ -13,4 +13,7 @@ public class PublicConstants {
     public static final String DATA_SOURCE = "data_source";
     public static final String REDIS_URL = "redis_url";
     public static final String REDIS_PORT = "redis_port";
+
+    public static final String TOP = "top";
+    public static final String TRENDING = "trending";
 }

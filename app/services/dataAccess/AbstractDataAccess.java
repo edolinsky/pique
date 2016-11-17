@@ -7,10 +7,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-/**
- * Created by erik on 23/10/16.
- */
-
 public abstract class AbstractDataAccess {
 
     static final String NAMESPACE_DELIMITER = ":";
