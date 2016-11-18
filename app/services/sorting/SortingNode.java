@@ -191,9 +191,9 @@ public class SortingNode implements Runnable {
         }
 
         // add all posts in reverse sorted order by popularity score
-        topPosts.addAll(Lists.reverse(listOfPosts.stream()
-                .sorted(Comparator.comparingInt(Post::getPopularityScore))
-                .collect(Collectors.toList())));
+        topPosts.addAll(listOfPosts);
+        topPosts.sort(Comparator.comparingInt(Post::getPopularityScore));
+        topPosts = Lists.reverse(topPosts);
 
         return topPosts;
     }
@@ -240,11 +240,28 @@ public class SortingNode implements Runnable {
      */
     public Post calculatePopularity(Post post) {
 
+        // calculate popularity score of post
+        int popularity = calculatePopularityScore(post.getNumComments(), post.getNumLikes(), post.getNumShares());
+
+        // rebuild post with new score
+        post = post.toBuilder().setPopularityScore(popularity).build();
+
+        return post;
+    }
+
+    /**
+     * Calculates the popularity score given the specified fields
+     * @param numComments number of comments associated with a post
+     * @param numLikes number of likes associated with a post
+     * @param numShares number of shares associated with a post
+     * @return popularity score calculated given input parameters.
+     */
+    private int calculatePopularityScore(int numComments, int numLikes, int numShares) {
         // evaluate popularity score
         int popularity = (int) (
-                COMMENT_WEIGHT * post.getNumComments()
-                        + LIKE_WEIGHT * post.getNumLikes()
-                        + SHARE_WEIGHT * post.getNumShares()
+                COMMENT_WEIGHT * numComments
+                        + LIKE_WEIGHT * numLikes
+                        + SHARE_WEIGHT * numShares
         );
 
         // handle boundary conditions
@@ -254,9 +271,6 @@ public class SortingNode implements Runnable {
             popularity = Integer.MAX_VALUE;
         }
 
-        // rebuild post with new score
-        post = post.toBuilder().setPopularityScore(popularity).build();
-
-        return post;
+        return popularity;
     }
 }

@@ -7,6 +7,7 @@ import services.dataAccess.InMemoryAccessObject;
 import services.dataAccess.proto.PostListProto.PostList;
 import services.dataAccess.proto.PostProto.Post;
 import services.sorting.SortingNode;
+import sun.security.pkcs11.wrapper.PKCS11RuntimeException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static services.dataAccess.TestDataGenerator.generateListOfPosts;
 
 /**
@@ -46,11 +48,12 @@ public class SortingNodeTest {
         assertEquals(Collections.emptyList(), postList.getPostsList());
     }
 
-    @Test @Ignore
+    @Test
     public void testCalculatePopularity() {
         Post post = generateListOfPosts(1).get(0);
-        node.calculatePopularity(post);
-        // TODO asserts
+        Post post2 = node.calculatePopularity(post);
+
+        assertTrue(post2.hasField(Post.getDescriptor().findFieldByNumber(Post.POPULARITY_SCORE_FIELD_NUMBER)));
     }
 
     @Test @Ignore
@@ -60,11 +63,17 @@ public class SortingNodeTest {
         // TODO asserts
     }
 
-    @Test @Ignore
+    @Test
     public void testSortTopPostsPositiveCase() {
+        int prevScore = Integer.MAX_VALUE;
         List<Post> posts = generateListOfPosts(10);
         List<Post> sorted = node.sortTopPosts(posts);
-        // TODO asserts
+
+        for (Post post : sorted) {
+            int popularityScore = post.getPopularityScore();
+            assertTrue(popularityScore <= prevScore);
+            prevScore = popularityScore;
+        }
     }
 
     @Test @Ignore
