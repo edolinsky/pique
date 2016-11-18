@@ -15,8 +15,6 @@ libraryDependencies ++= Seq(
   cache,
   javaWs,
   "redis.clients" % "jedis" % "2.9.0",
-  "com.google.code.gson" % "gson" % "2.8.0",
-  "net.dean.jraw" % "jraw" % "0.9.0"
+  "com.google.code.gson" % "gson" % "2.8.0"
 )
 
-resolvers += "jraw" at "http://jcenter.bintray.com/"
