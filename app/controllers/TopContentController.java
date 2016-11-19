@@ -40,11 +40,11 @@ public class TopContentController extends Controller {
         try {
             pageNum = Integer.parseInt(page);
         } catch (NumberFormatException nfE) {
-            Logger.trace("Top Content invalid page: " + nfE.getMessage());
+            Logger.debug("Top Content invalid page: " + nfE.getMessage());
             pageNum = 0;    // default to page 0 if given invalid number
         }
 
-        Logger.trace("Top Content Requested");
+        Logger.debug("Top Content Requested");
         Optional<PostList> topContent = dataSource.getDisplayPostList(TOP, pageNum);
 
         if (topContent.isPresent()) {

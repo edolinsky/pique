@@ -210,6 +210,16 @@ public abstract class AbstractDataAccess {
     }
 
     /**
+     * Retrieves, but does not remove all postList entities under the specified name within data store under display
+     * namespace. If displayName does not exist, or list is empty, returns an empty list.
+     * @param displayName name of display list
+     * @return list of postLists under that particular display name
+     */
+    public List<PostList> getAllDisplayPostLists(String displayName) {
+        return getAllPostLists(DISPLAY_NAMESPACE + NAMESPACE_DELIMITER + displayName);
+    }
+
+    /**
      * Uses getNumPostsInNameSpace to retrieve the number of posts within the 'source' namespace
      *
      * @return the number of posts within the source namespace

@@ -161,7 +161,7 @@ public class RedisAccessObject extends AbstractDataAccess {
             }
         } catch (InvalidProtocolBufferException iPBE) {
             //todo: handle this more elegantly.
-            Logger.warn("Invalid Protocol Buffer");
+            Logger.warn("Invalid Post Protocol Buffer");
         }
 
         if (postList == null || index < 0) {
@@ -189,7 +189,7 @@ public class RedisAccessObject extends AbstractDataAccess {
                 listOfPostLists.add(postList);
             } catch (InvalidProtocolBufferException iPBE) {
                 // todo: better error handling
-                Logger.warn("Invalid Protocol Buffer");
+                Logger.warn("Invalid PostList Protocol Buffer");
             }
         }
 

@@ -6,6 +6,7 @@ import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.proto.PostListProto.PostList;
 import services.dataAccess.proto.PostProto.Post;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -70,6 +71,10 @@ public class SortingNode implements Runnable {
         }
         Logger.info("Sorting posts at " + new Date());
 
+        /*
+           GATHERING NEW POSTS
+         */
+
         // Obtain all source channels, obtain all posts from each, and delete these posts from the source channels
         List<String> sourceKeys = dataSource.getSources();
         for (String key : sourceKeys) {
@@ -80,26 +85,40 @@ public class SortingNode implements Runnable {
             dataSource.deleteFirstNPostsFromSourceQueue(key, postsFromSource.size());
         }
 
-        // sorting trending posts is handled first, in order to avoid duplicate processing of the same data
         /*
-        // Sort trending posts, process into postList, and add to trending channel
-        dataSource.addNewDisplayPostList(TRENDING, preparePostList(sortTrendingPosts(newPosts))
-        );
-        */
+           SORTING NEW POSTS
+         */
+
+        // calculate popularity score of all posts
+        List<Post> calculatedPosts = calculatePopularityScoreOfAllPosts(newPosts);
 
         // sort top posts and load in in pages
-        List<Post> newSortedTopPosts = sortTopPosts(newPosts);
-        addDisplayPages(TOP, preparePages(newSortedTopPosts));
+        List<Post> newSortedTopPosts = sortTopPosts(calculatedPosts);
+        Logger.info("Sorter sorted " + newSortedTopPosts.size() + " new top posts.");
+
+        // Sort trending posts, process into postList, and add to trending channel
+        List<Post> newSortedTrendingPosts = sortTrendingPosts(calculatedPosts);
+        Logger.info("Sorter sorted " + newSortedTrendingPosts.size() + " new trending posts.");
 
         // Finally sort hashtags, using sorted top posts from above
         // Bin posts containing particular hashtags together, and add to individual channels
         Map<String, List<Post>> postsByHashTag = sortPostsByHashTag(newSortedTopPosts);
         Logger.info("Sorter sorted " + postsByHashTag.values().size() + " hashtags.");
+
+        /*
+           STORING SORTED DATA
+         */
+
+        // add top content in pages to display top stack
+        addDisplayPages(TOP, preparePages(newSortedTopPosts));
+
+        // add new trending content in pages to dsiplay trending stack
+        addDisplayPages(TRENDING, preparePages(newSortedTrendingPosts));
+
         // add hashtag pages to their corresponding keys in data store
         for (Map.Entry<String, List<Post>> e : postsByHashTag.entrySet()) {
             addHashtagPages(e.getKey(), preparePages(e.getValue()));
         }
-
 
     }
 
@@ -174,27 +193,33 @@ public class SortingNode implements Runnable {
     }
 
     /**
-     * Sorts a list of posts based on a weighted popularity score
+     * Sorts a list of posts based on a weighted popularity score (posts must contain popularity score)
      * @param listOfPosts list of posts to be sorted
      * @return sorted list of posts, in decreasing order
      */
     public List<Post> sortTopPosts(List<Post> listOfPosts) {
-        List<Post> calculatedPosts = new ArrayList<>();
 
-        listOfPosts.forEach(post -> {
-            post = calculatePopularity(post);
-            calculatedPosts.add(post);
-        });
-
-        return calculatedPosts.stream()
+        return listOfPosts.stream()
                 .filter(post -> post.getPopularityScore() > POPULARITY_THRESHOLD)
                 .sorted(Collections.reverseOrder(Comparator.comparingInt(Post::getPopularityScore)))
                 .collect(Collectors.toList());
     }
 
     public List<Post> sortTrendingPosts(List<Post> listOfPosts) {
-        // todo: implement
-        return listOfPosts;
+
+        // get velocity score relative to both top and existing trending posts
+        List<Post> newPostsRelToTrending = calculateRelativePopularity(TRENDING, listOfPosts);
+        List<Post> newPostsRelToTop = calculateRelativePopularity(TOP, listOfPosts);
+
+        // filter out possible duplicates by unique id, giving preference to score relative to top (data is more recent)
+        Map<String, Post> uniquePosts = new HashMap<>();
+        newPostsRelToTrending.forEach(post -> uniquePosts.put(post.getId(), post));
+        newPostsRelToTop.forEach(post -> uniquePosts.put(post.getId(), post));
+
+        // sort in decreasing order of velocity score
+        return uniquePosts.values().stream()
+                .sorted(Collections.reverseOrder(Comparator.comparingInt(Post::getPopularityVelocity)))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -225,6 +250,22 @@ public class SortingNode implements Runnable {
         }
 
         return postsByHashTag;
+    }
+
+    /**
+     * Calculates and inserts popularity score to each post in a list of posts
+     * @param posts list of posts
+     * @return the same list of posts, but with each post now containing a popularity score
+     */
+    public List<Post> calculatePopularityScoreOfAllPosts(List<Post> posts) {
+        List<Post> calculatedPosts = new ArrayList<>();
+
+        posts.forEach(post -> {
+            post = calculatePopularity(post);
+            calculatedPosts.add(post);
+        });
+
+        return calculatedPosts;
     }
 
     /**
@@ -266,5 +307,48 @@ public class SortingNode implements Runnable {
         }
 
         return popularity;
+    }
+
+    /**
+     * Calculates the popularity velocity of a list of posts relative to the posts contained in the display data store
+     * at displayName (i.e. top, trending, etc.)
+     * @param displayName string denoting name of display channel
+     * @param newPosts lists of posts to evaluate
+     * @return list of posts, now with calculated popularity velocities
+     */
+    private List<Post> calculateRelativePopularity(String displayName, List<Post> newPosts) {
+        List<Post> calculatedPosts = new ArrayList<>();
+        List<Post> oldPosts = expandPostLists(dataSource.getAllDisplayPostLists(displayName));
+        Map<String, Post> oldPostIdMap = new HashMap<>();
+
+        oldPosts.forEach(post -> oldPostIdMap.put(post.getId(), post));
+
+        newPosts.forEach(newPost -> {
+            int popularityVelocity = 0;
+
+            Post oldPost = oldPostIdMap.get(newPost.getId());
+            if (oldPost != null) {
+                popularityVelocity = newPost.getPopularityScore() - oldPost.getPopularityScore();
+                newPost = newPost.toBuilder().setPopularityVelocity(popularityVelocity).build();
+            }
+
+            calculatedPosts.add(newPost);
+        });
+
+        return calculatedPosts;
+    }
+
+    /**
+     * Converts a list of postList entities to a single list of posts, containing the same posts
+     * @param postLists list of postlist entities
+     * @return list of post entities comprised of the expanded postLists
+     */
+    private List<Post> expandPostLists(List<PostList> postLists) {
+        List<Post> posts = new ArrayList<>();
+
+        // convert postList to list of posts and append to new list of posts
+        postLists.forEach(postList -> posts.addAll(postList.getPostsList()));
+
+        return posts;
     }
 }
