@@ -56,11 +56,25 @@ public class SortingNodeTest {
         assertTrue(post2.hasField(Post.getDescriptor().findFieldByNumber(Post.POPULARITY_SCORE_FIELD_NUMBER)));
     }
 
-    @Test @Ignore
+    @Test
     public void testSortTopPostsZeroValues() {
-        List<Post> posts = generateListOfPosts(10); // TODO these won't be zero value
-        List<Post> sorted = node.sortTopPosts(posts);
-        // TODO asserts
+        List<Post> posts = generateListOfPosts(10);
+        List<Post> zeroedPosts = new ArrayList<>();
+
+        // set popularity parameters to 0
+        posts.forEach(post -> {
+            post = post.toBuilder()
+                    .setNumComments(0)
+                    .setNumLikes(0)
+                    .setNumShares(0)
+                    .build();
+            zeroedPosts.add(post);
+
+        });
+
+        List<Post> sorted = node.sortTopPosts(zeroedPosts);
+
+        assertEquals(Collections.emptyList(), sorted);
     }
 
     @Test

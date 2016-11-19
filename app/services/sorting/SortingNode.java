@@ -179,23 +179,17 @@ public class SortingNode implements Runnable {
      * @return sorted list of posts, in decreasing order
      */
     public List<Post> sortTopPosts(List<Post> listOfPosts) {
-        List<Post> topPosts = new ArrayList<>();
+        List<Post> calculatedPosts = new ArrayList<>();
 
-        // Iterate over posts, calculating popularity for each
-        for (Post post : listOfPosts) {
+        listOfPosts.forEach(post -> {
             post = calculatePopularity(post);
+            calculatedPosts.add(post);
+        });
 
-            if (post.getPopularityScore() > POPULARITY_THRESHOLD) {     // filter out garbage posts
-                topPosts.add(post);
-            }
-        }
-
-        // add all posts in reverse sorted order by popularity score
-        topPosts.addAll(listOfPosts);
-        topPosts.sort(Comparator.comparingInt(Post::getPopularityScore));
-        topPosts = Lists.reverse(topPosts);
-
-        return topPosts;
+        return calculatedPosts.stream()
+                .filter(post -> post.getPopularityScore() > POPULARITY_THRESHOLD)
+                .sorted(Collections.reverseOrder(Comparator.comparingInt(Post::getPopularityScore)))
+                .collect(Collectors.toList());
     }
 
     public List<Post> sortTrendingPosts(List<Post> listOfPosts) {
@@ -236,7 +230,7 @@ public class SortingNode implements Runnable {
     /**
      * Calculates the popularity of a given post, and injects the popularity score into that post
      * @param post Post object to be evaluated
-     * @return modified post object, now containing evaluated popularity score
+     * @return popularity score
      */
     public Post calculatePopularity(Post post) {
 
