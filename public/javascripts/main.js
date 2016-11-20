@@ -62,77 +62,92 @@ function createElements(httpResponse, tag) {
       postObj.className = "postObj";
 
       var tr1 = document.createElement("div");
-      postObj.appendChild(tr1);
 
       var td1a = document.createElement("div");
       td1a.style.display = "inline";
       td1a.style.float = "left";
       td1a.style.padding = "2px";
       td1a.style.color = "SteelBlue";
-      tr1.appendChild(td1a);
       var posterList = document.createTextNode(post.source_);
       td1a.appendChild(posterList);
+      tr1.appendChild(td1a);
 
       var td1b = document.createElement("div");
       td1b.style.display = "inline";
       td1b.style.float = "right";
       td1b.style.padding = "2px";
       td1b.style.color = "LightSteelBlue";
-      tr1.appendChild(td1b);
       var time = document.createTextNode(post.timestamp_);
       td1b.appendChild(time);
+      tr1.appendChild(td1b);
+      postObj.appendChild(tr1);
 
       var tr2 = document.createElement("div");
-      postObj.appendChild(tr2);
       var td2a = document.createElement("div");
-      tr2.appendChild(td2a);
       var textList = document.createTextNode(post.text_);
       td2a.appendChild(textList);
+      tr2.appendChild(td2a);
+      postObj.appendChild(tr2);
 
       var tr3 = document.createElement("div");
-      postObj.appendChild(tr3);
-      for (var j = 0; j < post.hashtag_.length; j++) {
-        var td3 = document.createElement("div");
-        td3.style.color = "SteelBlue";
-        td3.style.display = "inline";
-        tr3.appendChild(td3);
+      if(post.hashtag_[0] != "N/A") {
+        for (var j = 0; j < post.hashtag_.length; j++) {
+          var td3 = document.createElement("div");
+          td3.style.color = "SteelBlue";
+          td3.style.display = "inline";
 
-        var hashtag = document.createTextNode(post.hashtag_[j] + "  ");
-        td3.appendChild(hashtag);
+          var hashtag = document.createTextNode(post.hashtag_[j] + "  ");
+          td3.appendChild(hashtag);
+          tr3.appendChild(td3);
+        }
+      } else {
+        var td3 = document.createElement("div");
+        var blank = document.createTextNode("  ");
+        td3.appendChild(blank);
+        tr3.appendChild(td3);
       }
+      postObj.appendChild(tr3);
 
       var tr4 = document.createElement("div");
-      postObj.appendChild(tr4);
       var td4a = document.createElement("div");
+      if(post.imgLink_ != "N/A") {
+        var imgList = document.createTextNode(post.imgLink_);
+        td4a.appendChild(imgList);
+      } else {
+        var blank = document.createTextNode(" ");
+        td4a.appendChild(blank);
+      }
       tr4.appendChild(td4a);
-      var imgList = document.createTextNode(post.imgLink_);
-      td4a.appendChild(imgList);
+      postObj.appendChild(tr4);
 
       var tr5 = document.createElement("div");
-      postObj.appendChild(tr5);
       var bk = document.createElement("br");
       tr5.appendChild(bk);
 
       var td5a = document.createElement("div");
       td5a.style.display = "inline";
       td5a.style.padding = "10px";
-      tr5.appendChild(td5a);
+      td5a.style.float = "bottom";
       var likes = document.createTextNode("Likes: " + post.numLikes_);
       td5a.appendChild(likes);
+      tr5.appendChild(td5a);
 
       var td5b = document.createElement("div");
       td5b.style.display = "inline";
       td5b.style.padding = "10px";
-      tr5.appendChild(td5b);
+      td5a.style.float = "bottom";
       var shares = document.createTextNode("Shares: " + post.numShares_);
       td5b.appendChild(shares);
+      tr5.appendChild(td5b);
 
       var td5c = document.createElement("div");
       td5c.style.display = "inline";
       td5c.style.padding = "10px";
-      tr5.appendChild(td5c);
+      td5a.style.float = "bottom";
       var comments = document.createTextNode("Comments: " + post.numComments_);
       td5c.appendChild(comments);
+      tr5.appendChild(td5c);
+      postObj.appendChild(tr5);
 
       // when the user clicks on the post it will bring them to the original
       var postLink = document.createElement("a");
