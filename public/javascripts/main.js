@@ -82,52 +82,85 @@ function createElements(httpResponse, tag) {
       tr1.appendChild(td1b);
       postObj.appendChild(tr1);
 
-      var tr2 = document.createElement("div");
-      var td2a = document.createElement("div");
-      var textList = document.createTextNode(post.text_);
-      td2a.appendChild(textList);
-      tr2.appendChild(td2a);
-      postObj.appendChild(tr2);
-
-      var tr3 = document.createElement("div");
-      if(post.hashtag_[0] != "N/A") {
-        for (var j = 0; j < post.hashtag_.length; j++) {
-          var td3 = document.createElement("div");
-          td3.style.color = "SteelBlue";
-          td3.style.display = "inline";
-
-          var hashtag = document.createTextNode(post.hashtag_[j] + "  ");
-          td3.appendChild(hashtag);
-          tr3.appendChild(td3);
-        }
-      } else {
-        var td3 = document.createElement("div");
-        var blank = document.createTextNode("  ");
-        td3.appendChild(blank);
-        tr3.appendChild(td3);
-      }
-      postObj.appendChild(tr3);
-
       var tr4 = document.createElement("div");
       var td4a = document.createElement("div");
       if(post.imgLink_ != "N/A") {
-        var imgList = document.createTextNode(post.imgLink_);
-        td4a.appendChild(imgList);
+        var bk = document.createElement("br");
+        tr4.appendChild(bk);
+
+        var imgLink = document.createElement("img");
+        imgLink.src = post.imgLink_;
+        imgLink.height = "160";
+        td4a.appendChild(imgLink);
+        td4a.style.padding = "10px";
+        td4a.style.textAlign = "center";
+        tr4.appendChild(td4a);
+        postObj.appendChild(tr4);
+
+        var tr2 = document.createElement("div");
+        var td2a = document.createElement("div");
+        td2a.style.height = "62px";
+        td2a.style.overflow = "hidden";
+        var textList = document.createTextNode(post.text_);
+        td2a.appendChild(textList);
+        tr2.appendChild(td2a);
+        postObj.appendChild(tr2);
+
+        var tr3 = document.createElement("div");
+        tr3.style.height = "25px";
+        tr3.style.overflow = "hidden";
+        if(post.hashtag_[0] != "N/A") {
+          for (var j = 0; j < post.hashtag_.length; j++) {
+            var td3 = document.createElement("div");
+            td3.style.color = "SteelBlue";
+            td3.style.display = "inline";
+
+            var hashtag = document.createTextNode(post.hashtag_[j] + "  ");
+            td3.appendChild(hashtag);
+            tr3.appendChild(td3);
+          }
+        }
+        postObj.appendChild(tr3);
+
       } else {
         var blank = document.createTextNode(" ");
         td4a.appendChild(blank);
+        tr4.appendChild(td4a);
+        postObj.appendChild(tr4);
+
+        var tr2 = document.createElement("div");
+        var bk = document.createElement("br");
+        tr2.appendChild(bk);
+        var td2a = document.createElement("div");
+        td2a.style.fontSize = "150%";
+        var textList = document.createTextNode(post.text_);
+        td2a.appendChild(textList);
+        tr2.appendChild(td2a);
+        postObj.appendChild(tr2);
+
+        var tr3 = document.createElement("div");
+        if(post.hashtag_[0] != "N/A") {
+          for (var j = 0; j < post.hashtag_.length; j++) {
+            var td3 = document.createElement("div");
+            td3.style.color = "SteelBlue";
+            td3.style.display = "inline";
+            td3.style.fontSize = "200%";
+            var hashtag = document.createTextNode(post.hashtag_[j] + "  ");
+            td3.appendChild(hashtag);
+            tr3.appendChild(td3);
+          }
+        }
+        postObj.appendChild(tr3);
       }
-      tr4.appendChild(td4a);
-      postObj.appendChild(tr4);
 
       var tr5 = document.createElement("div");
-      var bk = document.createElement("br");
-      tr5.appendChild(bk);
+      tr5.style.position = "absolute";
+      tr5.style.bottom = "0";
+      tr5.style.paddingBottom = "20px";
 
       var td5a = document.createElement("div");
       td5a.style.display = "inline";
       td5a.style.padding = "10px";
-      td5a.style.float = "bottom";
       var likes = document.createTextNode("Likes: " + post.numLikes_);
       td5a.appendChild(likes);
       tr5.appendChild(td5a);
@@ -135,7 +168,6 @@ function createElements(httpResponse, tag) {
       var td5b = document.createElement("div");
       td5b.style.display = "inline";
       td5b.style.padding = "10px";
-      td5a.style.float = "bottom";
       var shares = document.createTextNode("Shares: " + post.numShares_);
       td5b.appendChild(shares);
       tr5.appendChild(td5b);
@@ -143,7 +175,6 @@ function createElements(httpResponse, tag) {
       var td5c = document.createElement("div");
       td5c.style.display = "inline";
       td5c.style.padding = "10px";
-      td5a.style.float = "bottom";
       var comments = document.createTextNode("Comments: " + post.numComments_);
       td5c.appendChild(comments);
       tr5.appendChild(td5c);

@@ -30,7 +30,7 @@ public class TestDataAccess extends AbstractDataAccess {
         test1Builder.setTimestamp(test1Df.format(DateTime.now().toDate()));
         test1Builder.addSource("Alexs_tweets22");
         test1Builder.addSourceLink("https://twitter.com");
-        test1Builder.addImgLink("N/A");
+        test1Builder.addImgLink("https://pbs.twimg.com/media/Cxu8dwsWIAUgzJK.jpg");
         test1Builder.setPopularityScore(0);
         test1Builder.setPopularityVelocity(0);
         test1Builder.setNumComments(966);
@@ -53,7 +53,7 @@ public class TestDataAccess extends AbstractDataAccess {
             builder.setTimestamp(df.format(DateTime.now().toDate()));
             builder.addSource("Entertainment Weekly");
             builder.addSourceLink("https://twitter.com");
-            builder.addImgLink("http://image.com");
+            builder.addImgLink("N/A");
             builder.setPopularityScore(0);
             builder.setPopularityVelocity(0);
             builder.setNumComments(966);
