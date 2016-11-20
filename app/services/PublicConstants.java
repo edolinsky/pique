@@ -16,4 +16,7 @@ public class PublicConstants {
 
     public static final String TOP = "top";
     public static final String TRENDING = "trending";
+    public static final String TOP_HASHTAGS = "tophashtags";
+
+    public static final int NUM_TOP_HASHTAGS = 10;
 }

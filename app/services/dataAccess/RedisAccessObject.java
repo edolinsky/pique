@@ -1,5 +1,6 @@
 package services.dataAccess;
 
+import com.google.common.collect.Lists;
 import com.google.protobuf.InvalidProtocolBufferException;
 import play.Logger;
 import redis.clients.jedis.*;
@@ -37,7 +38,7 @@ public class RedisAccessObject extends AbstractDataAccess {
     protected long addNewPosts(String keyString, List<Post> listOfPosts) {
         long newLength;
 
-        try (BinaryJedis redisAccess = pool.getResource()){
+        try (BinaryJedis redisAccess = pool.getResource()) {
 
             Pipeline pipe = redisAccess.pipelined();
             pipe.multi();
@@ -45,7 +46,7 @@ public class RedisAccessObject extends AbstractDataAccess {
             for (Post post : listOfPosts) {
                 pipe.rpush(keyString.getBytes(), post.toByteArray());
             }
-            // Response<byte[]> pipeId = pipe.get(keyString.getBytes());
+
             Response<List<Object>> results = pipe.exec();
 
             try {
@@ -94,7 +95,7 @@ public class RedisAccessObject extends AbstractDataAccess {
 
         // connect to redis and obtain all posts under keystring (negative indexing for final post)
         try (BinaryJedis redisAccess = pool.getResource()) {
-             byteList = redisAccess.lrange(keyString.getBytes(), 0, -1);
+            byteList = redisAccess.lrange(keyString.getBytes(), 0, -1);
         }
 
         List<Post> postList = new ArrayList<>();
@@ -242,12 +243,75 @@ public class RedisAccessObject extends AbstractDataAccess {
         return byteList.stream().map(String::new).collect(Collectors.toList());
     }
 
+    @Override
+    protected long getListSize(String keyString) {
+        long size;
+
+        try (BinaryJedis redisAccess = pool.getResource()) {
+            size = redisAccess.llen(keyString.getBytes());
+        }
+
+        return size;
+    }
+
+    @Override
+    protected List<String> getStringList(String keyString, long length) {
+        List<byte[]> byteList;
+        byte[] key = keyString.getBytes();
+
+        try (BinaryJedis redisAccess = pool.getResource()) {
+
+            // obtain max length of request, and scale to max length if needed
+            long listLen = redisAccess.llen(key);
+            if (length > listLen) {
+                length = listLen;
+            }
+
+            byteList = redisAccess.lrange(keyString.getBytes(), 0, length);
+        }
+
+        // convert list of byte arrays to list of strings and return
+        return byteList.stream().map(String::new).collect(Collectors.toList());
+
+    }
+
+    @Override
+    protected long replaceStringList(String keyString, List<String> stringList) {
+        int listLength = stringList.size();
+        byte[] key = keyString.getBytes();
+        List<String> reversedStringList = Lists.reverse(stringList);
+
+        try (BinaryJedis redisAccess = pool.getResource()) {
+
+            Pipeline pipe = redisAccess.pipelined();
+            pipe.multi();
+
+            // push strings in reverse order (so first is at front)
+            for (String s : reversedStringList) {
+                pipe.lpush(key, s.getBytes());
+            }
+
+            pipe.exec();
+
+            try {
+                pipe.close();
+            } catch (IOException IOe) {
+                Logger.error("Problems closing Redis Pipe"); // todo: handle better
+            }
+
+            // delete old entries, so that only new string list remains
+            redisAccess.ltrim(key, listLength, -1);
+        }
+
+        return listLength;
+    }
+
     /**
      * Retrieves the byte array stored at the specified index in Redis under keyString. The byte array can then be
      * parsed into either a Post or PostList.
      *
      * @param keyString string corresponding to key in Redis (complete with namespace and delimiter)
-     * @param index desired index of list under keyString
+     * @param index     desired index of list under keyString
      * @return Optional of byte array stored at index, empty if not found.
      */
     private Optional<byte[]> getByte(String keyString, Integer index) {

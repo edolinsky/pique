@@ -12,9 +12,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Created by maria on 04/11/16.
- */
 
 public class TestDataAccess extends AbstractDataAccess {
 
@@ -72,6 +69,21 @@ public class TestDataAccess extends AbstractDataAccess {
     @Override
     public List<String> getKeysInNameSpace(String nameSpace) {
         return null;
+    }
+
+    @Override
+    protected long getListSize(String keyString) {
+        return 0;
+    }
+
+    @Override
+    protected List<String> getStringList(String keyString, long length) {
+        return null;
+    }
+
+    @Override
+    protected long replaceStringList(String keyString, List<String> stringList) {
+        return 0;
     }
 
     public Optional<Post> popOldestPost(String keyString) {

@@ -2,8 +2,11 @@ package services.dataAccess;
 
 import services.dataAccess.proto.PostListProto.PostList;
 import services.dataAccess.proto.PostProto.Post;
+import sun.util.resources.cldr.zh.CalendarData_zh_Hans_HK;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -15,6 +18,7 @@ public abstract class AbstractDataAccess {
     private static final String HASHTAG_NAMESPACE = "hashtag";
     private static final String SOURCE_NAMESPACE = "source";
     private static final String TEST_NAMESPACE = "test";
+    private static final String STRING_LIST_NAMESPACE = "stringlist";
     static final Integer MAX_POSTLISTS = 100;
 
 
@@ -113,6 +117,26 @@ public abstract class AbstractDataAccess {
     abstract public List<String> getKeysInNameSpace(String nameSpace);
 
     /**
+     * Returns the size of the list at the specified key string
+     * @param keyString desired key string in data store
+     * @return the size of the list stored at keyString
+     */
+    abstract protected long getListSize(String keyString);
+
+    /**
+     * Retrieves, but does not remove, the first length elements of the list of strings stored at the specified key string
+     * @return the list of strings stored at the specified key string
+     */
+    abstract protected List<String> getStringList(String keyString, long length);
+
+    /**
+     * Adds a new list of strings to the beginning of the list of strings at the specified key string. This removes
+     * the old list of strings.
+     * @return new length of list under keyString after insertion.
+     */
+    abstract protected long replaceStringList(String keyString, List<String> stringList);
+
+    /**
      * Adds a new post to this data store's list of posts (end of queue) under a particular key in the source namespace.
      * If no key exists, a key-value pair is created and Post is the first element in the value list.
      *
@@ -185,6 +209,19 @@ public abstract class AbstractDataAccess {
     }
 
     /**
+     * Retrieves all PostLists under a particular hashtag in the hashtag namespace.
+     * @param hashtag string denoting key under hashtag namespace in data store
+     * @return list of all posts stored under that hashtag
+     */
+    public List<PostList> getAllHashtagPostLists(String hashtag) {
+        return getAllPostLists(HASHTAG_NAMESPACE + NAMESPACE_DELIMITER + hashtag);
+    }
+
+    public long getNumHashTagPostLists(String hashtag) {
+        return getListSize(HASHTAG_NAMESPACE + NAMESPACE_DELIMITER + hashtag);
+    }
+
+    /**
      * Retrieves, but does not remove postList entity at the specified index from the stack at source under the display
      * namespace in data store. If key does not exist, or list is empty, returns the empty optional
      *
@@ -236,6 +273,34 @@ public abstract class AbstractDataAccess {
         return getKeysInNameSpace(SOURCE_NAMESPACE).stream()
                 .map(s -> s.substring(s.indexOf(NAMESPACE_DELIMITER) + 1))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Retrieves the list of available hashtags (without proceeding namespace or delimiter) in the data store
+     * @return A list containing all available hashtags.
+     */
+    public List<String> getAllHashTags() {
+        return getKeysInNameSpace(HASHTAG_NAMESPACE).stream()
+                .map(s -> s.substring(s.indexOf(NAMESPACE_DELIMITER) + 1))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Retrieves the first numTopHashtags hashtags from the list of top hashtags
+     * @param numTopHashtags number of top hashtags to be received
+     * @return first numTopHashtags hashtags in the top hashtag list
+     */
+    public List<String> getTopHashTags(int numTopHashtags) {
+        return getStringList(STRING_LIST_NAMESPACE + NAMESPACE_DELIMITER + HASHTAG_NAMESPACE, numTopHashtags);
+    }
+
+    /**
+     * Replaces the current list of top hashtags with the specified list of hashtags
+     * @param topHashTags list of strings, denoting hashtags
+     * @return new length of top hashtag list
+     */
+    public long addTopHashtags(List<String> topHashTags) {
+        return replaceStringList(STRING_LIST_NAMESPACE + NAMESPACE_DELIMITER + HASHTAG_NAMESPACE, topHashTags);
     }
 
     /**
