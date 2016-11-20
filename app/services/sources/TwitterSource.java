@@ -44,7 +44,9 @@ public class TwitterSource implements Source {
     private static final String TWITTER = "twitter";
     private static final String DEFAULT_TEXT = "N/A";
 	private static final Integer MAX_REQUEST_SIZE = 100;
-    
+    private static final String FILTER_RETWEETS = " -filter:retweets";
+    private static final Integer MAX_SEARCH_PER_WINDOW = 450;
+    private static final Long WINDOW_LENGTH = TimeUnit.MINUTES.toMillis(15);
 	private Map<String, Set<Location>> cachedCodes = new HashMap<>();
 
 	// twitter object that acts as the router for all requests
@@ -70,31 +72,44 @@ public class TwitterSource implements Source {
 
     @Override
     public long getQueryDelta() {
-        return TimeUnit.MINUTES.toMillis(1);
+        return WINDOW_LENGTH/(MAX_REQUEST_SIZE * 4/5);
     }
 
+    public List<Status> getStatusesForTrend(Trend trend, int numPosts, Long sinceId) {
+        Query trendQuery = new Query(trend.getQuery() + FILTER_RETWEETS);
+        trendQuery.setCount(numPosts);
+        if (sinceId != null) {
+            trendQuery.setSinceId(sinceId);
+        }
+
+        try {
+            QueryResult result = twitter.search(trendQuery);
+            return result.getTweets();
+        } catch (TwitterException e) {
+            e.printStackTrace();
+            // TODO
+        }
+
+        return Collections.emptyList();
+    }
     /**
-	 * Gets tweets corresponding to the current trending topics on Twitter
-	 * @return
-	 */
-	public List<Post> getTrendingPosts(Trend trend, int numPosts) {
-		Query trendQuery = new Query(trend.getQuery());
-		trendQuery.setCount(numPosts);
-
-		try {
-			QueryResult result = twitter.search(trendQuery);
-			return parseQueryResult(result);
-		} catch (TwitterException e) {
-			e.printStackTrace();
-			// TODO
-		}
-
-		return Collections.emptyList();
+     * Gets tweets corresponding to the current trending topics on Twitter
+     * @param trend the trend to query
+     * @param numPosts the number of posts to get (Max is 100 set by API)
+     * @param sinceId get all posts newer than this id only, or set as null for all
+     * @return
+     */
+	public List<Post> getTrendingPosts(Trend trend, int numPosts, Long sinceId) {
+        return parseStatuses(getStatusesForTrend(trend, numPosts, sinceId));
 	}
 
 	public List<Post> getMaxTrendingPosts(Trend trend) {
-		return getTrendingPosts(trend, MAX_REQUEST_SIZE);
+		return getTrendingPosts(trend, MAX_REQUEST_SIZE, null);
 	}
+
+    public List<Post> getMaxTrendingPostsSince(Trend trend, Long sinceId) {
+        return getTrendingPosts(trend, MAX_REQUEST_SIZE, sinceId);
+    }
 
 	/**
 	 * Gets the {@link Trends} for a certain country, if it is available.
@@ -169,15 +184,15 @@ public class TwitterSource implements Source {
 
 	/**
 	 * Generates Post object for every status in given queried tweets
-	 * @param result
+	 * @param statuses
 	 * @return
 	 */
-	private List<Post> parseQueryResult(QueryResult result) {
-		if (result.getTweets() == null || result.getTweets().isEmpty()) {
+	private List<Post> parseStatuses(List<Status> statuses) {
+		if (statuses == null || statuses.isEmpty()) {
 			return Collections.emptyList();
 		}
 
-		return result.getTweets().stream().map(this::createPost).collect(Collectors.toList());
+		return statuses.stream().map(this::createPost).collect(Collectors.toList());
 	}
 
 	private Post createPost(Status s) {
