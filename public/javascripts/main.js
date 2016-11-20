@@ -61,124 +61,127 @@ function createElements(httpResponse, tag) {
       postObj.id = "postObj";
       postObj.className = "postObj";
 
-      var tr1 = document.createElement("div");
+      var row1 = document.createElement("div");
 
-      var td1a = document.createElement("div");
-      td1a.style.display = "inline";
-      td1a.style.float = "left";
-      td1a.style.padding = "2px";
-      td1a.style.color = "SteelBlue";
+      var row1Col1= document.createElement("div");
+      row1Col1.style.display = "inline";
+      row1Col1.style.float = "left";
+      row1Col1.style.padding = "2px";
+      row1Col1.style.color = "SteelBlue";
       var posterList = document.createTextNode(post.source_);
-      td1a.appendChild(posterList);
-      tr1.appendChild(td1a);
+      row1Col1.appendChild(posterList);
+      row1.appendChild(row1Col1);
 
-      var td1b = document.createElement("div");
-      td1b.style.display = "inline";
-      td1b.style.float = "right";
-      td1b.style.padding = "2px";
-      td1b.style.color = "LightSteelBlue";
+      var row1Col2 = document.createElement("div");
+      row1Col2.style.display = "inline";
+      row1Col2.style.float = "right";
+      row1Col2.style.padding = "2px";
+      row1Col2.style.color = "LightSteelBlue";
       var time = document.createTextNode(post.timestamp_);
-      td1b.appendChild(time);
-      tr1.appendChild(td1b);
-      postObj.appendChild(tr1);
+      row1Col2.appendChild(time);
+      row1.appendChild(row1Col2);
+      postObj.appendChild(row1);
 
-      var tr4 = document.createElement("div");
-      var td4a = document.createElement("div");
+      var row2 = document.createElement("div");
+      var row2Col1 = document.createElement("div");
       if(post.imgLink_ != "N/A") {
+
+        // if there is an image in the post
         var bk = document.createElement("br");
-        tr4.appendChild(bk);
+        row2.appendChild(bk);
 
         var imgLink = document.createElement("img");
         imgLink.src = post.imgLink_;
         imgLink.height = "160";
-        td4a.appendChild(imgLink);
-        td4a.style.padding = "10px";
-        td4a.style.textAlign = "center";
-        tr4.appendChild(td4a);
-        postObj.appendChild(tr4);
+        row2Col1.appendChild(imgLink);
+        row2Col1.style.padding = "10px";
+        row2Col1.style.textAlign = "center";
+        row2.appendChild(row2Col1);
+        postObj.appendChild(row2);
 
-        var tr2 = document.createElement("div");
-        var td2a = document.createElement("div");
-        td2a.style.height = "62px";
-        td2a.style.overflow = "hidden";
+        var row3 = document.createElement("div");
+        var row3Col1 = document.createElement("div");
+        row3Col1.style.height = "62px";
+        row3Col1.style.overflow = "hidden";
         var textList = document.createTextNode(post.text_);
-        td2a.appendChild(textList);
-        tr2.appendChild(td2a);
-        postObj.appendChild(tr2);
+        row3Col1.appendChild(textList);
+        row3.appendChild(row3Col1);
+        postObj.appendChild(row3);
 
-        var tr3 = document.createElement("div");
-        tr3.style.height = "25px";
-        tr3.style.overflow = "hidden";
+        var row4 = document.createElement("div");
+        row4.style.height = "25px";
+        row4.style.overflow = "hidden";
         if(post.hashtag_[0] != "N/A") {
           for (var j = 0; j < post.hashtag_.length; j++) {
-            var td3 = document.createElement("div");
-            td3.style.color = "SteelBlue";
-            td3.style.display = "inline";
+            var row4Col = document.createElement("div");
+            row4Col.style.color = "SteelBlue";
+            row4Col.style.display = "inline";
 
             var hashtag = document.createTextNode(post.hashtag_[j] + "  ");
-            td3.appendChild(hashtag);
-            tr3.appendChild(td3);
+            row4Col.appendChild(hashtag);
+            row4.appendChild(row4Col);
           }
         }
-        postObj.appendChild(tr3);
+        postObj.appendChild(row4);
 
       } else {
-        var blank = document.createTextNode(" ");
-        td4a.appendChild(blank);
-        tr4.appendChild(td4a);
-        postObj.appendChild(tr4);
 
-        var tr2 = document.createElement("div");
+        // if the post has no image
+
+        var row3 = document.createElement("div");
         var bk = document.createElement("br");
-        tr2.appendChild(bk);
-        var td2a = document.createElement("div");
-        td2a.style.fontSize = "150%";
-        var textList = document.createTextNode(post.text_);
-        td2a.appendChild(textList);
-        tr2.appendChild(td2a);
-        postObj.appendChild(tr2);
+        row3.appendChild(bk);
 
-        var tr3 = document.createElement("div");
+        var row3Col1 = document.createElement("div");
+        row3Col1.style.fontSize = "150%";
+        row3Col1.style.paddingTop = "20px";
+        var textList = document.createTextNode(post.text_);
+        row3Col1.appendChild(textList);
+        row3.appendChild(row3Col1);
+        postObj.appendChild(row3);
+
+        var row4 = document.createElement("div");
+        row4.style.paddingTop = "10px";
         if(post.hashtag_[0] != "N/A") {
           for (var j = 0; j < post.hashtag_.length; j++) {
-            var td3 = document.createElement("div");
-            td3.style.color = "SteelBlue";
-            td3.style.display = "inline";
-            td3.style.fontSize = "200%";
+            var row4Col = document.createElement("div");
+            row4Col.style.color = "SteelBlue";
+            row4Col.style.display = "inline";
+            row4Col.style.fontSize = "200%";
             var hashtag = document.createTextNode(post.hashtag_[j] + "  ");
-            td3.appendChild(hashtag);
-            tr3.appendChild(td3);
+            row4Col.appendChild(hashtag);
+            row4.appendChild(row4Col);
           }
         }
-        postObj.appendChild(tr3);
+        postObj.appendChild(row4);
       }
 
-      var tr5 = document.createElement("div");
-      tr5.style.position = "absolute";
-      tr5.style.bottom = "0";
-      tr5.style.paddingBottom = "20px";
+      var row5 = document.createElement("div");
+      row5.style.position = "absolute";
+      row5.style.bottom = "0";
+      row5.style.paddingBottom = "20px";
 
-      var td5a = document.createElement("div");
-      td5a.style.display = "inline";
-      td5a.style.padding = "10px";
+      var row5Col1 = document.createElement("div");
+      row5Col1.style.display = "inline";
+      row5Col1.style.padding = "10px";
       var likes = document.createTextNode("Likes: " + post.numLikes_);
-      td5a.appendChild(likes);
-      tr5.appendChild(td5a);
+      row5Col1.appendChild(likes);
+      row5.appendChild(row5Col1);
 
-      var td5b = document.createElement("div");
-      td5b.style.display = "inline";
-      td5b.style.padding = "10px";
+      var row5Col2 = document.createElement("div");
+      row5Col2.style.display = "inline";
+      row5Col2.style.padding = "10px";
       var shares = document.createTextNode("Shares: " + post.numShares_);
-      td5b.appendChild(shares);
-      tr5.appendChild(td5b);
+      row5Col2.appendChild(shares);
+      row5.appendChild(row5Col2);
 
-      var td5c = document.createElement("div");
-      td5c.style.display = "inline";
-      td5c.style.padding = "10px";
+      var row5Col3 = document.createElement("div");
+      row5Col3.style.display = "inline";
+      row5Col3.style.padding = "10px";
       var comments = document.createTextNode("Comments: " + post.numComments_);
-      td5c.appendChild(comments);
-      tr5.appendChild(td5c);
-      postObj.appendChild(tr5);
+      row5Col3.appendChild(comments);
+      row5.appendChild(row5Col3);
+      postObj.appendChild(row5);
 
       // when the user clicks on the post it will bring them to the original
       var postLink = document.createElement("a");
