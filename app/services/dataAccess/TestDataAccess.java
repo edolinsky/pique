@@ -33,9 +33,12 @@ public class TestDataAccess extends AbstractDataAccess {
         return x;
     }
 
-    @Override
-    protected Optional<Post> popFirstPost(String keyString) {
-        return null;
+    public Optional<Post> popOldestPost(String keyString) {
+        return testOptPost;
+    }
+
+    public Optional<PostList> peekAtPostList(String keyString) {
+        return testOptPostList;
     }
 
     public long addNewPostList(String keyString, PostList postList) {
@@ -44,6 +47,11 @@ public class TestDataAccess extends AbstractDataAccess {
 
     public List<Post> getAllPosts(String keyString) {
         return testPostList;
+    }
+
+    @Override
+    protected Optional<Post> popFirstPost(String keyString) {
+        return null;
     }
 
     @Override
@@ -86,12 +94,9 @@ public class TestDataAccess extends AbstractDataAccess {
         return 0;
     }
 
-    public Optional<Post> popOldestPost(String keyString) {
-        return testOptPost;
-    }
-
-    public Optional<PostList> peekAtPostList(String keyString) {
-        return testOptPostList;
+    @Override
+    protected long replacePostLists(String keyString, List<PostList> postLists) {
+        return 0;
     }
 
 }

@@ -1,5 +1,6 @@
 package services.dataAccess;
 
+import services.dataAccess.proto.PostListProto;
 import services.dataAccess.proto.PostListProto.PostList;
 import services.dataAccess.proto.PostProto.Post;
 
@@ -7,9 +8,6 @@ import services.dataAccess.proto.PostProto.Post;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Created by erik on 23/10/16.
- */
 public class InMemoryAccessObject extends AbstractDataAccess {
 
     private Map<String, List<Post>> postDataStore;
@@ -220,6 +218,13 @@ public class InMemoryAccessObject extends AbstractDataAccess {
 
         stringListDataStore.put(keyString, new ArrayList<>(stringList));
         return stringList.size();
+    }
+
+    @Override
+    protected long replacePostLists(String keyString, List<PostList> postLists) {
+
+        postListDataStore.put(keyString, postLists);
+        return postLists.size();
     }
 
 }

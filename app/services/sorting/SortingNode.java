@@ -1,20 +1,16 @@
 package services.sorting;
 
-import com.google.common.collect.Multiset;
-import services.PublicConstants;
 import services.ThreadNotification;
 import com.google.common.collect.Lists;
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.proto.PostListProto.PostList;
 import services.dataAccess.proto.PostProto.Post;
 
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import play.Logger;
 
-import static java.util.Map.Entry.comparingByValue;
 import static services.PublicConstants.NUM_TOP_HASHTAGS;
 import static services.PublicConstants.TOP;
 import static services.PublicConstants.TRENDING;
@@ -24,6 +20,7 @@ public class SortingNode implements Runnable {
     private static final Long PROCESS_INPUT_THRESHOLD = 1000L;
     private static final int POPULARITY_THRESHOLD = 300;
     private static final int PAGE_LIMIT = 50;
+    private static final String NO_HASHTAG = "N/A";
 
     private static final Double LIKE_WEIGHT = 0.9;
     private static final Double COMMENT_WEIGHT = 0.5;
@@ -104,9 +101,9 @@ public class SortingNode implements Runnable {
         List<Post> newSortedTrendingPosts = sortTrendingPosts(calculatedPosts);
         Logger.info("Sorter sorted " + newSortedTrendingPosts.size() + " new trending posts.");
 
-        // Finally sort hashtags, using sorted top posts from above
+        // Finally sort hashtags, also in reverse order of popularity
         // Bin posts containing particular hashtags together, and add to individual channels
-        Map<String, List<Post>> postsByHashTag = sortPostsByHashTag(newSortedTopPosts);
+        Map<String, List<Post>> postsByHashTag = sortPostsByHashTag(calculatedPosts);
         Logger.info("Sorter sorted " + postsByHashTag.values().size() + " hashtags.");
 
         /*
@@ -122,10 +119,7 @@ public class SortingNode implements Runnable {
         // add hashtag pages to their corresponding keys in data store
         addHashtagDisplay(postsByHashTag);
 
-        /*
-           UPDATING TOP HASHTAG LIST
-         */
-
+        // update
         updateTopHashtags();
         Logger.info("Sorter added new top hashtags");
 
@@ -133,6 +127,7 @@ public class SortingNode implements Runnable {
 
     /**
      * Converts a list of individual posts to a list of floor(listOfPosts / PAGE_LIMIT) + 1 postList pages in same order
+     *
      * @param listOfPosts a list of Post objects to be converted into pages
      * @return list of postList objects containing max PAGE_LIMIT posts
      */
@@ -149,32 +144,30 @@ public class SortingNode implements Runnable {
 
     /**
      * Loads a set of PostList pages into the hashtag namespace of the data store under key hashtag
+     *
      * @param hashtag key string
-     * @param pages list of PostList objects (pages) to be added under key string
+     * @param pages   list of PostList objects (pages) to be added under key string
      * @return number of pages added
      */
     public int addHashtagPages(String hashtag, List<PostList> pages) {
-        ListIterator li = pages.listIterator(pages.size());
 
-        // iterate in reverse (want highest rated pages at top of stack), adding pages
-        while(li.hasPrevious()) {
-            dataSource.addNewHashTagPostList(hashtag, pages.get(li.previousIndex()));
-            li.previous();
-        }
+        // Add pages in reverse (want highest rated pages at top of stack)
+        dataSource.replaceHashTagPostLists(hashtag, Lists.reverse(pages));
 
         return pages.size();
     }
 
     /**
      * Loads a set of PostList pages into the display namespace of the data store under key
-     * @param key key string
+     *
+     * @param key   key string
      * @param pages list of PostList objects to be added under key string
      * @return number of pages added
      */
     public int addDisplayPages(String key, List<PostList> pages) {
         ListIterator li = pages.listIterator(pages.size());
 
-        while(li.hasPrevious()) {
+        while (li.hasPrevious()) {
             dataSource.addNewDisplayPostList(key, pages.get(li.previousIndex()));
             li.previous();
         }
@@ -182,12 +175,44 @@ public class SortingNode implements Runnable {
         return pages.size();
     }
 
+    /**
+     * Prepares the new hashtag display channels given a list of new posts, pre-sorted into a map of hashtags to list
+     * of posts containing that hashtag
+     *
+     * @param newPostsByHashtag map of hashtags to list of posts containing that hashtag
+     */
     public void addHashtagDisplay(Map<String, List<Post>> newPostsByHashtag) {
+        Map<String, List<Post>> hashTagPosts = new HashMap<>(newPostsByHashtag);
+        List<String> oldHashTags = dataSource.getAllHashTags();     // retrieve list of all currently stored hashtags
 
+        // iterate over existing hashtags
+        oldHashTags.forEach(hashtag -> {
+
+            // retrieve existing posts stored under hashtag
+            List<Post> oldPosts = expandPostLists(dataSource.getAllHashtagPostLists(hashtag));
+
+            // merge old posts and new posts, filtering out duplicate IDs
+            Map<String, Post> uniquePosts = new HashMap<>();
+            oldPosts.forEach(post -> uniquePosts.put(post.getId(), post));
+
+            List<Post> newPosts = newPostsByHashtag.get(hashtag);
+
+            if (newPosts != null) {
+                newPosts.forEach(post -> uniquePosts.put(post.getId(), post));
+            }
+
+            // load merged posts into map
+            hashTagPosts.put(hashtag, uniquePosts.values().stream().collect(Collectors.toList()));
+
+        });
+
+        // store posts sorted by hashtag in data store
+        hashTagPosts.entrySet().forEach(e -> addHashtagPages(e.getKey(), preparePages(e.getValue())));
     }
 
     /**
      * Converts a list of Posts to a postList object
+     *
      * @param listOfPosts list of post objects
      * @return postList object containing all specified posts
      */
@@ -200,12 +225,14 @@ public class SortingNode implements Runnable {
 
     /**
      * Sorts a list of posts based on a weighted popularity score (posts must contain popularity score)
+     *
      * @param listOfPosts list of posts to be sorted
      * @return sorted list of posts, in decreasing order
      */
     public List<Post> sortTopPosts(List<Post> listOfPosts) {
         List<Post> listOfPostsClone = new ArrayList<>(listOfPosts);
 
+        // filter out posts below popularity score, sort by popularity score in decreasing order
         return listOfPostsClone.stream()
                 .filter(post -> post.getPopularityScore() > POPULARITY_THRESHOLD)
                 .sorted(Collections.reverseOrder(Comparator.comparingInt(Post::getPopularityScore)))
@@ -214,6 +241,7 @@ public class SortingNode implements Runnable {
 
     /**
      * Sorts a list of posts based on their popularity score relative to the existing display channels
+     *
      * @param listOfPosts list of new posts to be evaluated
      * @return
      */
@@ -236,11 +264,18 @@ public class SortingNode implements Runnable {
 
     /**
      * Sorts a list of posts into individual binned lists, according to the hashtags therein
+     *
      * @param listOfPosts list of posts to be sorted
      * @return map of hashtag strings to lists of posts that contain the key string hashtag
      */
     public Map<String, List<Post>> sortPostsByHashTag(List<Post> listOfPosts) {
         Map<String, List<Post>> postsByHashTag = new HashMap<>();
+
+        // sort by popularity, in decreasing order
+        List<Post> listOfPostsClone = new ArrayList<>(listOfPosts);
+        listOfPostsClone.stream()
+                .sorted(Collections.reverseOrder(Comparator.comparingInt(Post::getPopularityScore)))
+                .collect(Collectors.toList());
 
         // iterate through individual posts
         for (Post post : listOfPosts) {
@@ -261,11 +296,14 @@ public class SortingNode implements Runnable {
             }
         }
 
+        postsByHashTag.remove(NO_HASHTAG);   // remove posts with no hashtags
+
         return postsByHashTag;
     }
 
     /**
      * Calculates and inserts popularity score to each post in a list of posts
+     *
      * @param posts list of posts
      * @return the same list of posts, but with each post now containing a popularity score
      */
@@ -282,6 +320,7 @@ public class SortingNode implements Runnable {
 
     /**
      * Calculates the popularity of a given post, and injects the popularity score into that post
+     *
      * @param post Post object to be evaluated
      * @return popularity score
      */
@@ -298,9 +337,10 @@ public class SortingNode implements Runnable {
 
     /**
      * Calculates the popularity score given the specified fields
+     *
      * @param numComments number of comments associated with a post
-     * @param numLikes number of likes associated with a post
-     * @param numShares number of shares associated with a post
+     * @param numLikes    number of likes associated with a post
+     * @param numShares   number of shares associated with a post
      * @return popularity score calculated given input parameters.
      */
     private int calculatePopularityScore(int numComments, int numLikes, int numShares) {
@@ -324,22 +364,30 @@ public class SortingNode implements Runnable {
     /**
      * Calculates the popularity velocity of a list of posts relative to the posts contained in the display data store
      * at displayName (i.e. top, trending, etc.)
+     *
      * @param displayName string denoting name of display channel
-     * @param newPosts lists of posts to evaluate
+     * @param newPosts    lists of posts to evaluate
      * @return list of posts, now with calculated popularity velocities
      */
     private List<Post> calculateRelativePopularity(String displayName, List<Post> newPosts) {
         List<Post> calculatedPosts = new ArrayList<>();
+
+        // retrieve old posts from specified display channel
         List<Post> oldPosts = expandPostLists(dataSource.getAllDisplayPostLists(displayName));
         Map<String, Post> oldPostIdMap = new HashMap<>();
 
+        // load old posts into map of unique IDs to post
         oldPosts.forEach(post -> oldPostIdMap.put(post.getId(), post));
 
+        // calculate popularity velocity for each new post, relative to the same post in the past
         newPosts.forEach(newPost -> {
+            // if old post does not exist on record, new post receives popularity velocity of 0
             int popularityVelocity = 0;
 
             Post oldPost = oldPostIdMap.get(newPost.getId());
             if (oldPost != null) {
+
+                // If post does exist on record, calculate popularity velocity and rebuild post
                 popularityVelocity = newPost.getPopularityScore() - oldPost.getPopularityScore();
                 newPost = newPost.toBuilder().setPopularityVelocity(popularityVelocity).build();
             }
@@ -352,6 +400,7 @@ public class SortingNode implements Runnable {
 
     /**
      * Converts a list of postList entities to a single list of posts, containing the same posts
+     *
      * @param postLists list of postlist entities
      * @return list of post entities comprised of the expanded postLists
      */
@@ -364,6 +413,9 @@ public class SortingNode implements Runnable {
         return posts;
     }
 
+    /**
+     * Calculates top hashtags in data store, and updates the top hashtag list
+     */
     public void updateTopHashtags() {
         List<String> allHashtags = dataSource.getAllHashTags();
         Map<String, Long> hashtagsToNumPages = new HashMap<>();
@@ -375,11 +427,14 @@ public class SortingNode implements Runnable {
         LinkedHashMap<String, Long> sortedTopHashtagsMap = hashtagsToNumPages.entrySet().stream()
                 .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
-                        (e1,e2) -> e1, LinkedHashMap::new));
+                        (e1, e2) -> e1, LinkedHashMap::new));
 
         // convert to list of sorted strings, and truncate to number of desired top hashtags
         List<String> topHashtags = new ArrayList<>(sortedTopHashtagsMap.keySet());
-        topHashtags = topHashtags.subList(0, NUM_TOP_HASHTAGS);
+
+        if (topHashtags.size() > NUM_TOP_HASHTAGS) {
+            topHashtags = topHashtags.subList(0, NUM_TOP_HASHTAGS);
+        }
 
         // add new hashtag list to top hashtags
         dataSource.addTopHashtags(topHashtags);

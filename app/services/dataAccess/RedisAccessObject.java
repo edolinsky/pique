@@ -300,7 +300,37 @@ public class RedisAccessObject extends AbstractDataAccess {
             }
 
             // delete old entries, so that only new string list remains
-            redisAccess.ltrim(key, listLength, -1);
+            redisAccess.ltrim(key, 0, listLength - 1);
+        }
+
+        return listLength;
+    }
+
+    @Override
+    protected long replacePostLists(String keyString, List<PostList> postLists) {
+        int listLength = postLists.size();
+        byte[] key = keyString.getBytes();
+        List<PostList> reversedPostList = Lists.reverse(postLists);
+        try (BinaryJedis redisAccess = pool.getResource()) {
+
+            Pipeline pipe = redisAccess.pipelined();
+            pipe.multi();
+
+            // push postlists in reverse order (so first is at top of stack)
+            for (PostList pl : reversedPostList) {
+                pipe.lpush(key, pl.toByteArray());
+            }
+
+            pipe.exec();
+
+            try {
+                pipe.close();
+            } catch (IOException IOe) {
+                Logger.error("Problems closing Redis Pipe"); // todo: handle better
+            }
+
+            // delete old entries, so that only new postLists remain
+            redisAccess.ltrim(key, 0, listLength - 1);
         }
 
         return listLength;

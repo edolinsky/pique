@@ -1,14 +1,7 @@
 package controllers;
 
-import com.google.inject.Inject;
 import play.Logger;
 import play.mvc.*;
-import play.libs.ws.*;
-
-import java.util.concurrent.CompletionStage;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import play.libs.Json;
 
 import views.html.*;
 
@@ -25,7 +18,7 @@ public class HomeController extends Controller {
      * <code>GET</code> request with a path of <code>/</code>.
      */
     public Result index() {
-        Logger.trace("Homepage requested");
+        Logger.debug("Homepage requested");
         return ok(index.render("Pique"));
     }
 
