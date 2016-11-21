@@ -9,7 +9,16 @@ window.onscroll = function() {
     if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
         // you're at the bottom of the page
         numPages++;
-        topFunction(numPages);
+        var postType = document.getElementById("PostType");
+
+        if(postType.textContent == "Top Posts"){
+          topFunction(numPages);
+        } else if(postType.textContent == "Trending Posts"){
+          trendingFunction(numPages);
+        } else {
+          // do nothing for hashtags right now
+        }
+
     }
 };
 
@@ -44,6 +53,15 @@ function createElements(httpResponse, tag) {
   container.className = "container";
 
   page.appendChild(container);
+
+  // make an invisible tag explaining which posts are displayed
+  var postWrapper = document.createElement("div");
+  postWrapper.style.visibility = "hidden";
+  postWrapper.id = "PostType";
+  var postType = document.createTextNode(tag);
+  postWrapper.appendChild(postType);
+
+  container.appendChild(postWrapper);
 
   for (var i = 0; i < postList.posts_.length; i++) {
 
@@ -300,17 +318,20 @@ function addElements(httpResponse, tag) {
 
 function topFunction(pageNum) {
   if(pageNum == 0) {
-    var returnval = requestPage("/top/" + pageNum, createElements, "Top Post");
+    var returnval = requestPage("/top/" + pageNum, createElements, "Top Posts");
   }
   else {
-    var returnval = requestPage("/top/" + pageNum, addElements, "Top Post");
+    var returnval = requestPage("/top/" + pageNum, addElements, "Top Posts");
   }
 }
 
 function trendingFunction(pageNum) {
-  var returnval = requestPage("/trending/" + pageNum, createElements, "Trending Post");
+  if(pageNum == 0) {
+    var returnval = requestPage("/trending/" + pageNum, createElements, "Trending Posts");  }
+  else {
+    var returnval = requestPage("/trending/" + pageNum, addElements, "Trending Posts");  }
 }
 
 function hashtagFunction() {
-  var returnval = requestPage("/tophashtags", createElements, "Hashtag Post");
+  var returnval = requestPage("/tophashtags", createElements, "Hashtag Posts");
 }
