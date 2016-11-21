@@ -12,6 +12,11 @@ import net.dean.jraw.http.oauth.OAuthException;
 import net.dean.jraw.http.NetworkException;
 import services.dataAccess.proto.PostProto;
 
+import static services.PublicConstants.REDDIT_USER;
+import static services.PublicConstants.REDDIT_PASS;
+import static services.PublicConstants.REDDIT_CLIENTID;
+import static services.PublicConstants.REDDIT_SECRET;
+
 /**
  * Class that interacts with the JRAW library to get data
  *
@@ -26,18 +31,17 @@ public class RedditSource implements JavaSource {
     private static final Integer MAX_REQUEST_SIZE = 100;
     private static final Integer MAX_SEARCH_PER_WINDOW = 60;
     private static final Long WINDOW_LENGTH = TimeUnit.MINUTES.toMillis(1);
-    private static final String USER = "oppaskitty";
-    private static final String PASS = "password";
-    private static final String CLIENTID = "cdeuI7vNN86lSA";
-    private static final String SECRET = "ZPe70S2QCDa596ju8u-0PuXcG7M";
 
     private RedditClient redditClient;
 
     //DiscordException??
     public RedditSource() throws NetworkException, OAuthException {
-        UserAgent myUserAgent = UserAgent.of("desktop", CLIENTID, "v0.1", USER);
+        UserAgent myUserAgent = UserAgent.of("desktop", System.getenv(REDDIT_CLIENTID), "v0.1", System.getenv(REDDIT_USER));
         redditClient = new RedditClient(myUserAgent);
-        Credentials credentials = Credentials.script(USER, PASS, CLIENTID, SECRET);
+        Credentials credentials = Credentials.script(System.getenv(REDDIT_USER),
+                                                     System.getenv(REDDIT_PASS),
+                                                     System.getenv(REDDIT_CLIENTID),
+                                                     System.getenv(REDDIT_SECRET);
         OAuthData authData = redditClient.getOAuthHelper().easyAuth(credentials);
 
         redditClient.authenticate(authData);
