@@ -17,7 +17,7 @@ import static services.PublicConstants.TRENDING;
 
 public class SortingNode implements Runnable {
 
-    private static final Long PROCESS_INPUT_THRESHOLD = 1000L;
+    private static final Long PROCESS_INPUT_THRESHOLD = 50000L;
     private static final int POPULARITY_THRESHOLD = 300;
     private static final int PAGE_LIMIT = 50;
     private static final String NO_HASHTAG = "N/A";

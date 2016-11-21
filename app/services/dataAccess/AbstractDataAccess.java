@@ -21,7 +21,7 @@ public abstract class AbstractDataAccess {
 
     private static final String STRING_LIST_NAMESPACE = "stringlist";
     private static final String TOP_HASHTAGS = "tophashtags";
-    static final Integer MAX_POSTLISTS = 100;
+    static final Integer MAX_POSTLISTS = 100000;
 
 
     /**
