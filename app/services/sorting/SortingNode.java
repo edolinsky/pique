@@ -14,12 +14,14 @@ import play.Logger;
 import static services.PublicConstants.NUM_TOP_HASHTAGS;
 import static services.PublicConstants.TOP;
 import static services.PublicConstants.TRENDING;
+import static services.PublicConstants.SORTING_NODE_INPUT_THRESHOLD;
+import static services.PublicConstants.POSTS_PER_PAGE;
 
 public class SortingNode implements Runnable {
 
-    private static final Long PROCESS_INPUT_THRESHOLD = 50000L;
+    private static final Long PROCESS_INPUT_THRESHOLD = Long.valueOf(System.getenv(SORTING_NODE_INPUT_THRESHOLD));
     private static final int POPULARITY_THRESHOLD = 300;
-    private static final int PAGE_LIMIT = 50;
+    private static final int PAGE_LIMIT = Integer.valueOf(System.getenv(POSTS_PER_PAGE));
     private static final String NO_HASHTAG = "N/A";
 
     private static final Double LIKE_WEIGHT = 0.9;
