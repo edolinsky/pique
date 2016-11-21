@@ -16,7 +16,7 @@ public class PublicConstants {
 
     public static final String REDDIT_USER = "reddit_user";
     public static final String REDDIT_PASS = "reddit_pass";
-    public static final String REDDIT_CLIENTID = "reddit_clientID";
+    public static final String REDDIT_CLIENTID = "reddit_client_id";
     public static final String REDDIT_SECRET = "reddit_secret";
 
     public static final String DATA_SOURCE = "data_source";

@@ -1,8 +1,18 @@
 package services.sources;
 
-import java.util.Collection;
+import javafx.scene.control.Pagination;
+import net.dean.jraw.models.VoteDirection;
+import services.dataAccess.proto.PostProto;
+import services.dataAccess.proto.PostProto.Post;
+
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.http.UserAgent;
@@ -10,7 +20,14 @@ import net.dean.jraw.http.oauth.Credentials;
 import net.dean.jraw.http.oauth.OAuthData;
 import net.dean.jraw.http.oauth.OAuthException;
 import net.dean.jraw.http.NetworkException;
-import services.dataAccess.proto.PostProto;
+import net.dean.jraw.models.Listing;
+import net.dean.jraw.models.Submission;
+import net.dean.jraw.models.Subreddit;
+import net.dean.jraw.paginators.SubredditStream;
+import net.dean.jraw.paginators.SubredditPaginator;
+import net.dean.jraw.paginators.Sorting;
+import net.dean.jraw.paginators.TimePeriod;
+
 
 import static services.PublicConstants.REDDIT_USER;
 import static services.PublicConstants.REDDIT_PASS;
@@ -28,7 +45,7 @@ public class RedditSource implements JavaSource {
 
     private static final String REDDIT = "reddit";
     private static final String DEFAULT_TEXT = "N/A";
-    private static final Integer MAX_REQUEST_SIZE = 100;
+    private static final Integer MAX_REQUEST_SIZE = 200;
     private static final Integer MAX_SEARCH_PER_WINDOW = 60;
     private static final Long WINDOW_LENGTH = TimeUnit.MINUTES.toMillis(1);
 
@@ -41,7 +58,7 @@ public class RedditSource implements JavaSource {
         Credentials credentials = Credentials.script(System.getenv(REDDIT_USER),
                                                      System.getenv(REDDIT_PASS),
                                                      System.getenv(REDDIT_CLIENTID),
-                                                     System.getenv(REDDIT_SECRET);
+                                                     System.getenv(REDDIT_SECRET));
         OAuthData authData = redditClient.getOAuthHelper().easyAuth(credentials);
 
         redditClient.authenticate(authData);
@@ -58,14 +75,14 @@ public class RedditSource implements JavaSource {
         return WINDOW_LENGTH/(MAX_SEARCH_PER_WINDOW * 4/5);
     }
 
-    @Override
-    public Collection<? extends String> getTrends(String country, String city) {
-        return null;
-    }
 
     @Override
-    public List<PostProto.Post> getTrendingPosts(String trend, int numPosts, Long sinceId) {
-        return null;
+    public List<String> getTrends(String country, String city) { return null; }
+
+
+    @Override
+    public List<Post> getTrendingPosts(String trend, int numPosts, Long sinceId) {
+        return parseSubmissions(getHotPosts());
     }
 
     @Override
@@ -82,11 +99,47 @@ public class RedditSource implements JavaSource {
         return redditClient;
     }
 
-    public void getTrendingSubreddits() {
+    public List<Submission> getHotPosts() {
 
+        SubredditPaginator sp = new SubredditPaginator(redditClient);
+
+        sp.setLimit(MAX_REQUEST_SIZE);
+        sp.setSorting(Sorting.HOT);
+        sp.setTimePeriod(TimePeriod.DAY);
+        sp.next(true);
+
+        Listing<Submission> list = sp.getCurrentListing();
+
+        return list;
     }
 
-    public void getTopSubredditPosts() {
+    /**
+     * Generates Post object for every submission in queried Reddit posts
+     * @param submissions
+     * @return
+     */
+    private List<Post> parseSubmissions(List<Submission> submissions) {
+        if (submissions == null || submissions.isEmpty()) {
+            return Collections.emptyList();
+        }
 
+        return submissions.stream().map(this::createPost).collect(Collectors.toList());
+    }
+
+    private Post createPost(Submission s) {
+        Post.Builder builder = Post.newBuilder();
+        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        builder.setId(String.valueOf(s.getId()));
+        builder.setTimestamp(df.format(s.getCreated())); // UTC
+        builder.addSource(s.getAuthor());
+        builder.addSourceLink("http://www.reddit.com/user/" + s.getAuthor()); // Link to post author
+        builder.setPopularityScore(0);
+        builder.setPopularityVelocity(0);
+        builder.setNumComments(s.getCommentCount());
+        builder.setNumLikes(s.getScore());
+        builder.addText(s.getSelftext());
+        builder.addImgLink(s.getThumbnail()); // Post thumbnail
+        builder.addExtLink(s.getUrl()); // Link to Reddit post or linked external site
+        return builder.build();
     }
 }
