@@ -16,7 +16,8 @@ window.onscroll = function() {
         } else if(postType.textContent == "Trending Posts"){
           trendingFunction(numPages);
         } else {
-          // do nothing for hashtags right now
+          // it's a hashtag where postType contains the hashtag name
+          hashtagFunction(postType, numPages);
         }
 
     }
@@ -327,11 +328,18 @@ function topFunction(pageNum) {
 
 function trendingFunction(pageNum) {
   if(pageNum == 0) {
-    var returnval = requestPage("/trending/" + pageNum, createElements, "Trending Posts");  }
+    var returnval = requestPage("/trending/" + pageNum, createElements, "Trending Posts");
+  }
   else {
-    var returnval = requestPage("/trending/" + pageNum, addElements, "Trending Posts");  }
+    var returnval = requestPage("/trending/" + pageNum, addElements, "Trending Posts");
+  }
 }
 
-function hashtagFunction() {
-  var returnval = requestPage("/tophashtags", createElements, "Hashtag Posts");
+function hashtagFunction(hashtag, pageNum) {
+  if(pageNum == 0) {
+    var returnval = requestPage("/hashtag/" + hashtag + "/" + pageNum, createElements, hashtag);
+  }
+  else {
+    var returnval = requestPage("/hashtag/" + hashtag + "/" + pageNum, addElements, hashtag);
+  }
 }
