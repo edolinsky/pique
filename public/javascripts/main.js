@@ -2,6 +2,17 @@ if (window.console) {
   console.log("Welcome to your Play application's JavaScript!");
 }
 
+var numPages = 0;
+
+window.onscroll = function() {
+    var page = document.getElementById("page");
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+        // you're at the bottom of the page
+        numPages++;
+        topFunction(numPages);
+    }
+};
+
 function requestPage(myURL, callback, tag) {
 
     var xmlHttp = new XMLHttpRequest();
@@ -126,54 +137,180 @@ function createElements(httpResponse, tag) {
         var row = document.createElement("div");
         row.className = "row";
 
-        container.appendChild(row);
-
         var col1 = document.createElement("div");
         col1.className = "col-sm-4";
-        col1.id = "col" + i + "a";
+        // put it in the first column
+        col1.appendChild(postObj);
         row.appendChild(col1);
 
         var col2 = document.createElement("div");
         col2.className = "col-sm-4";
-        col2.id = "col" + i + "b";
         row.appendChild(col2);
 
         var col3 = document.createElement("div");
         col3.className = "col-sm-4";
-        col3.id = "col" + i + "c";
         row.appendChild(col3);
 
-        // put it in the first column
-        col1.appendChild(postObj);
+        container.appendChild(row);
 
       } else if(i % 3 == 1) {
-
-        var rowNum = i-1;
-
         // put it in the second column
-        var col = document.getElementById("col" + rowNum + "b");
+        var row = container.lastElementChild;
+        var lastCol = row.lastElementChild;
+        var col = lastCol.previousSibling;
         col.appendChild(postObj);
 
       } else {
-
-        var rowNum = i-2;
-
         // put it in the third column
-        var col = document.getElementById("col" + rowNum + "c");
+        var row = container.lastElementChild;
+        var col = row.lastElementChild;
         col.appendChild(postObj);
       }
 
   }
 }
 
-function topFunction() {
-  var returnval = requestPage("/top", createElements, "Top Post");
+function addElements(httpResponse, tag) {
+
+  var postList = JSON.parse(httpResponse);
+
+  var container = document.getElementById("container");
+
+  for (var i = 0; i < postList.posts_.length; i++) {
+
+      var post = postList.posts_[i];
+
+      var postObj = document.createElement("div");
+      postObj.id = "postObj";
+      postObj.className = "postObj";
+
+      var tr1 = document.createElement("div");
+      postObj.appendChild(tr1);
+
+      var td1a = document.createElement("div");
+      td1a.style.display = "inline";
+      td1a.style.float = "left";
+      td1a.style.padding = "2px";
+      td1a.style.color = "SteelBlue";
+      tr1.appendChild(td1a);
+      var posterList = document.createTextNode(post.source_);
+      td1a.appendChild(posterList);
+
+      var td1b = document.createElement("div");
+      td1b.style.display = "inline";
+      td1b.style.float = "right";
+      td1b.style.padding = "2px";
+      td1b.style.color = "LightSteelBlue";
+      tr1.appendChild(td1b);
+      var time = document.createTextNode(post.timestamp_);
+      td1b.appendChild(time);
+
+      var tr2 = document.createElement("div");
+      postObj.appendChild(tr2);
+      var td2a = document.createElement("div");
+      tr2.appendChild(td2a);
+      var textList = document.createTextNode(post.text_);
+      td2a.appendChild(textList);
+
+      var tr3 = document.createElement("div");
+      postObj.appendChild(tr3);
+      for (var j = 0; j < post.hashtag_.length; j++) {
+        var td3 = document.createElement("div");
+        td3.style.color = "SteelBlue";
+        td3.style.display = "inline";
+        tr3.appendChild(td3);
+
+        var hashtag = document.createTextNode(post.hashtag_[j] + "  ");
+        td3.appendChild(hashtag);
+      }
+
+      var tr4 = document.createElement("div");
+      postObj.appendChild(tr4);
+      var td4a = document.createElement("div");
+      tr4.appendChild(td4a);
+      var imgList = document.createTextNode(post.imgLink_);
+      td4a.appendChild(imgList);
+
+      var tr5 = document.createElement("div");
+      postObj.appendChild(tr5);
+      var bk = document.createElement("br");
+      tr5.appendChild(bk);
+
+      var td5a = document.createElement("div");
+      td5a.style.display = "inline";
+      td5a.style.padding = "10px";
+      tr5.appendChild(td5a);
+      var likes = document.createTextNode("Likes: " + post.numLikes_);
+      td5a.appendChild(likes);
+
+      var td5b = document.createElement("div");
+      td5b.style.display = "inline";
+      td5b.style.padding = "10px";
+      tr5.appendChild(td5b);
+      var shares = document.createTextNode("Shares: " + post.numShares_);
+      td5b.appendChild(shares);
+
+      var td5c = document.createElement("div");
+      td5c.style.display = "inline";
+      td5c.style.padding = "10px";
+      tr5.appendChild(td5c);
+      var comments = document.createTextNode("Comments: " + post.numComments_);
+      td5c.appendChild(comments);
+
+      // when the user clicks on the post it will bring them to the original
+      var postLink = document.createElement("a");
+      postLink.href = post.sourceLink_;
+      postObj.appendChild(postLink);
+
+      var lastRow = container.lastElementChild;
+      var lastCol = lastRow.lastElementChild;
+
+      if(lastCol.hasChildNodes()) {
+
+        // start a new row, create three columns for it
+        var newRow = document.createElement("div");
+
+        var col1 = document.createElement("div");
+        col1.className = "col-sm-4";
+        // put it in the first column
+        col1.appendChild(postObj);
+        newRow.appendChild(col1);
+
+        var col2 = document.createElement("div");
+        col2.className = "col-sm-4";
+        newRow.appendChild(col2);
+
+        var col3 = document.createElement("div");
+        col3.className = "col-sm-4";
+        newRow.appendChild(col3);
+
+        container.appendChild(newRow);
+
+      } else if(lastCol.previousSibling.hasChildNodes()) {
+        // put it in last column
+        lastCol.appendChild(postObj);
+
+      } else {
+        // put it in the second to last column
+        lastCol.previousSibling.appendChild(postObj);
+      }
+
+  }
 }
 
-function trendingFunction() {
-  var returnval = requestPage("/trending", createElements, "Trending Post");
+function topFunction(pageNum) {
+  if(pageNum == 0) {
+    var returnval = requestPage("/top/" + pageNum, createElements, "Top Post");
+  }
+  else {
+    var returnval = requestPage("/top/" + pageNum, addElements, "Top Post");
+  }
 }
 
-function hashtagFunction(hashtag) {
-  var returnval = requestPage("/hashtag/" + hashtag, createElements, "Hashtag Post");
+function trendingFunction(pageNum) {
+  var returnval = requestPage("/trending/" + pageNum, createElements, "Trending Post");
+}
+
+function hashtagFunction() {
+  var returnval = requestPage("/tophashtags", createElements, "Hashtag Post");
 }
