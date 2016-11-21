@@ -1,6 +1,10 @@
 package services.sources;
 
+import services.dataAccess.proto.PostProto.Post;
+
+import java.net.HttpURLConnection;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Class representation of the Facebook RESTful API
@@ -38,7 +42,16 @@ public class FacebookSource implements RestfulSource {
 	}
 
 	@Override
-	public String generateRequest(String[] params) {
+	public String generateRequestUrl(String trend) {
+		return null;
+	}
+
+	@Override
+	public void addRequestHeaders(HttpURLConnection connection) {
+	}
+
+	@Override
+	public List<Post> parseResponse(String response) {
 		return null;
 	}
 

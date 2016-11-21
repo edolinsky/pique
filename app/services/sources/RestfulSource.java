@@ -1,5 +1,11 @@
 package services.sources;
 
+import services.dataAccess.proto.PostProto;
+import services.dataAccess.proto.PostProto.Post;
+
+import java.net.HttpURLConnection;
+import java.util.List;
+
 /**
  * Class representing a source where data is obtained via RESTful API calls
  *
@@ -20,9 +26,22 @@ public interface RestfulSource extends Source {
 	public String getUrl();
 
 	/**
-	 * Generates the appropriate http request for the source using the params
-	 * @param params
+	 * Generates a request to search on the listed trend
+	 * @param trend
 	 * @return
 	 */
-	public String generateRequest(String[] params);
+	public String generateRequestUrl(String trend);
+
+	/**
+	 * Adds any additional needed request headers as dictated by the source
+	 * @param connection
+     */
+	public void addRequestHeaders(HttpURLConnection connection);
+
+	/**
+	 * Parses the http response from the api into a list of posts
+	 * @param response
+	 * @return
+     */
+	public List<Post> parseResponse(String response);
 }
