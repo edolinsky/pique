@@ -1,5 +1,7 @@
 package services.sources;
 
+import java.util.Collection;
+
 /**
  * Class representation of the Facebook RESTful API
  *
@@ -28,6 +30,11 @@ public class FacebookSource implements RestfulSource {
 	@Override
 	public long getQueryDelta() {
 		return 0;
+	}
+
+	@Override
+	public Collection<? extends String> getTrends(String country, String city) {
+		return null;
 	}
 
 	@Override
