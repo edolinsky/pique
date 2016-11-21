@@ -1,5 +1,7 @@
 package services.sources;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import net.dean.jraw.RedditClient;
@@ -8,8 +10,7 @@ import net.dean.jraw.http.oauth.Credentials;
 import net.dean.jraw.http.oauth.OAuthData;
 import net.dean.jraw.http.oauth.OAuthException;
 import net.dean.jraw.http.NetworkException;
-
-
+import services.dataAccess.proto.PostProto;
 
 /**
  * Class that interacts with the JRAW library to get data
@@ -17,7 +18,7 @@ import net.dean.jraw.http.NetworkException;
  * @author Reid Oliveira, Sammie Jiang
  */
 
-public class RedditSource implements Source {
+public class RedditSource implements JavaSource {
 
 
     private static final String REDDIT = "reddit";
@@ -49,6 +50,26 @@ public class RedditSource implements Source {
     @Override
     public long getQueryDelta() {
         return TimeUnit.MINUTES.toMillis(1);
+    }
+
+    @Override
+    public Collection<? extends String> getTrends(String country, String city) {
+        return null;
+    }
+
+    @Override
+    public List<PostProto.Post> getTrendingPosts(String trend, int numPosts, Long sinceId) {
+        return null;
+    }
+
+    @Override
+    public List<PostProto.Post> getMaxTrendingPostsSince(String trend, Long sinceId) {
+        return null;
+    }
+
+    @Override
+    public List<PostProto.Post> getMaxTrendingPosts(String trend) {
+        return null;
     }
 
     public RedditClient getRedditClient() {

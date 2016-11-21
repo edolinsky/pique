@@ -3,6 +3,7 @@ package services.content;
 import services.PublicConstants;
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.proto.PostProto.Post;
+import services.sources.JavaSource;
 import services.sources.Source;
 import services.sources.TwitterSource;
 import twitter4j.Trend;
@@ -22,8 +23,8 @@ import java.util.Queue;
  */
 public class JavaDataCollector extends AbstractDataCollector {
 
-	private TwitterSource source;
-	private Queue<Trend> trends = new LinkedList<>();
+	private JavaSource source;
+	private Queue<String> trends = new LinkedList<>();
 	private Map<String, Long> sinceIds = new PostIdCache();
 
 	public JavaDataCollector(AbstractDataAccess dataAccess, TwitterSource source) {
@@ -50,18 +51,18 @@ public class JavaDataCollector extends AbstractDataCollector {
 		}
 
         // get the top trend not yet queried
-        Trend trend = trends.poll();
+        String trend = trends.poll();
         List<Post> posts;
 
         // if we have queried this trend before only get newer posts
-        if (sinceIds.containsKey(trend.getName())) {
-            posts = source.getMaxTrendingPostsSince(trend, sinceIds.get(trend.getName()));
+        if (sinceIds.containsKey(trend)) {
+            posts = source.getMaxTrendingPostsSince(trend, sinceIds.get(trend));
         } else {
             posts = source.getMaxTrendingPosts(trend);
         }
 
         // overwrite set the newest id queried to the newest tweet retrieved
-        sinceIds.put(trend.getName(), Long.parseLong(posts.get(0).getId()));
+        sinceIds.put(trend, Long.parseLong(posts.get(0).getId()));
         return posts;
 	}
 }

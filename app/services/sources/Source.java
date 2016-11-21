@@ -1,5 +1,13 @@
 package services.sources;
 
+import services.dataAccess.proto.PostProto.Post;
+import twitter4j.Trend;
+import twitter4j.Trends;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+
 /**
  * Class representing a source of data
  *
@@ -19,4 +27,14 @@ public interface Source {
 	 * @return
 	 */
 	public long getQueryDelta();
+
+    /**
+     * Gets the trends to use for a certain location, if available.
+     * @param country
+     * @param city
+     * @return an {@link Optional} containing the trends, or an empty {@link Optional} if
+     * trends are not available for that country.
+     */
+    public Collection<? extends String> getTrends(String country, String city);
+
 }
