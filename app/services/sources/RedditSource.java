@@ -24,6 +24,8 @@ public class RedditSource implements JavaSource {
     private static final String REDDIT = "reddit";
     private static final String DEFAULT_TEXT = "N/A";
     private static final Integer MAX_REQUEST_SIZE = 100;
+    private static final Integer MAX_SEARCH_PER_WINDOW = 60;
+    private static final Long WINDOW_LENGTH = TimeUnit.MINUTES.toMillis(1);
     private static final String USER = "oppaskitty";
     private static final String PASS = "password";
     private static final String CLIENTID = "cdeuI7vNN86lSA";
@@ -49,7 +51,7 @@ public class RedditSource implements JavaSource {
 
     @Override
     public long getQueryDelta() {
-        return TimeUnit.MINUTES.toMillis(1);
+        return WINDOW_LENGTH/(MAX_SEARCH_PER_WINDOW * 4/5);
     }
 
     @Override
