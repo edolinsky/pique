@@ -192,9 +192,8 @@ public class TwitterSource implements JavaSource {
 
 	private Post createPost(Status s) {
 		Post.Builder builder = Post.newBuilder();
-		DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 		builder.setId(String.valueOf(s.getId()));
-		builder.setTimestamp(df.format(s.getCreatedAt()));
+		builder.setTimestamp(s.getCreatedAt().getTime());
 		builder.addSource(s.getUser().getScreenName());
 		builder.addSourceLink("https://twitter.com"); // TODO get profile URL somehow
 		builder.setPopularityScore(0);
