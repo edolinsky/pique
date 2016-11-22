@@ -28,13 +28,16 @@ public class RedditSourceTest {
     }
 
     @Test
+    public void testAuthentication() {
+        assertTrue(redditClient.isAuthenticated());
+    }
+
+    @Test
     public void testGetHotPosts() {
         for(Submission s : redditSource.getHotPosts()) {
             System.out.println(s);
         }
-        assertEquals(200, redditSource.getHotPosts().size());
+        assertEquals(100, redditSource.getHotPosts().size());
     }
-
-
 
 }

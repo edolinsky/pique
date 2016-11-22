@@ -1,5 +1,7 @@
 package controllers;
 
+import net.dean.jraw.http.NetworkException;
+import net.dean.jraw.http.oauth.OAuthException;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.inject.ApplicationLifecycle;
@@ -9,6 +11,7 @@ import services.content.JavaDataCollector;
 import services.dataAccess.AbstractDataAccess;
 import services.sorting.SortingNode;
 import services.sources.TwitterSource;
+import services.sources.RedditSource;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -22,7 +25,7 @@ public class ContentController {
     private ThreadNotification sortNotification;
 
     @Inject
-    public ContentController(AbstractDataAccess access, ApplicationLifecycle appLifecycle) {
+    public ContentController(AbstractDataAccess access, ApplicationLifecycle appLifecycle) throws NetworkException, OAuthException {
         Logger.info("ContentController: Starting application at " + DateTime.now().toString());
         sortNotification = new ThreadNotification();
 
@@ -35,6 +38,10 @@ public class ContentController {
                 TwitterSource()), sortNotification)); // TODO THIS IS AWFUL
         twitter.start();
         collectors.add(twitter);
+        Thread reddit = new Thread(new DataCollectionRunner(new JavaDataCollector(access, new
+                RedditSource()), sortNotification));
+        reddit.start();
+        collectors.add(reddit);
 
 
         // When the application starts, register a stop hook with the

@@ -45,6 +45,7 @@ public class RedditSource implements JavaSource {
 
     private static final String REDDIT = "reddit";
     private static final String DEFAULT_TEXT = "N/A";
+    private static final Integer MAX_SUBREDDIT_REQUEST_SIZE = 10;
     private static final Integer MAX_REQUEST_SIZE = 200;
     private static final Integer MAX_SEARCH_PER_WINDOW = 60;
     private static final Long WINDOW_LENGTH = TimeUnit.MINUTES.toMillis(1);
@@ -77,7 +78,22 @@ public class RedditSource implements JavaSource {
 
 
     @Override
-    public List<String> getTrends(String country, String city) { return null; }
+    public List<String> getTrends(String country, String city) {
+
+        SubredditStream subredditStream = new SubredditStream(redditClient, "popular");
+        ArrayList<String> trendingSubreddits = new ArrayList<>();
+
+
+        while(subredditStream.hasNext() && trendingSubreddits.size() < MAX_SUBREDDIT_REQUEST_SIZE) {
+            Listing<Subreddit> subredditPage = subredditStream.next();
+
+            for(int i=0; i<subredditStream.next().size(); i++) {
+                trendingSubreddits.add(subredditPage.get(i).getDisplayName());
+            }
+        }
+
+        return trendingSubreddits;
+    }
 
 
     @Override
@@ -100,7 +116,6 @@ public class RedditSource implements JavaSource {
     }
 
     public List<Submission> getHotPosts() {
-
         SubredditPaginator sp = new SubredditPaginator(redditClient);
 
         sp.setLimit(MAX_REQUEST_SIZE);
