@@ -4,24 +4,25 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import services.dataAccess.proto.PostProto;
 import services.dataAccess.proto.PostProto.Post;
-import twitter4j.Status;
 
 import java.net.HttpURLConnection;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static services.PublicConstants.IMGUR_APP_ID;
 
 public class ImgurSource implements RestfulSource {
 
     private static final String SOURCE_NAME = "imgur";
-    private static final String AUTH_URL = "https://api.imgur.com/oauth2/authorize?";
     private static final String REQUEST_URL = "https://api.imgur.com/";
     private static final String VERSION = "3";
     private static final Integer MAX_SEARCH_PER_WINDOW = 12500;
@@ -68,12 +69,12 @@ public class ImgurSource implements RestfulSource {
 
     @Override
     public List<String> getTrends(String country, String city) {
-        return Collections.singletonList("gallery/hot/viral/");
+        return Collections.singletonList("gallery/top/time/");
     }
 
 
     @Override
-    public List<Post> parseResponse(String response) {
+    public List<Post> getPostsSince(String response, long id) {
         // response from imgur is json
         JsonElement jelement = new JsonParser().parse(response);
         JsonArray data = jelement.getAsJsonObject().getAsJsonArray("data");
@@ -83,8 +84,21 @@ public class ImgurSource implements RestfulSource {
             posts.add(createPost(e.getAsJsonObject()));
         }
 
-        return posts;
+        return filterPostsSince(posts, id);
     }
+
+    /**
+     * Imgur implementation of this uses timestamps to figure out what we haven't seen since
+     * the ids are random UIDs.
+     * @param posts
+     * @param id
+     * @return
+     */
+    public List<Post> filterPostsSince(List<Post> posts, long id) {
+        return posts.stream().filter(p -> p.getTimestamp() > id).sorted((p1, p2) -> Long
+                .compare(p2.getTimestamp(), p1.getTimestamp()));
+    }
+
 
     private Post createPost(JsonObject object) {
         Post.Builder builder = Post.newBuilder();

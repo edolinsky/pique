@@ -39,9 +39,11 @@ public interface RestfulSource extends Source {
 	public void addRequestHeaders(HttpURLConnection connection);
 
 	/**
-	 * Parses the http response from the api into a list of posts
+	 * Parses the http response from the api into a list of posts including only posts newer
+     * compared to the provided identifier.
 	 * @param response
+     * @param id
 	 * @return
      */
-	public List<Post> parseResponse(String response);
+	public List<Post> getPostsSince(String response, long id);
 }

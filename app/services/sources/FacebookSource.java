@@ -51,7 +51,7 @@ public class FacebookSource implements RestfulSource {
 	}
 
 	@Override
-	public List<Post> parseResponse(String response) {
+	public List<Post> getPostsSince(String response) {
 		return null;
 	}
 

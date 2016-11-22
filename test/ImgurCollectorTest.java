@@ -34,7 +34,7 @@ public class ImgurCollectorTest {
     @Test
     public void testParse() {
         String response = ImgurTestData.getTestJson();
-        List<Post> posts = source.parseResponse(response);
+        List<Post> posts = source.getPostsSince(response);
         assertFalse(posts.isEmpty());
 
     }

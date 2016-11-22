@@ -11,6 +11,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 
 import static services.PublicConstants.HTTP_GET;
@@ -28,6 +29,7 @@ public class RestfulDataCollector extends AbstractDataCollector {
 
 	private RestfulSource source;
 	private Queue<String> trends = new LinkedList<>();
+    private Map<String, Long> sinceIds = new PostIdCache();
 
 	public RestfulDataCollector(AbstractDataAccess dataAccess, RestfulSource source) {
         super(dataAccess);
@@ -47,16 +49,6 @@ public class RestfulDataCollector extends AbstractDataCollector {
 		 * interpreted by it as well
 		 */
 
-        String response = makeRequest();
-        return source.parseResponse(response);
-	}
-
-    /**
-     * Builds an http request with the help of a {@link RestfulSource}
-     * @return
-     */
-    public String makeRequest() {
-
         // if no trends exist for this collector, retrieve them
         if (trends.isEmpty()) {
             trends.addAll(source.getTrends("canada", "vancouver"));
@@ -64,13 +56,25 @@ public class RestfulDataCollector extends AbstractDataCollector {
 
         String nextTrend = trends.poll();
 
+        String response = makeRequest(nextTrend);
+        List<Post> posts = source.getPostsSince(response, sinceIds.get(nextTrend));
+
+        sinceIds.put(nextTrend, posts.get(0).getTimestamp());
+	}
+
+    /**
+     * Builds an http request with the help of a {@link RestfulSource}
+     * @return
+     */
+    public String makeRequest(String trend) {
+
         // source: http://stackoverflow.com/questions/1359689/how-to-send-http-request-in-java
 
         HttpURLConnection connection = null; // these are one time use connections
 
         try {
             // send request
-            URL url = new URL(source.generateRequestUrl(nextTrend));
+            URL url = new URL(source.generateRequestUrl(trend));
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod(HTTP_GET);
             connection.setRequestProperty("User-Agent", USER_AGENT);
