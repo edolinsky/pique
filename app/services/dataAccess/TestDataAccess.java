@@ -26,49 +26,6 @@ public class TestDataAccess extends AbstractDataAccess {
 
     public TestDataAccess() {
 
-        PostList.Builder postListBuilder = PostList.newBuilder();
-
-        Post.Builder test1Builder = Post.newBuilder();
-        DateFormat test1Df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        test1Builder.setId("0");
-        test1Builder.setTimestamp(test1Df.format(DateTime.now().toDate()));
-        test1Builder.addSource("Alexs_tweets22");
-        test1Builder.addSourceLink("https://twitter.com");
-        test1Builder.addImgLink("https://pbs.twimg.com/media/Cxu8dwsWIAUgzJK.jpg");
-        test1Builder.setPopularityScore(0);
-        test1Builder.setPopularityVelocity(0);
-        test1Builder.setNumComments(966);
-        test1Builder.setNumShares(23);
-        test1Builder.setNumLikes(1201);
-        test1Builder.addHashtag("Friday");
-        test1Builder.addHashtag("win");
-        test1Builder.addHashtag("BlackFriday");
-        test1Builder.addHashtag("shopping");
-        test1Builder.addHashtag("ContestAlert");
-        test1Builder.addHashtag("giveaway");
-        test1Builder.addHashtag("sweepstakes");
-        test1Builder.addText("RT @mommymakestime: Happy #Friday! Enter to #win 130$ Paypal/Amazon GC for #BlackFriday #shopping! #ContestAlert #giveaway #sweepstakes htt…");
-        postListBuilder.addPosts(test1Builder.build());
-
-        for (int i = 1; i < 49; i++) {
-            Post.Builder builder = Post.newBuilder();
-            DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-            builder.setId(String.valueOf(i));
-            builder.setTimestamp(df.format(DateTime.now().toDate()));
-            builder.addSource("Entertainment Weekly");
-            builder.addSourceLink("https://twitter.com");
-            builder.addImgLink("N/A");
-            builder.setPopularityScore(0);
-            builder.setPopularityVelocity(0);
-            builder.setNumComments(966);
-            builder.setNumShares(23);
-            builder.setNumLikes(1201);
-            builder.addHashtag("#EW");
-            builder.addHashtag("#election");
-            builder.addText("Supernatural's Misha Collins tears up talking about election results: 'I am not going to give up'");
-            postListBuilder.addPosts(builder.build());
-        }
-
         testOptPostList = Optional.of(TestDataGenerator.generatePostList(50));
     }
 
@@ -101,6 +58,11 @@ public class TestDataAccess extends AbstractDataAccess {
     @Override
     protected List<PostList> getAllPostLists(String keyString) {
         return Collections.singletonList(testOptPostList.get());
+    }
+
+    @Override
+    public Optional<PostList> getDisplayPostList(String keyString, Integer index) {
+        return Optional.of(TestDataGenerator.generatePostList(50));
     }
 
     @Override
