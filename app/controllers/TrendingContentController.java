@@ -9,6 +9,7 @@ import services.serializer.JsonSerializer;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Optional;
+import static services.PublicConstants.TRENDING;
 
 /**
  * This controller contains an action to handle HTTP requests
@@ -32,10 +33,20 @@ public class TrendingContentController extends Controller {
      * <code>GET</code> request with a path of <code>/</code>.
      */
 
-    public Result content() {
-        Optional<PostList> trendingContent = dataSource.getDisplayPostList("trending", 0); // todo: implement paging
+    public Result content(String page) {
+        Logger.debug("Trending Content Requested");
 
-        Logger.trace("Trending Content Requested");
+        int pageNum;
+
+        try {
+            pageNum = Integer.parseInt(page);
+        } catch (NumberFormatException nfE) {
+            Logger.debug("Trending Content invalid page: " + nfE.getMessage());
+            pageNum = 0;    // default to page 0 if given invalid number
+        }
+
+        Optional<PostList> trendingContent = dataSource.getDisplayPostList(TRENDING, pageNum);
+
         if (trendingContent.isPresent()) {
             return ok(serializer.serialize(trendingContent.get()));
         } else {

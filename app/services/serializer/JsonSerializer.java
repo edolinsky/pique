@@ -3,9 +3,8 @@ package services.serializer;
 import services.dataAccess.proto.PostListProto.PostList;
 import com.google.gson.Gson;
 
-/**
- * Created by erik on 09/11/16.
- */
+import java.util.List;
+
 public final class JsonSerializer implements Serializer {
 
     private Gson gson = new Gson();
@@ -14,4 +13,7 @@ public final class JsonSerializer implements Serializer {
     public String serialize(PostList postList) {
         return gson.toJson(postList);
     }
+
+    @Override
+    public String serialize(List<String> stringList) { return gson.toJson(stringList); }
 }
