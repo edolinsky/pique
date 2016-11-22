@@ -17,4 +17,3 @@ libraryDependencies ++= Seq(
   "redis.clients" % "jedis" % "2.9.0",
   "com.google.code.gson" % "gson" % "2.8.0"
 )
-

@@ -4,6 +4,8 @@ import controllers.ContentController;
 import play.Logger;
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.InMemoryAccessObject;
+import services.dataAccess.RedisAccessObject;
+import static services.PublicConstants.RUNTIME_ENVIRONMENT;
 
 /**
  * This class is a Guice module that tells Guice how to bind several
@@ -19,7 +21,15 @@ public class Module extends AbstractModule {
 
     @Override
     public void configure() {
-        bind(AbstractDataAccess.class).to(InMemoryAccessObject.class).asEagerSingleton();
+
+        // If running in production, use redis as data store. Otherwise, use InMemory data store
+        String runtime_env = System.getenv(RUNTIME_ENVIRONMENT);
+        if (runtime_env != null && runtime_env.equals("production")) {
+            bind(AbstractDataAccess.class).to(RedisAccessObject.class).asEagerSingleton();
+        } else {
+            bind(AbstractDataAccess.class).to(InMemoryAccessObject.class).asEagerSingleton();
+        }
+
         bind(ContentController.class).asEagerSingleton();
         Logger.info("module created");
     }

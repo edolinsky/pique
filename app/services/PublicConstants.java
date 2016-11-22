@@ -1,6 +1,7 @@
 package services;
 
 public class PublicConstants {
+    public static final String RUNTIME_ENVIRONMENT = "runtime_env";
 
     public static final String HTTP_GET = "GET";
 
@@ -19,4 +20,11 @@ public class PublicConstants {
     public static final String DATA_SOURCE = "data_source";
     public static final String REDIS_URL = "redis_url";
     public static final String REDIS_PORT = "redis_port";
+
+    public static final String TOP = "top";
+    public static final String TRENDING = "trending";
+
+    public static final String SORTING_NODE_INPUT_THRESHOLD = "sorting_threshold";
+    public static final String POSTS_PER_PAGE = "posts_per_page";
+    public static final int NUM_TOP_HASHTAGS = 10;
 }
