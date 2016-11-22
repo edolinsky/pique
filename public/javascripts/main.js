@@ -13,6 +13,13 @@ function requestPage(myURL, callback, tag) {
     xmlHttp.send(null);
 }
 
+function getFormattedDate(time) {
+    var date = new Date(time);
+    var str = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+
+    return str;
+}
+
 function createElements(httpResponse, tag) {
 
   var postList = JSON.parse(httpResponse);
@@ -58,7 +65,7 @@ function createElements(httpResponse, tag) {
       row1Col2.style.float = "right";
       row1Col2.style.padding = "2px";
       row1Col2.style.color = "LightSteelBlue";
-      var time = document.createTextNode(post.timestamp_);
+      var time = document.createTextNode(getFormattedDate(post.timestamp_));
       row1Col2.appendChild(time);
       row1.appendChild(row1Col2);
       postObj.appendChild(row1);

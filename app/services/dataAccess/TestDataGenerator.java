@@ -55,7 +55,7 @@ public class TestDataGenerator {
             builder.setTimestamp(DateTime.now().toDate().getTime());
             builder.addSource("Test Source");
             builder.addSourceLink("http://google.com");
-            builder.addImgLink("http://image.com");
+            builder.addImgLink("N/A");
             builder.setPopularityScore(0);
             builder.setPopularityVelocity(0);
             builder.setNumComments(rand.nextInt(1000));
