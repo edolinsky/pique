@@ -50,21 +50,16 @@ public class JavaDataCollector extends AbstractDataCollector {
         String trend = trends.poll();
         List<Post> posts;
 
-		if(source instanceof TwitterSource) {
-			// if we have queried this trend before only get newer posts
-			if (sinceIds.containsKey(trend)) {
-				posts = source.getMaxTrendingPostsSince(trend, sinceIds.get(trend));
-			} else {
-				posts = source.getMaxTrendingPosts(trend);
-			}
-
-			// overwrite set the newest id queried to the newest tweet retrieved
-			sinceIds.put(trend, Long.parseLong(posts.get(0).getId()));
-			return posts;
+		// if we have queried this trend before only get newer posts
+		if (sinceIds.containsKey(trend)) {
+			posts = source.getMaxTrendingPostsSince(trend, sinceIds.get(trend));
 		} else {
 			posts = source.getMaxTrendingPosts(trend);
-
-			return posts;
 		}
+
+		// overwrite set the newest id queried to the newest tweet retrieved
+		sinceIds.put(trend, Long.parseLong(posts.get(0).getId()));
+		return posts;
+
 	}
 }

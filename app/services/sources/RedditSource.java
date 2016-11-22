@@ -50,14 +50,25 @@ public class RedditSource implements JavaSource {
     private RedditClient redditClient;
 
     //DiscordException??
-    public RedditSource() throws NetworkException, OAuthException {
+    public RedditSource() {
         UserAgent myUserAgent = UserAgent.of("desktop", System.getenv(REDDIT_CLIENTID), "v0.1", System.getenv(REDDIT_USER));
         redditClient = new RedditClient(myUserAgent);
         Credentials credentials = Credentials.script(System.getenv(REDDIT_USER),
                                                      System.getenv(REDDIT_PASS),
                                                      System.getenv(REDDIT_CLIENTID),
                                                      System.getenv(REDDIT_SECRET));
-        OAuthData authData = redditClient.getOAuthHelper().easyAuth(credentials);
+
+        OAuthData authData;
+
+        try {
+            authData = redditClient.getOAuthHelper().easyAuth(credentials);
+        } catch (NetworkException e) {
+            e.printStackTrace();
+            //TODO
+        } catch (OAuthException o) {
+            o.printStackTrace();
+            //TODO
+        }
 
         redditClient.authenticate(authData);
         redditClient.me();
@@ -100,7 +111,7 @@ public class RedditSource implements JavaSource {
 
     @Override
     public List<Post> getMaxTrendingPostsSince(String trend, Long sinceId) {
-        return getTrendingPosts(trend, MAX_REQUEST_SIZE, sinceId);
+        return getMaxTrendingPosts(trend);
     }
 
     @Override

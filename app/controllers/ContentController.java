@@ -25,7 +25,7 @@ public class ContentController {
     private ThreadNotification sortNotification;
 
     @Inject
-    public ContentController(AbstractDataAccess access, ApplicationLifecycle appLifecycle) throws NetworkException, OAuthException {
+    public ContentController(AbstractDataAccess access, ApplicationLifecycle appLifecycle) {
         Logger.info("ContentController: Starting application at " + DateTime.now().toString());
         sortNotification = new ThreadNotification();
 
