@@ -65,7 +65,7 @@ public class RedditSource implements JavaSource {
 
     @Override
     public String getSourceName() {
-        return "source:" + REDDIT;
+        return REDDIT;
     }
 
     @Override
