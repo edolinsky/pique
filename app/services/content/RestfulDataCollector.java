@@ -57,9 +57,19 @@ public class RestfulDataCollector extends AbstractDataCollector {
         String nextTrend = trends.poll();
 
         String response = makeRequest(nextTrend);
-        List<Post> posts = source.getPostsSince(response, sinceIds.get(nextTrend));
+        List<Post> posts = source.parseResponse(response);
 
-        sinceIds.put(nextTrend, posts.get(0).getTimestamp());
+        // if we have queried this trend before only get newer posts
+        if (sinceIds.containsKey(nextTrend)) {
+            posts = source.filterPostsSince(posts, sinceIds.get(nextTrend));
+        } else {
+            posts = source.filterPostsSince(posts, 0);
+        }
+        if (!posts.isEmpty()) {
+            sinceIds.put(nextTrend, posts.get(0).getTimestamp()); // update newest post identifier
+        }
+
+        return posts;
 	}
 
     /**

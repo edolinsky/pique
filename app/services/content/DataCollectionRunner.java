@@ -27,18 +27,28 @@ public class DataCollectionRunner implements Runnable {
 
         while (true) {
             synchronized (notification) {
-                long numPosts = collector.collect();
-                Logger.info("Collected " + numPosts + " posts at " + new Date());
+                int numPosts = collector.collect();
+                logCollection(numPosts);
                 notification.notify();
             }
 
             try {
-                Logger.info("Collector:" + collector.getSource().getSourceName() + " is sleeping at "
-                        + new Date());
+                logSleep();
                 Thread.sleep(collector.getSource().getQueryDelta());
             } catch (InterruptedException e1) {
                 e1.printStackTrace();
             }
         }
 	}
+
+    private void logCollection(int num) {
+        Logger.info("Collector:" + collector.getSource().getSourceName() + " Collected " + num +
+                " posts at " + new Date());
+    }
+
+    private void logSleep() {
+        Logger.info("Collector:" + collector.getSource().getSourceName() + " is sleeping at "
+                + new Date());
+
+    }
 }

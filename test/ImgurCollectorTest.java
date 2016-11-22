@@ -27,14 +27,15 @@ public class ImgurCollectorTest {
 
     @Test
     public void testRequest() {
-        String response = collector.makeRequest();
+        String response = collector.makeRequest(source.getTrends("canada", "vancouver").get(0));
+        assertFalse(response == null);
         assertFalse(response.isEmpty());
     }
 
     @Test
     public void testParse() {
         String response = ImgurTestData.getTestJson();
-        List<Post> posts = source.getPostsSince(response);
+        List<Post> posts = source.parseResponse(response, 0L);
         assertFalse(posts.isEmpty());
 
     }

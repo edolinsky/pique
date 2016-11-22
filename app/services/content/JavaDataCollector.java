@@ -62,7 +62,9 @@ public class JavaDataCollector extends AbstractDataCollector {
         }
 
         // overwrite set the newest id queried to the newest tweet retrieved
-        sinceIds.put(trend, Long.parseLong(posts.get(0).getId()));
+		if (!posts.isEmpty()) {
+			sinceIds.put(trend, Long.parseLong(posts.get(0).getId()));
+		}
         return posts;
 	}
 }

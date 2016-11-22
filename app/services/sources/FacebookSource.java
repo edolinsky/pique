@@ -1,5 +1,6 @@
 package services.sources;
 
+import services.dataAccess.proto.PostProto;
 import services.dataAccess.proto.PostProto.Post;
 
 import java.net.HttpURLConnection;
@@ -51,7 +52,12 @@ public class FacebookSource implements RestfulSource {
 	}
 
 	@Override
-	public List<Post> getPostsSince(String response) {
+	public List<Post> parseResponse(String response) {
+		return null;
+	}
+
+	@Override
+	public List<Post> filterPostsSince(List<Post> posts, long id) {
 		return null;
 	}
 

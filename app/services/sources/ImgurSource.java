@@ -74,7 +74,7 @@ public class ImgurSource implements RestfulSource {
 
 
     @Override
-    public List<Post> getPostsSince(String response, long id) {
+    public List<Post> parseResponse(String response) {
         // response from imgur is json
         JsonElement jelement = new JsonParser().parse(response);
         JsonArray data = jelement.getAsJsonObject().getAsJsonArray("data");
@@ -84,7 +84,7 @@ public class ImgurSource implements RestfulSource {
             posts.add(createPost(e.getAsJsonObject()));
         }
 
-        return filterPostsSince(posts, id);
+        return posts;
     }
 
     /**
@@ -94,19 +94,17 @@ public class ImgurSource implements RestfulSource {
      * @param id
      * @return
      */
+    @Override
     public List<Post> filterPostsSince(List<Post> posts, long id) {
         return posts.stream().filter(p -> p.getTimestamp() > id).sorted((p1, p2) -> Long
-                .compare(p2.getTimestamp(), p1.getTimestamp()));
+                .compare(p2.getTimestamp(), p1.getTimestamp())).collect(Collectors.toList());
     }
 
 
     private Post createPost(JsonObject object) {
         Post.Builder builder = Post.newBuilder();
-        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         builder.setId(object.getAsJsonPrimitive("id").getAsString());
-
-        Date time = new Date(object.getAsJsonPrimitive("datetime").getAsLong());
-        builder.setTimestamp(df.format(time));
+        builder.setTimestamp(object.getAsJsonPrimitive("datetime").getAsLong());
         builder.addSource(object.getAsJsonPrimitive("account_url").getAsString());
         builder.addSourceLink(object.getAsJsonPrimitive("link").getAsString());
         builder.setPopularityScore(0);
