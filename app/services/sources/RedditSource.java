@@ -58,7 +58,7 @@ public class RedditSource implements JavaSource {
                                                      System.getenv(REDDIT_CLIENTID),
                                                      System.getenv(REDDIT_SECRET));
 
-        OAuthData authData;
+        OAuthData authData = null;
 
         try {
             authData = redditClient.getOAuthHelper().easyAuth(credentials);
