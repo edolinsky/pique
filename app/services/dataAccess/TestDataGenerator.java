@@ -30,9 +30,8 @@ public class TestDataGenerator {
 
         for (int i = 0; i < numPosts; i++) {
             Post.Builder builder = Post.newBuilder();
-            DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
             builder.setId(String.valueOf(i));
-            builder.setTimestamp(df.format(DateTime.now().toDate()));
+            builder.setTimestamp(DateTime.now().toDate().getTime());
             builder.addSource("Test Source");
             builder.addSourceLink("http://google.com");
             builder.addImgLink("http://image.com");

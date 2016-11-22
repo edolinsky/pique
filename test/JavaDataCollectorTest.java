@@ -17,7 +17,7 @@ import static org.junit.Assert.assertTrue;
 public class JavaDataCollectorTest {
 
 	AbstractDataAccess data;
-	TwitterSource source;
+	TwitterSource source; // TODO mock or stub so we are just testing JavaDataCollector
 	AbstractDataCollector collector;
 
 	@Before

@@ -50,7 +50,7 @@ public abstract class AbstractDataCollector {
 	 * Grabs a list of posts and puts it into the data tier
 	 * @return the number of posts collected
 	 */
-	public long collect() {
+	public int collect() {
 		List<Post> posts = fetch();
         store(posts);
         return posts.size();
