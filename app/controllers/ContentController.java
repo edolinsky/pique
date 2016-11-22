@@ -1,15 +1,15 @@
 package controllers;
 
-import net.dean.jraw.http.NetworkException;
-import net.dean.jraw.http.oauth.OAuthException;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.inject.ApplicationLifecycle;
 import services.ThreadNotification;
 import services.content.DataCollectionRunner;
 import services.content.JavaDataCollector;
+import services.content.RestfulDataCollector;
 import services.dataAccess.AbstractDataAccess;
 import services.sorting.SortingNode;
+import services.sources.ImgurSource;
 import services.sources.TwitterSource;
 import services.sources.RedditSource;
 
@@ -34,10 +34,17 @@ public class ContentController {
         sorter.start();
 
         collectors = new ArrayList<>();
+
         Thread twitter = new Thread(new DataCollectionRunner(new JavaDataCollector(access, new
                 TwitterSource()), sortNotification)); // TODO THIS IS AWFUL
         twitter.start();
-        collectors.add(twitter);
+	collectors.add(twitter);
+
+        Thread imgur = new Thread(new DataCollectionRunner(new RestfulDataCollector(access, new
+                ImgurSource()), sortNotification));
+        imgur.start();
+	collectors.add(imgur);
+
         Thread reddit = new Thread(new DataCollectionRunner(new JavaDataCollector(access, new
                 RedditSource()), sortNotification));
         reddit.start();

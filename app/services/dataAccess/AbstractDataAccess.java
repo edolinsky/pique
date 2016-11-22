@@ -2,14 +2,13 @@ package services.dataAccess;
 
 import services.dataAccess.proto.PostListProto.PostList;
 import services.dataAccess.proto.PostProto.Post;
+import sun.util.resources.cldr.zh.CalendarData_zh_Hans_HK;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-/**
- * Created by erik on 23/10/16.
- */
 
 public abstract class AbstractDataAccess {
 
@@ -19,7 +18,10 @@ public abstract class AbstractDataAccess {
     private static final String HASHTAG_NAMESPACE = "hashtag";
     private static final String SOURCE_NAMESPACE = "source";
     private static final String TEST_NAMESPACE = "test";
-    static final Integer MAX_POSTLISTS = 100;
+
+    private static final String STRING_LIST_NAMESPACE = "stringlist";
+    private static final String TOP_HASHTAGS = "tophashtags";
+    static final Integer MAX_POSTLISTS = 100000;
 
 
     /**
@@ -67,7 +69,7 @@ public abstract class AbstractDataAccess {
      * @param numPosts  number of posts to be deleted from beginning of list at keyString
      * @return string denoting status of trim operation
      */
-    abstract protected String deleteFirstNPosts(String keyString, Integer numPosts);
+    abstract protected String deleteFirstNPosts(String keyString, Integer numPosts); // todo: change return type
 
     /**
      * Adds a new postList entity to the beginning of this data store's list of postLists under a particular key.
@@ -84,7 +86,7 @@ public abstract class AbstractDataAccess {
      * If key does not exist, or list is empty, returns the empty optional
      *
      * @param keyString string denoting key in data store
-     * @param index index of desired PostList under keyString in data store
+     * @param index     index of desired PostList under keyString in data store
      * @return The first element under keyString in data store, or the empty optional if not available
      */
     abstract protected Optional<PostList> getPostList(String keyString, Integer index);
@@ -117,11 +119,45 @@ public abstract class AbstractDataAccess {
     abstract public List<String> getKeysInNameSpace(String nameSpace);
 
     /**
+     * Returns the size of the list at the specified key string
+     *
+     * @param keyString desired key string in data store
+     * @return the size of the list stored at keyString
+     */
+    abstract protected long getListSize(String keyString);
+
+    /**
+     * Retrieves, but does not remove, the first length elements of the list of strings stored at the specified key string
+     *
+     * @return the list of strings stored at the specified key string
+     */
+    abstract protected List<String> getStringList(String keyString, long length);
+
+    /**
+     * Replaces the list of strings at keyString with the specified string list. Creates new list if one does not exist.
+     *
+     * @param keyString  key string in data store
+     * @param stringList list of strings to replace
+     * @return new length of list under keyString after insertion.
+     */
+    abstract protected long replaceStringList(String keyString, List<String> stringList);
+
+    /**
+     * Replaces the list of postLists at keyString with the specified list of postLists. Creates new list if one does not
+     * exist.
+     *
+     * @param keyString keyString of postList collection
+     * @param postLists list of postLists to replace existing postLists
+     * @return string denoting status of trim operation
+     */
+    abstract protected long replacePostLists(String keyString, List<PostList> postLists);
+
+    /**
      * Adds a new post to this data store's list of posts (end of queue) under a particular key in the source namespace.
      * If no key exists, a key-value pair is created and Post is the first element in the value list.
      *
      * @param source string denoting key in data store
-     * @param post      Post object to be stored
+     * @param post   Post object to be stored
      * @return length of list of posts at source under source namespace after insertion of new post
      */
     public long addNewPostFromSource(String source, Post post) {
@@ -132,11 +168,11 @@ public abstract class AbstractDataAccess {
      * Adds a series of posts to this data store's list of posts at a key under the source namespace, in order at the
      * end of the queue. If no key exists, a key-value pair is created and listOfPosts is stored in the value list.
      *
-     * @param source   string denoting key in data store
+     * @param source      string denoting key in data store
      * @param listOfPosts list of posts to append to value list at key
      * @return length of list of posts at source under source namespace after insertion of new posts
      */
-    public long addNewPostsFromSource(String source, List<Post> listOfPosts){
+    public long addNewPostsFromSource(String source, List<Post> listOfPosts) {
         return addNewPosts(SOURCE_NAMESPACE + NAMESPACE_DELIMITER + source, listOfPosts);
     }
 
@@ -146,7 +182,7 @@ public abstract class AbstractDataAccess {
      * the new value list.
      *
      * @param displayString string denoting key in data store
-     * @param postList  postList entity to be entered at beginning of list under keyString
+     * @param postList      postList entity to be entered at beginning of list under keyString
      * @return size of list at displayString under display namespace after insertion of new postList
      */
     public long addNewDisplayPostList(String displayString, PostList postList) {
@@ -158,12 +194,23 @@ public abstract class AbstractDataAccess {
      * hashtag namespace. If no key exists, a key-value pair is created and postList is stored at the beginning of the
      * new value list.
      *
-     * @param hashtag string denoting key in data store
-     * @param postList  postList entity to be entered at beginning of list under keyString
+     * @param hashtag  string denoting key in data store
+     * @param postList postList entity to be entered at beginning of list under keyString
      * @return size of list at specified hashtag under hashtag namespace after insertion of new postList
      */
     public long addNewHashTagPostList(String hashtag, PostList postList) {
         return addNewPostList(HASHTAG_NAMESPACE + NAMESPACE_DELIMITER + hashtag, postList);
+    }
+
+    /**
+     * Replaces a set of postLists in the hashtag namespace under specified string with the specified list of postLists
+     *
+     * @param hashtag   hashtag string denoting channel to update
+     * @param postLists list of postlists to be stored under the particular hashtag
+     * @return size of list after insert
+     */
+    public long replaceHashTagPostLists(String hashtag, List<PostList> postLists) {
+        return replacePostLists(HASHTAG_NAMESPACE + NAMESPACE_DELIMITER + hashtag, postLists);
     }
 
     /**
@@ -189,11 +236,31 @@ public abstract class AbstractDataAccess {
     }
 
     /**
+     * Retrieves all PostLists under a particular hashtag in the hashtag namespace.
+     *
+     * @param hashtag string denoting key under hashtag namespace in data store
+     * @return list of all posts stored under that hashtag
+     */
+    public List<PostList> getAllHashtagPostLists(String hashtag) {
+        return getAllPostLists(HASHTAG_NAMESPACE + NAMESPACE_DELIMITER + hashtag);
+    }
+
+    /**
+     * Retrieves the number of post list entities stored under a particular hashtag keystring
+     *
+     * @param hashtag hashtag string (without namespace or delimiter)
+     * @return number of post list entities stored under a particular hashtag
+     */
+    public long getNumHashTagPostLists(String hashtag) {
+        return getListSize(HASHTAG_NAMESPACE + NAMESPACE_DELIMITER + hashtag);
+    }
+
+    /**
      * Retrieves, but does not remove postList entity at the specified index from the stack at source under the display
      * namespace in data store. If key does not exist, or list is empty, returns the empty optional
      *
      * @param displayString string denoting desired display key in data store
-     * @param index index of desired postList under key
+     * @param index         index of desired postList under key
      * @return The element at index of displayString under display namespace in data store,
      * or the empty optional if not available
      */
@@ -214,6 +281,17 @@ public abstract class AbstractDataAccess {
     }
 
     /**
+     * Retrieves, but does not remove all postList entities under the specified name within data store under display
+     * namespace. If displayName does not exist, or list is empty, returns an empty list.
+     *
+     * @param displayName name of display list
+     * @return list of postLists under that particular display name
+     */
+    public List<PostList> getAllDisplayPostLists(String displayName) {
+        return getAllPostLists(DISPLAY_NAMESPACE + NAMESPACE_DELIMITER + displayName);
+    }
+
+    /**
      * Uses getNumPostsInNameSpace to retrieve the number of posts within the 'source' namespace
      *
      * @return the number of posts within the source namespace
@@ -224,6 +302,7 @@ public abstract class AbstractDataAccess {
 
     /**
      * Retrieves the list of available sources (without proceeding namespace or delimiter) in the data Access object
+     *
      * @return A list containing the name of all sources
      */
     public List<String> getSources() {
@@ -233,11 +312,42 @@ public abstract class AbstractDataAccess {
     }
 
     /**
+     * Retrieves the list of available hashtags (without proceeding namespace or delimiter) in the data store
+     *
+     * @return A list containing all available hashtags.
+     */
+    public List<String> getAllHashTags() {
+        return getKeysInNameSpace(HASHTAG_NAMESPACE).stream()
+                .map(s -> s.substring(s.indexOf(NAMESPACE_DELIMITER) + 1))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Retrieves the first numTopHashtags hashtags from the list of top hashtags
+     *
+     * @param numTopHashtags number of top hashtags to be received
+     * @return first numTopHashtags hashtags in the top hashtag list
+     */
+    public List<String> getTopHashTags(int numTopHashtags) {
+        return getStringList(STRING_LIST_NAMESPACE + NAMESPACE_DELIMITER + TOP_HASHTAGS, numTopHashtags);
+    }
+
+    /**
+     * Replaces the current list of top hashtags with the specified list of hashtags
+     *
+     * @param topHashTags list of strings, denoting hashtags
+     * @return new length of top hashtag list
+     */
+    public long addTopHashtags(List<String> topHashTags) {
+        return replaceStringList(STRING_LIST_NAMESPACE + NAMESPACE_DELIMITER + TOP_HASHTAGS, topHashTags);
+    }
+
+    /**
      * Deletes the first numPosts Posts under keyString. If numPosts is greater than the size of the list at keyString,
      * size elements are cleared.
      *
-     * @param source string denoting key in data store
-     * @param numPosts  number of posts to be deleted from beginning of list at keyString
+     * @param source   string denoting key in data store
+     * @param numPosts number of posts to be deleted from beginning of list at keyString
      * @return string denoting status of trim operation
      */
     public String deleteFirstNPostsFromSourceQueue(String source, Integer numPosts) {

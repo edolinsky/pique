@@ -2,13 +2,15 @@ package services.serializer;
 
 import services.dataAccess.proto.PostListProto.PostList;
 
-/**
- * Created by erik on 02/11/16.
- */
+import java.util.List;
+
 public final class BinarySerializer implements Serializer{
 
     @Override
     public byte[] serialize(PostList postList) {
         return postList.toByteArray();
     }
+
+    @Override
+    public byte[] serialize(List<String> stringList) { return stringList.toString().getBytes(); }
 }

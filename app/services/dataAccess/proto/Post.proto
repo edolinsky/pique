@@ -6,7 +6,7 @@ option java_outer_classname = "PostProto";
 
 message Post {
     string id = 1;
-    string timestamp = 2;
+    int64 timestamp = 2;
 
     repeated string source = 3;
     repeated string source_link = 4;

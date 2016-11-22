@@ -1,5 +1,6 @@
 package services.dataAccess;
 
+import services.dataAccess.proto.PostListProto;
 import services.dataAccess.proto.PostListProto.PostList;
 import services.dataAccess.proto.PostProto.Post;
 
@@ -7,17 +8,16 @@ import services.dataAccess.proto.PostProto.Post;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Created by erik on 23/10/16.
- */
 public class InMemoryAccessObject extends AbstractDataAccess {
 
     private Map<String, List<Post>> postDataStore;
     private Map<String, List<PostList>> postListDataStore;
+    private Map<String, List<String>> stringListDataStore;
 
     public InMemoryAccessObject() {
         postDataStore = new HashMap<>();
         postListDataStore = new HashMap<>();
+        stringListDataStore = new HashMap<>();
     }
 
     @Override
@@ -179,6 +179,52 @@ public class InMemoryAccessObject extends AbstractDataAccess {
     public List<String> getKeysInNameSpace(String nameSpace) {
         // filter key set for keys matching keyString and return filtered list
         return postDataStore.keySet().stream().filter(key -> key.contains(nameSpace + NAMESPACE_DELIMITER)).collect(Collectors.toList());
+    }
+
+    @Override
+    protected long getListSize(String keyString) {
+
+        List<PostList> postLists = postListDataStore.get(keyString);
+
+        if (postLists != null) {
+            return postLists.size();
+        } else {
+            return 0L;
+        }
+
+    }
+
+    @Override
+    protected List<String> getStringList(String keyString, long length) {
+        List<String> stringList = stringListDataStore.get(keyString);
+
+        if (stringList != null) {
+
+            // list at keyString exists, return shorter of specified length or actual stringList size
+            if (length > stringList.size()) {
+                return new ArrayList<>(stringList);
+            } else {
+                return new ArrayList<>(stringList.subList(0, (int) length));
+            }
+
+        } else {
+            // list at keyString does not exist; return empty list
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    protected long replaceStringList(String keyString, List<String> stringList) {
+
+        stringListDataStore.put(keyString, new ArrayList<>(stringList));
+        return stringList.size();
+    }
+
+    @Override
+    protected long replacePostLists(String keyString, List<PostList> postLists) {
+
+        postListDataStore.put(keyString, postLists);
+        return postLists.size();
     }
 
 }

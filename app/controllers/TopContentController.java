@@ -10,6 +10,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Optional;
 
+import static services.PublicConstants.TOP;
+
 /**
  * This controller contains an action to handle HTTP requests
  * to the application's home page.
@@ -32,10 +34,18 @@ public class TopContentController extends Controller {
      * <code>GET</code> request with a path of <code>/</code>.
      */
 
-    public Result content() {
+    public Result content(String page) {
+        int pageNum;
 
-        Logger.trace("Top Content Requested");
-        Optional<PostList> topContent = dataSource.getDisplayPostList("top", 0); // todo: implement paging
+        try {
+            pageNum = Integer.parseInt(page);
+        } catch (NumberFormatException nfE) {
+            Logger.debug("Top Content invalid page: " + nfE.getMessage());
+            pageNum = 0;    // default to page 0 if given invalid number
+        }
+
+        Logger.debug("Top Content Requested");
+        Optional<PostList> topContent = dataSource.getDisplayPostList(TOP, pageNum);
 
         if (topContent.isPresent()) {
             return ok(serializer.serialize(topContent.get()));

@@ -12,9 +12,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Created by maria on 04/11/16.
- */
 
 public class TestDataAccess extends AbstractDataAccess {
 
@@ -36,9 +33,12 @@ public class TestDataAccess extends AbstractDataAccess {
         return x;
     }
 
-    @Override
-    protected Optional<Post> popFirstPost(String keyString) {
-        return null;
+    public Optional<Post> popOldestPost(String keyString) {
+        return testOptPost;
+    }
+
+    public Optional<PostList> peekAtPostList(String keyString) {
+        return testOptPostList;
     }
 
     public long addNewPostList(String keyString, PostList postList) {
@@ -47,6 +47,11 @@ public class TestDataAccess extends AbstractDataAccess {
 
     public List<Post> getAllPosts(String keyString) {
         return testPostList;
+    }
+
+    @Override
+    protected Optional<Post> popFirstPost(String keyString) {
+        return null;
     }
 
     @Override
@@ -74,12 +79,24 @@ public class TestDataAccess extends AbstractDataAccess {
         return null;
     }
 
-    public Optional<Post> popOldestPost(String keyString) {
-        return testOptPost;
+    @Override
+    protected long getListSize(String keyString) {
+        return 0;
     }
 
-    public Optional<PostList> peekAtPostList(String keyString) {
-        return testOptPostList;
+    @Override
+    protected List<String> getStringList(String keyString, long length) {
+        return null;
+    }
+
+    @Override
+    protected long replaceStringList(String keyString, List<String> stringList) {
+        return 0;
+    }
+
+    @Override
+    protected long replacePostLists(String keyString, List<PostList> postLists) {
+        return 0;
     }
 
 }

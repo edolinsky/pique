@@ -1,5 +1,4 @@
-import net.dean.jraw.http.NetworkException;
-import net.dean.jraw.http.oauth.OAuthException;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import services.content.AbstractDataCollector;
@@ -14,6 +13,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class JavaDataCollectorTest {
 
@@ -24,7 +24,7 @@ public class JavaDataCollectorTest {
 	AbstractDataCollector redditCollector;
 
 	@Before
-	public void before() throws NetworkException, OAuthException {
+	public void before() {
 		data = new InMemoryAccessObject();
 		twitterSource = new TwitterSource();
 		redditSource = new RedditSource();

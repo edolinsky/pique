@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface JavaSource extends Source {
+
     /**
      * Gets posts corresponding to the given trend term
      * @param trend the trend to query
