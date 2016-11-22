@@ -1,8 +1,5 @@
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
@@ -418,7 +415,7 @@ public class RedisAccessTest {
      * Expiry Tests
      */
 
-    @Test
+    @Ignore
     public void testPostListExpiry() {
         assumeTrue(redisTestsIncluded);
 
