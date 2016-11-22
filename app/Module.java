@@ -1,10 +1,9 @@
 import com.google.inject.AbstractModule;
-import java.time.Clock;
 
-import services.*;
+import controllers.ContentController;
+import play.Logger;
 import services.dataAccess.AbstractDataAccess;
-import services.dataAccess.RedisAccessObject;
-import services.dataAccess.TestDataAccess;
+import services.dataAccess.InMemoryAccessObject;
 
 /**
  * This class is a Guice module that tells Guice how to bind several
@@ -20,15 +19,9 @@ public class Module extends AbstractModule {
 
     @Override
     public void configure() {
-        // Use the system clock as the default implementation of Clock
-        bind(Clock.class).toInstance(Clock.systemDefaultZone());
-        // Ask Guice to create an instance of ApplicationTimer when the
-        // application starts.
-        bind(ApplicationTimer.class).asEagerSingleton();
-        // Set AtomicCounter as the implementation for Counter.
-        bind(Counter.class).to(AtomicCounter.class);
-
-        bind(AbstractDataAccess.class).to(TestDataAccess.class);
+        bind(AbstractDataAccess.class).to(InMemoryAccessObject.class).asEagerSingleton();
+        bind(ContentController.class).asEagerSingleton();
+        Logger.info("module created");
     }
 
 }

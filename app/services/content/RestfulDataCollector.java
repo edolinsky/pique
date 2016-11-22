@@ -1,40 +1,43 @@
 package services.content;
 
 import services.dataAccess.AbstractDataAccess;
-import services.dataAccess.proto.PostProto;
 import services.dataAccess.proto.PostProto.Post;
-import services.sources.AbstractRestfulSource;
+import services.sources.RestfulSource;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 
 import static services.PublicConstants.HTTP_GET;
 
 /**
  * This class is capable of making RESTful API calls to collect data, given an
- * {@link AbstractRestfulSource} to collect from and an {@link AbstractDataAccess} to place the
+ * {@link RestfulSource} to collect from and an {@link AbstractDataAccess} to place the
  * results
  *
  * @author Reid Oliveira, Sammie Jiang
  */
 public class RestfulDataCollector extends AbstractDataCollector {
 
-	AbstractRestfulSource source;
+    private final String USER_AGENT = "Mozilla/5.0";
 
-	public RestfulDataCollector(AbstractDataAccess dataAccess, AbstractRestfulSource source) {
-		super(dataAccess);
-		this.source = source;
-	}
+	private RestfulSource source;
+	private Queue<String> trends = new LinkedList<>();
+    private Map<String, Long> sinceIds = new PostIdCache();
+
+	public RestfulDataCollector(AbstractDataAccess dataAccess, RestfulSource source) {
+        super(dataAccess);
+        this.source = source;
+    }
 
 	@Override
-	public AbstractRestfulSource getSource() {
+	public RestfulSource getSource() {
 		return source;
 	}
 
@@ -46,46 +49,72 @@ public class RestfulDataCollector extends AbstractDataCollector {
 		 * interpreted by it as well
 		 */
 
-		// source: http://stackoverflow.com/questions/1359689/how-to-send-http-request-in-java
+        // if no trends exist for this collector, retrieve them
+        if (trends.isEmpty()) {
+            trends.addAll(source.getTrends("canada", "vancouver"));
+        }
 
-		HttpURLConnection connection = null; // these are one time use connections
+        String nextTrend = trends.poll();
 
-		try {
-			URL url = new URL(source.getUrl());
-			connection = (HttpURLConnection) url.openConnection();
-			connection.setRequestMethod(HTTP_GET);
+        String response = makeRequest(nextTrend);
+        List<Post> posts = source.parseResponse(response);
 
-			//Send request
-			DataOutputStream wr = new DataOutputStream (
-					connection.getOutputStream());
-			// TODO wr.writeBytes(source.generateRequest);
-			wr.close();
+        // if we have queried this trend before only get newer posts
+        if (sinceIds.containsKey(nextTrend)) {
+            posts = source.filterPostsSince(posts, sinceIds.get(nextTrend));
+        } else {
+            posts = source.filterPostsSince(posts, 0);
+        }
+        if (!posts.isEmpty()) {
+            sinceIds.put(nextTrend, posts.get(0).getTimestamp()); // update newest post identifier
+        }
 
-			//Get Response
-			InputStream is = connection.getInputStream();
-			BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-			StringBuilder response = new StringBuilder(); // or StringBuffer if Java version 5+
-			String line;
-			while ((line = rd.readLine()) != null) {
-				response.append(line);
-				response.append('\r');
-			}
-			rd.close();
-
-
-			//TODO create Post object from response object
-			return Collections.emptyList();
-
-		} catch(IOException e) {
-			// if we fail this we shouldn't fall over, just reschedule an attempt
-
-			// TODO notify of failure and fail gracefully
-		} finally {
-			if (connection != null) {
-				connection.disconnect();
-			}
-		}
-
-		return null;
+        return posts;
 	}
+
+    /**
+     * Builds an http request with the help of a {@link RestfulSource}
+     * @return
+     */
+    public String makeRequest(String trend) {
+
+        // source: http://stackoverflow.com/questions/1359689/how-to-send-http-request-in-java
+
+        HttpURLConnection connection = null; // these are one time use connections
+
+        try {
+            // send request
+            URL url = new URL(source.generateRequestUrl(trend));
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod(HTTP_GET);
+            connection.setRequestProperty("User-Agent", USER_AGENT);
+            source.addRequestHeaders(connection);
+
+            int responseCode = connection.getResponseCode();
+
+            // get response
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(connection.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+
+            return response.toString();
+
+        } catch(IOException e) {
+            e.printStackTrace();
+
+            // TODO
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+
+        return null;
+    }
 }

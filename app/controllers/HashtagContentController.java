@@ -1,14 +1,10 @@
 package controllers;
 
-import akka.actor.ActorSystem;
+import play.Logger;
 import play.mvc.*;
-import scala.concurrent.ExecutionContextExecutor;
-import services.dataAccess.RedisAccessObject;
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.proto.PostListProto.PostList;
-import services.serializer.BinarySerializer;
 import services.serializer.JsonSerializer;
-import services.serializer.Serializer;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -28,6 +24,7 @@ public class HashtagContentController extends Controller {
     public HashtagContentController(AbstractDataAccess dataSource) {
         this.dataSource = dataSource;
     }
+
     /**
      * An action that renders an HTML page with a welcome message.
      * The configuration in the <code>routes</code> file means that
@@ -36,8 +33,9 @@ public class HashtagContentController extends Controller {
      */
 
     public Result content(String hashtag) {
-        Optional<PostList> hashtagContent = dataSource.peekAtPostList("display:" + hashtag);
+        Optional<PostList> hashtagContent = dataSource.getHashTagPostList(hashtag, 0); // todo: implement paging
 
+        Logger.trace("Hashtag Content Requested: " + hashtag);
         if (hashtagContent.isPresent()) {
             return ok(serializer.serialize(hashtagContent.get()));
         } else {

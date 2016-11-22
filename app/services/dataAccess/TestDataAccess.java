@@ -1,11 +1,14 @@
 package services.dataAccess;
 
 import org.joda.time.DateTime;
+import services.dataAccess.proto.PostListProto;
 import services.dataAccess.proto.PostListProto.PostList;
+import services.dataAccess.proto.PostProto;
 import services.dataAccess.proto.PostProto.Post;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +25,7 @@ public class TestDataAccess extends AbstractDataAccess {
     private Optional<PostList> testOptPostList;
 
     public TestDataAccess() {
+
         PostList.Builder postListBuilder = PostList.newBuilder();
 
         Post.Builder test1Builder = Post.newBuilder();
@@ -65,31 +69,8 @@ public class TestDataAccess extends AbstractDataAccess {
             postListBuilder.addPosts(builder.build());
         }
 
-        testOptPostList = Optional.of(postListBuilder.build());
-
+        testOptPostList = Optional.of(TestDataGenerator.generatePostList(50));
     }
-
-    // For reference:
-
-/*  private class TestPost {
-      String id = "1";
-      String timestamp = "2";
-
-      String source = "3";
-      String source_link = "4";
-
-      int popularity_score = 5;
-      int popularity_velocity = 6;
-
-      int num_comments = 7;
-      int num_shares = 8;
-      int num_likes = 9;
-      String hashtag = "Hey";
-
-      String text = "This is the text in the post. Woohoo!";
-      String img_link = null;
-      String ext_link = null;
-  } */
 
     public long addNewPost(String keyString, Post post) {
         return x;
@@ -97,6 +78,11 @@ public class TestDataAccess extends AbstractDataAccess {
 
     public long addNewPosts(String keyString, List<Post> listOfPosts) {
         return x;
+    }
+
+    @Override
+    protected Optional<Post> popFirstPost(String keyString) {
+        return null;
     }
 
     public long addNewPostList(String keyString, PostList postList) {
@@ -107,6 +93,31 @@ public class TestDataAccess extends AbstractDataAccess {
         return testPostList;
     }
 
+    @Override
+    protected Optional<PostList> getPostList(String keyString, Integer index) {
+        return null;
+    }
+
+    @Override
+    protected List<PostList> getAllPostLists(String keyString) {
+        return Collections.singletonList(testOptPostList.get());
+    }
+
+    @Override
+    protected String deleteFirstNPosts(String keyString, Integer numPosts) {
+        return null;
+    }
+
+    @Override
+    public long getNumPostsInNameSpace(String nameSpace) {
+        return 0;
+    }
+
+    @Override
+    public List<String> getKeysInNameSpace(String nameSpace) {
+        return null;
+    }
+
     public Optional<Post> popOldestPost(String keyString) {
         return testOptPost;
     }
@@ -114,4 +125,5 @@ public class TestDataAccess extends AbstractDataAccess {
     public Optional<PostList> peekAtPostList(String keyString) {
         return testOptPostList;
     }
+
 }

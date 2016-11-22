@@ -15,26 +15,6 @@ function requestPage(myURL, callback, tag) {
 
 function createElements(httpResponse, tag) {
 
-//  Post {
-//      string id = 1;
-//      string timestamp = 2;
-
-//      repeated string source = 3;
-//      repeated string source_link = 4;
-
-//      int32 popularity_score = 5;
-//      int32 popularity_velocity = 6;
-
-//      int32 num_comments = 7;
-//      int32 num_shares = 8;
-//      int32 num_likes = 9;
-//      repeated string hashtag = 10;
-
-//      repeated string text = 11;
-//      repeated string img_link = 12;
-//      repeated string ext_link = 13;
-//  }
-
   var postList = JSON.parse(httpResponse);
 
   var page = document.getElementById("page");
@@ -55,6 +35,7 @@ function createElements(httpResponse, tag) {
   page.appendChild(container);
 
   for (var i = 0; i < postList.posts_.length; i++) {
+
       var post = postList.posts_[i];
 
       var postObj = document.createElement("div");
@@ -189,6 +170,7 @@ function createElements(httpResponse, tag) {
       postObj.appendChild(postLink);
 
       if(i % 3 == 0) {
+
         // start a new row, create three columns for it
         var row = document.createElement("div");
         row.className = "row";
@@ -230,10 +212,8 @@ function createElements(httpResponse, tag) {
         col.appendChild(postObj);
       }
 
-
   }
 }
-
 
 function topFunction() {
   var returnval = requestPage("/top", createElements, "Top Post");
