@@ -152,7 +152,7 @@ public class RedditSource implements JavaSource {
     private Post createPost(Submission s) {
         Post.Builder builder = Post.newBuilder();
         DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        builder.setId(String.valueOf(s.getId()));
+        builder.setId(String.valueOf(s.getCreated().getTime()));
         builder.setTimestamp(df.format(s.getCreated())); // UTC
         builder.addSource(s.getAuthor());
         builder.addSourceLink("http://www.reddit.com/user/" + s.getAuthor()); // Link to post author

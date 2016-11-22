@@ -43,12 +43,12 @@ public class JavaDataCollector extends AbstractDataCollector {
 
         // if no trends exist for this collector, retrieve them
 		if (trends.isEmpty()) {
-            trends.addAll(source.getTrends("canada", "vancouver"));
+			trends.addAll(source.getTrends("canada", "vancouver"));
 		}
 
-        // get the top trend not yet queried
-        String trend = trends.poll();
-        List<Post> posts;
+		// get the top trend not yet queried
+		String trend = trends.poll();
+		List<Post> posts;
 
 		// if we have queried this trend before only get newer posts
 		if (sinceIds.containsKey(trend)) {
@@ -58,7 +58,9 @@ public class JavaDataCollector extends AbstractDataCollector {
 		}
 
 		// overwrite set the newest id queried to the newest tweet retrieved
-		sinceIds.put(trend, Long.parseLong(posts.get(0).getId()));
+		if (!posts.isEmpty()) {
+			sinceIds.put(trend, Long.parseLong(posts.get(0).getId()));
+		}
 		return posts;
 
 	}

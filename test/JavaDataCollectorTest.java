@@ -52,7 +52,6 @@ public class JavaDataCollectorTest {
 		List<Post> retrieved = data.getAllPostsFromSource(twitterCollector.getSource().getSourceName());
 
 		assertEquals(toStore, retrieved);
-
 	}
 
 	@Test
