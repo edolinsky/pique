@@ -1,14 +1,11 @@
 package services.sources;
 
-import javafx.scene.control.Pagination;
-import net.dean.jraw.models.VoteDirection;
 import services.dataAccess.proto.PostProto;
 import services.dataAccess.proto.PostProto.Post;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.concurrent.TimeUnit;
@@ -102,13 +99,13 @@ public class RedditSource implements JavaSource {
     }
 
     @Override
-    public List<PostProto.Post> getMaxTrendingPostsSince(String trend, Long sinceId) {
-        return null;
+    public List<Post> getMaxTrendingPostsSince(String trend, Long sinceId) {
+        return getTrendingPosts(trend, MAX_REQUEST_SIZE, sinceId);
     }
 
     @Override
-    public List<PostProto.Post> getMaxTrendingPosts(String trend) {
-        return null;
+    public List<Post> getMaxTrendingPosts(String trend) {
+        return getTrendingPosts(trend, MAX_REQUEST_SIZE, null);
     }
 
     public RedditClient getRedditClient() {
@@ -153,7 +150,11 @@ public class RedditSource implements JavaSource {
         builder.setNumComments(s.getCommentCount());
         builder.setNumLikes(s.getScore());
         builder.addText(s.getSelftext());
-        builder.addImgLink(s.getThumbnail()); // Post thumbnail
+
+        if (s.getThumbnail() != null) {
+            builder.addImgLink(s.getThumbnail()); // Post thumbnail
+        }
+
         builder.addExtLink(s.getUrl()); // Link to Reddit post or linked external site
         return builder.build();
     }

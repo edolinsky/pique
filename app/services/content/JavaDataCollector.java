@@ -1,16 +1,11 @@
 package services.content;
 
-import services.PublicConstants;
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.proto.PostProto.Post;
 import services.sources.JavaSource;
-import services.sources.RedditSource;
 import services.sources.Source;
 import services.sources.TwitterSource;
-import twitter4j.Trend;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +62,9 @@ public class JavaDataCollector extends AbstractDataCollector {
 			sinceIds.put(trend, Long.parseLong(posts.get(0).getId()));
 			return posts;
 		} else {
-			return posts = source.getMaxTrendingPosts(trend);
+			posts = source.getMaxTrendingPosts(trend);
+
+			return posts;
 		}
 	}
 }
