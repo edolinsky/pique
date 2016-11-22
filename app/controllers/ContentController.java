@@ -6,8 +6,10 @@ import play.inject.ApplicationLifecycle;
 import services.ThreadNotification;
 import services.content.DataCollectionRunner;
 import services.content.JavaDataCollector;
+import services.content.RestfulDataCollector;
 import services.dataAccess.AbstractDataAccess;
 import services.sorting.SortingNode;
+import services.sources.ImgurSource;
 import services.sources.TwitterSource;
 
 import javax.inject.Inject;
@@ -31,10 +33,16 @@ public class ContentController {
         sorter.start();
 
         collectors = new ArrayList<>();
+
         Thread twitter = new Thread(new DataCollectionRunner(new JavaDataCollector(access, new
                 TwitterSource()), sortNotification)); // TODO THIS IS AWFUL
         twitter.start();
+        Thread imgur = new Thread(new DataCollectionRunner(new RestfulDataCollector(access, new
+                ImgurSource()), sortNotification));
+        imgur.start();
+
         collectors.add(twitter);
+        collectors.add(imgur);
 
 
         // When the application starts, register a stop hook with the
