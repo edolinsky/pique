@@ -64,7 +64,7 @@ public class ImgurSource implements RestfulSource {
      */
     @Override
     public long getQueryDelta() {
-        return WINDOW_LENGTH/(MAX_SEARCH_PER_WINDOW * 3/4);
+        return WINDOW_LENGTH/(MAX_SEARCH_PER_WINDOW * 4/10);
     }
 
     @Override
