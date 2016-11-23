@@ -522,7 +522,7 @@ public class RedisAccessTest {
 
 
     /*
-       addTopHashags tests
+       addTopHashtags tests
      */
 
     @Test
