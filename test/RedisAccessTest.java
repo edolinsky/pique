@@ -1,12 +1,18 @@
 
+import com.google.common.collect.Lists;
+import com.google.protobuf.Option;
 import org.junit.*;
 
 import static org.junit.Assert.*;
+import static org.junit.Assume.assumeNoException;
 import static org.junit.Assume.assumeTrue;
 
 import java.util.*;
 
+import play.api.libs.iteratee.RunQueue;
 import redis.clients.jedis.BinaryJedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.RedisAccessObject;
 import services.dataAccess.proto.PostProto.Post;
@@ -18,7 +24,6 @@ import static services.PublicConstants.REDIS_URL;
 
 
 /**
- * Created by erik on 02/11/16.
  * <p>
  * Tests functionality of services.dataAccess.RedisAccessObject
  * on a real Redis instance.
@@ -40,8 +45,6 @@ public class RedisAccessTest {
     // generate unique ID within test namespace
     private static final String testKeyString = "test" + UUID.randomUUID().toString();
     private static boolean redisTestsIncluded = false;
-    private static final Integer CURRENT_MAX_POSTLISTS = AbstractDataAccess.getMaxPostlists();
-    private static final Integer numTestPostLists = CURRENT_MAX_POSTLISTS + 10;
 
     // Sample test values
     private static final List<Post> posts = new ArrayList<>();
@@ -60,6 +63,7 @@ public class RedisAccessTest {
 
         // Initialize object under test and direct connection
         redisTestsIncluded = System.getenv(DATA_SOURCE).equals("redis");
+
         redisAccessObject = new RedisAccessObject();
         directToRedis = new BinaryJedis(redisUrl, redisPort);
 
@@ -85,22 +89,14 @@ public class RedisAccessTest {
         assert (numTestPosts > 1); // we must have more than one test post
     }
 
-    // Delete test key from data store before and after each test
+    // Delete all data from data store before and after each test
     @Before
     @After
     public void emptyRedisTestKey() {
         assumeTrue(redisTestsIncluded);
 
         directToRedis.connect();
-        directToRedis.del((AbstractDataAccess.getDisplayNamespace()
-                + AbstractDataAccess.getNamespaceDelimiter()
-                + testKeyString).getBytes());
-        directToRedis.del((AbstractDataAccess.getHashtagNamespace()
-                + AbstractDataAccess.getNamespaceDelimiter()
-                + testKeyString).getBytes());
-        directToRedis.del((AbstractDataAccess.getSourceNamespace()
-                + AbstractDataAccess.getNamespaceDelimiter()
-                + testKeyString).getBytes());
+        directToRedis.flushAll();
         directToRedis.disconnect();
     }
 
@@ -415,12 +411,12 @@ public class RedisAccessTest {
      * Expiry Tests
      */
 
-    @Test @Ignore // ignored due to increasingly large runtime
+    @Deprecated // deprecated due to incredibly long runtime (should be verified periodically in production)
     public void testPostListExpiry() {
         assumeTrue(redisTestsIncluded);
 
         // load list at testKeyString past the maximum allocated number of postLists
-        for (int i = 0; i < numTestPostLists; i++) {
+        for (int i = 0; i < AbstractDataAccess.getMaxPostlists() + 10; i++) {
             redisAccessObject.addNewHashTagPostList(testKeyString, postList);
         }
 
@@ -431,8 +427,70 @@ public class RedisAccessTest {
                 + testKeyString).getBytes());
         directToRedis.disconnect();
 
-        assertTrue(response.equals(CURRENT_MAX_POSTLISTS.longValue()));
+        assertTrue(response.equals(AbstractDataAccess.getMaxPostlists().longValue()));
 
+    }
+
+    @Test
+    public void testHashTagPostListReplaceSingle() {
+        assumeTrue(redisTestsIncluded);
+
+        // build list containing one reversed postList
+        PostList reversePostList = PostList.newBuilder().addAllPosts(Lists.reverse(posts)).build();
+        List<PostList> postLists = new ArrayList<>();
+        postLists.add(reversePostList);
+
+        // add postList and replace it with the reverse
+        redisAccessObject.addNewHashTagPostList(testKeyString, postList);
+        redisAccessObject.replaceHashTagPostLists(testKeyString, postLists);
+
+        // only reversed postList should remain
+        assertEquals(Optional.of(reversePostList), redisAccessObject.getHashTagPostList(testKeyString, 0));
+        assertEquals(Optional.empty(), redisAccessObject.getHashTagPostList(testKeyString, 1));
+    }
+
+    @Test
+    public void testHashTagPostListReplaceEmptyList() {
+        assumeTrue(redisTestsIncluded);
+
+        // add postList to hashtag channel, and replace with empty postlist
+        redisAccessObject.addNewHashTagPostList(testKeyString, postList);
+        redisAccessObject.replaceHashTagPostLists(testKeyString, new ArrayList<>());
+
+        // no postLists should exist
+        assertEquals(Optional.empty(), redisAccessObject.getHashTagPostList(testKeyString, 0));
+        assertEquals(Optional.empty(), redisAccessObject.getHashTagPostList(testKeyString, 1));
+    }
+
+    @Test
+    public void testHashTagPostListReplace() {
+        assumeTrue(redisTestsIncluded);
+        int numPostLists = 10;
+        assert(numPostLists < AbstractDataAccess.getMaxPostlists());    // numPostLists must be less than max allowed
+
+        PostList reversePostList = PostList.newBuilder().addAllPosts(Lists.reverse(posts)).build();
+
+        // create list of PostLists, add in alternating order of reverse/in order
+        List<PostList> postLists = new ArrayList<>();
+        for (int i = 0; i < numPostLists; i++) {
+            if (i % 2 == 0) {
+                postLists.add(postList);
+            } else {
+                postLists.add(reversePostList);
+            }
+        }
+
+        // replace empty channel with list of postLists
+        redisAccessObject.replaceHashTagPostLists(testKeyString, postLists);
+
+        // postsLists list should be entered in reverse order
+        for (int i = 0; i < numPostLists; i++) {
+            if (i % 2 == 0) {
+                assertEquals(Optional.of(reversePostList), redisAccessObject.getHashTagPostList(testKeyString, i));
+            } else {
+                assertEquals(Optional.of(postList), redisAccessObject.getHashTagPostList(testKeyString, i));
+            }
+        }
     }
 
 }
