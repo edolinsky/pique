@@ -71,7 +71,7 @@ public class TwitterSource implements JavaSource {
 
     @Override
     public long getQueryDelta() {
-        return WINDOW_LENGTH/(MAX_SEARCH_PER_WINDOW * 4/5);
+        return WINDOW_LENGTH/(MAX_SEARCH_PER_WINDOW * 1/2);
     }
 
     @Override
