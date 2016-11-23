@@ -22,6 +22,7 @@ public class TestDataAccess extends AbstractDataAccess {
     private Optional<PostList> testOptPostList;
 
     public TestDataAccess() {
+
         testOptPostList = Optional.of(TestDataGenerator.generatePostList(50));
     }
 
@@ -62,6 +63,11 @@ public class TestDataAccess extends AbstractDataAccess {
     @Override
     protected List<PostList> getAllPostLists(String keyString) {
         return Collections.singletonList(testOptPostList.get());
+    }
+
+    @Override
+    public Optional<PostList> getDisplayPostList(String keyString, Integer index) {
+        return Optional.of(TestDataGenerator.generatePostList(50));
     }
 
     @Override

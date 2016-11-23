@@ -28,13 +28,34 @@ public class TestDataGenerator {
 
         List<Post> posts = new ArrayList<>();
 
-        for (int i = 0; i < numPosts; i++) {
+        Post.Builder test1Builder = Post.newBuilder();
+        test1Builder.setId("0");
+        test1Builder.setTimestamp(DateTime.now().toDate().getTime());
+        test1Builder.addSource("Alexs_tweets22");
+        test1Builder.addSourceLink("https://twitter.com");
+        test1Builder.addImgLink("https://pbs.twimg.com/media/Cxu8dwsWIAUgzJK.jpg");
+        test1Builder.setPopularityScore(0);
+        test1Builder.setPopularityVelocity(0);
+        test1Builder.setNumComments(966);
+        test1Builder.setNumShares(23);
+        test1Builder.setNumLikes(1201);
+        test1Builder.addHashtag("Friday");
+        test1Builder.addHashtag("win");
+        test1Builder.addHashtag("BlackFriday");
+        test1Builder.addHashtag("shopping");
+        test1Builder.addHashtag("ContestAlert");
+        test1Builder.addHashtag("giveaway");
+        test1Builder.addHashtag("sweepstakes");
+        test1Builder.addText("RT @mommymakestime: Happy #Friday! Enter to #win 130$ Paypal/Amazon GC for #BlackFriday #shopping! #ContestAlert #giveaway #sweepstakes htt…");
+        posts.add(test1Builder.build());
+
+        for (int i = 1; i < numPosts; i++) {
             Post.Builder builder = Post.newBuilder();
             builder.setId(String.valueOf(i));
             builder.setTimestamp(DateTime.now().toDate().getTime());
             builder.addSource("Test Source");
             builder.addSourceLink("http://google.com");
-            builder.addImgLink("http://image.com");
+            builder.addImgLink("N/A");
             builder.setPopularityScore(0);
             builder.setPopularityVelocity(0);
             builder.setNumComments(rand.nextInt(1000));

@@ -24,3 +24,6 @@ server.pid
 .cache
 /out
 .sbtserver
+
+# ignore sensitive env.sh file
+env.sh
