@@ -11,6 +11,7 @@ import services.dataAccess.AbstractDataAccess;
 import services.sorting.SortingNode;
 import services.sources.ImgurSource;
 import services.sources.TwitterSource;
+import services.sources.RedditSource;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -37,12 +38,17 @@ public class ContentController {
         Thread twitter = new Thread(new DataCollectionRunner(new JavaDataCollector(access, new
                 TwitterSource()), sortNotification)); // TODO THIS IS AWFUL
         twitter.start();
+	collectors.add(twitter);
+
         Thread imgur = new Thread(new DataCollectionRunner(new RestfulDataCollector(access, new
                 ImgurSource()), sortNotification));
         imgur.start();
+	collectors.add(imgur);
 
-        collectors.add(twitter);
-        collectors.add(imgur);
+        Thread reddit = new Thread(new DataCollectionRunner(new JavaDataCollector(access, new
+                RedditSource()), sortNotification));
+        reddit.start();
+        collectors.add(reddit);
 
 
         // When the application starts, register a stop hook with the
