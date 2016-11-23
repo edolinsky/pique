@@ -1,13 +1,10 @@
 package services.sources;
 
-import services.dataAccess.proto.PostProto;
 import services.dataAccess.proto.PostProto.Post;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -24,7 +21,6 @@ import net.dean.jraw.paginators.SubredditStream;
 import net.dean.jraw.paginators.SubredditPaginator;
 import net.dean.jraw.paginators.Sorting;
 import net.dean.jraw.paginators.TimePeriod;
-
 
 import static services.PublicConstants.REDDIT_USER;
 import static services.PublicConstants.REDDIT_PASS;
@@ -151,9 +147,8 @@ public class RedditSource implements JavaSource {
 
     private Post createPost(Submission s) {
         Post.Builder builder = Post.newBuilder();
-        DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         builder.setId(String.valueOf(s.getCreated().getTime()));
-        builder.setTimestamp(df.format(s.getCreated())); // UTC
+        builder.setTimestamp(s.getCreated().getTime());
         builder.addSource(s.getAuthor());
         builder.addSourceLink("http://www.reddit.com/user/" + s.getAuthor()); // Link to post author
         builder.setPopularityScore(0);
