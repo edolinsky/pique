@@ -2,10 +2,12 @@
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
+
 
 import java.util.*;
 
@@ -418,7 +420,7 @@ public class RedisAccessTest {
      * Expiry Tests
      */
 
-    @Test @Ignore // ignored due to increasingly large runtime
+    @Ignore // ignored due to increasingly large runtime
     public void testPostListExpiry() {
         assumeTrue(redisTestsIncluded);
 
