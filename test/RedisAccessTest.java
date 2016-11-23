@@ -1,18 +1,13 @@
 
 import com.google.common.collect.Lists;
-import com.google.protobuf.Option;
 import org.junit.*;
 
 import static org.junit.Assert.*;
-import static org.junit.Assume.assumeNoException;
 import static org.junit.Assume.assumeTrue;
 
 import java.util.*;
 
-import play.api.libs.iteratee.RunQueue;
 import redis.clients.jedis.BinaryJedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.RedisAccessObject;
 import services.dataAccess.proto.PostProto.Post;
@@ -48,10 +43,6 @@ public class RedisAccessTest {
     // generate unique ID within test namespace
     private static final String testKeyString = "test" + UUID.randomUUID().toString();
     private static boolean redisTestsIncluded = false;
-
-    // Sample test values
-    //private static final List<Post> posts = new ArrayList<>();
-    //private static PostList postList;
 
     // Class under test
     private static String redisUrl = System.getenv(REDIS_URL);
@@ -93,7 +84,7 @@ public class RedisAccessTest {
     public void addPostToEmptyRedis() {
         assumeTrue(redisTestsIncluded);
 
-        List<Post> posts = generateListOfPosts(10);
+        List<Post> posts = generateListOfPosts(numTestPosts);
 
         // Add new post to completely empty store. Should create new key entry, with new post at front of key
         redisAccessObject.addNewPostFromSource(testKeyString, posts.get(0));
@@ -104,7 +95,7 @@ public class RedisAccessTest {
     public void addPostToNonEmptyRedis() {
         assumeTrue(redisTestsIncluded);
 
-        List<Post> posts = generateListOfPosts(10);
+        List<Post> posts = generateListOfPosts(numTestPosts);
 
         // Initialize store with multiple posts, and add a single key
         redisAccessObject.addNewPostsFromSource(testKeyString, posts);
@@ -118,7 +109,7 @@ public class RedisAccessTest {
     public void addPostsToEmptyRedis() {
         assumeTrue(redisTestsIncluded);
 
-        List<Post> posts = generateListOfPosts(10);
+        List<Post> posts = generateListOfPosts(numTestPosts);
 
         // add multiple posts to an empty key. Should create new key entry, with posts in order
         redisAccessObject.addNewPostsFromSource(testKeyString, posts);
@@ -130,7 +121,7 @@ public class RedisAccessTest {
     public void addPostsToNonEmptyRedis() {
         assumeTrue(redisTestsIncluded);
 
-        List<Post> posts = generateListOfPosts(10);
+        List<Post> posts = generateListOfPosts(numTestPosts);
 
         // Add 2 sets of posts
         redisAccessObject.addNewPostsFromSource(testKeyString, posts);
@@ -152,7 +143,7 @@ public class RedisAccessTest {
     public void popNonEmptyPostRedis() {
         assumeTrue(redisTestsIncluded);
 
-        List<Post> posts = generateListOfPosts(10);
+        List<Post> posts = generateListOfPosts(numTestPosts);
 
         // add posts
         redisAccessObject.addNewPostsFromSource(testKeyString, posts);
@@ -167,7 +158,7 @@ public class RedisAccessTest {
     public void addListOfPostsToEmptyRedis() {
         assumeTrue(redisTestsIncluded);
 
-        List<Post> posts = generateListOfPosts(10);
+        List<Post> posts = generateListOfPosts(numTestPosts);
 
         // add posts to empty keyspace; should create new keyspace with those posts in order
         redisAccessObject.addNewPostsFromSource(testKeyString, posts);
@@ -178,7 +169,7 @@ public class RedisAccessTest {
     public void addListOfOddOrderedPostsToNonEmptyRedis() {
         assumeTrue(redisTestsIncluded);
 
-        List<Post> posts = generateListOfPosts(10);
+        List<Post> posts = generateListOfPosts(numTestPosts);
 
         // initialize temporary list with posts, and add one post at index 0
         ArrayList<Post> testList = new ArrayList<>(posts);
@@ -205,7 +196,7 @@ public class RedisAccessTest {
     public void getNonEmptyListofPosts() {
         assumeTrue(redisTestsIncluded);
 
-        List<Post> posts = generateListOfPosts(10);
+        List<Post> posts = generateListOfPosts(numTestPosts);
 
         // check for successful return, in-order
         redisAccessObject.addNewPostsFromSource(testKeyString, posts);
@@ -224,7 +215,7 @@ public class RedisAccessTest {
     public void popOldestPostFromNonEmpty() {
         assumeTrue(redisTestsIncluded);
 
-        List<Post> posts = generateListOfPosts(10);
+        List<Post> posts = generateListOfPosts(numTestPosts);
 
         // initialize with posts, and pop one post
         redisAccessObject.addNewPostsFromSource(testKeyString, posts);
@@ -250,7 +241,7 @@ public class RedisAccessTest {
     public void peekAtNonEmptyPostList() {
         assumeTrue(redisTestsIncluded);
 
-        PostList postList = PostList.newBuilder().addAllPosts(generateListOfPosts(10)).build();
+        PostList postList = generatePostList(numTestPosts);
 
         // initialize postlist
         redisAccessObject.addNewDisplayPostList(testKeyString, postList);
@@ -267,7 +258,7 @@ public class RedisAccessTest {
     public void addDisplayPostToEmpty() {
         assumeTrue(redisTestsIncluded);
 
-        PostList postList = PostList.newBuilder().addAllPosts(generateListOfPosts(10)).build();
+        PostList postList = generatePostList(numTestPosts);
 
         // add postList to empty keyspace; should create new keyspace with this postList at beginning
         redisAccessObject.addNewDisplayPostList(testKeyString, postList);
@@ -278,7 +269,7 @@ public class RedisAccessTest {
     public void addHashTagPostListToEmpty() {
         assumeTrue(redisTestsIncluded);
 
-        PostList postList = PostList.newBuilder().addAllPosts(generateListOfPosts(10)).build();
+        PostList postList = generatePostList(numTestPosts);
 
         redisAccessObject.addNewHashTagPostList(testKeyString, postList);
         assertEquals(Optional.of(postList), redisAccessObject.getHashTagPostList(testKeyString, 0));
@@ -288,7 +279,7 @@ public class RedisAccessTest {
     public void addDisplayPostListToNonEmptyMemory() {
         assumeTrue(redisTestsIncluded);
 
-        PostList postList = PostList.newBuilder().addAllPosts(generateListOfPosts(10)).build();
+        PostList postList = generatePostList(numTestPosts);
 
         redisAccessObject.addNewDisplayPostList(testKeyString, postList);
         redisAccessObject.addNewDisplayPostList(testKeyString, postList);
@@ -299,7 +290,7 @@ public class RedisAccessTest {
     public void addHashTagPostListToNonEmptyMemory() {
         assumeTrue(redisTestsIncluded);
 
-        PostList postList = PostList.newBuilder().addAllPosts(generateListOfPosts(10)).build();
+        PostList postList = generatePostList(numTestPosts);
 
         redisAccessObject.addNewHashTagPostList(testKeyString, postList);
         redisAccessObject.addNewHashTagPostList(testKeyString, postList);
@@ -310,7 +301,7 @@ public class RedisAccessTest {
     public void getOutOfBoundsPostList() {
         assumeTrue(redisTestsIncluded);
 
-        PostList postList = PostList.newBuilder().addAllPosts(generateListOfPosts(10)).build();
+        PostList postList = generatePostList(numTestPosts);
 
         redisAccessObject.addNewDisplayPostList(testKeyString, postList);
         assertEquals(Optional.empty(), redisAccessObject.getDisplayPostList(testKeyString, Integer.MAX_VALUE));
@@ -330,7 +321,7 @@ public class RedisAccessTest {
     public void getNumPostsInNonEmptyNameSpace() {
         assumeTrue(redisTestsIncluded);
 
-        List<Post> posts = generateListOfPosts(10);
+        List<Post> posts = generateListOfPosts(numTestPosts);
         PostList postList = PostList.newBuilder().addAllPosts(posts).build();
 
         final String testKeyStringZero = testKeyString + "0";
@@ -377,7 +368,7 @@ public class RedisAccessTest {
     public void getKeysInNonEmptyNameSpace() {
         assumeTrue(redisTestsIncluded);
 
-        List<Post> posts = generateListOfPosts(10);
+        List<Post> posts = generateListOfPosts(numTestPosts);
 
         redisAccessObject.addNewPostsFromSource(testKeyString, posts);
 
@@ -396,7 +387,7 @@ public class RedisAccessTest {
     public void deleteNPostsFromNonEmptyListOfPosts() {
         assumeTrue(redisTestsIncluded);
 
-        List<Post> posts = generateListOfPosts(10);
+        List<Post> posts = generateListOfPosts(numTestPosts);
 
         redisAccessObject.addNewPostsFromSource(testKeyString, posts);
 
@@ -418,7 +409,7 @@ public class RedisAccessTest {
     public void deleteMoreThanSizePostsFromListOfPosts() {
         assumeTrue(redisTestsIncluded);
 
-        List<Post> posts = generateListOfPosts(10);
+        List<Post> posts = generateListOfPosts(numTestPosts);
 
         redisAccessObject.addNewPostsFromSource(testKeyString, posts);
 
@@ -431,7 +422,7 @@ public class RedisAccessTest {
     public void deleteZeroPostsFromListOfPosts() {
         assumeTrue(redisTestsIncluded);
 
-        List<Post> posts = generateListOfPosts(10);
+        List<Post> posts = generateListOfPosts(numTestPosts);
 
         redisAccessObject.addNewPostsFromSource(testKeyString, posts);
 
@@ -448,10 +439,10 @@ public class RedisAccessTest {
     public void testPostListExpiry() {
         assumeTrue(redisTestsIncluded);
 
-        PostList postList = PostList.newBuilder().addAllPosts(generateListOfPosts(10)).build();
+        PostList postList = generatePostList(numTestPosts);
 
         // load list at testKeyString past the maximum allocated number of postLists
-        for (int i = 0; i < AbstractDataAccess.getMaxPostlists() + 10; i++) {
+        for (int i = 0; i < AbstractDataAccess.getMaxPostlists() + numTestPosts; i++) {
             redisAccessObject.addNewHashTagPostList(testKeyString, postList);
         }
 
@@ -474,7 +465,7 @@ public class RedisAccessTest {
     public void testHashTagPostListReplaceSingle() {
         assumeTrue(redisTestsIncluded);
 
-        List<Post> posts = generateListOfPosts(10);
+        List<Post> posts = generateListOfPosts(numTestPosts);
         PostList postList = PostList.newBuilder().addAllPosts(posts).build();
 
         // build list containing one reversed postList
@@ -495,7 +486,7 @@ public class RedisAccessTest {
     public void testHashTagPostListReplaceEmptyList() {
         assumeTrue(redisTestsIncluded);
 
-        PostList postList = PostList.newBuilder().addAllPosts(generateListOfPosts(10)).build();
+        PostList postList = generatePostList(numTestPosts);
 
         // add postList to hashtag channel, and replace with empty postlist
         redisAccessObject.addNewHashTagPostList(testKeyString, postList);
@@ -509,10 +500,10 @@ public class RedisAccessTest {
     @Test
     public void testHashTagPostListReplace() {
         assumeTrue(redisTestsIncluded);
-        int numPostLists = 10;
+        int numPostLists = numTestPosts;
         assert(numPostLists < AbstractDataAccess.getMaxPostlists());    // numPostLists must be less than max allowed
 
-        List<Post> posts = generateListOfPosts(10);
+        List<Post> posts = generateListOfPosts(numTestPosts);
 
         // create list of PostLists, add in increasing size
         List<PostList> postLists = new ArrayList<>();
