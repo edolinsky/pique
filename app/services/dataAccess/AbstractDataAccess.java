@@ -2,11 +2,9 @@ package services.dataAccess;
 
 import services.dataAccess.proto.PostListProto.PostList;
 import services.dataAccess.proto.PostProto.Post;
-import sun.util.resources.cldr.zh.CalendarData_zh_Hans_HK;
+import static services.PublicConstants.TOP_HASHTAGS;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -20,7 +18,6 @@ public abstract class AbstractDataAccess {
     private static final String TEST_NAMESPACE = "test";
 
     private static final String STRING_LIST_NAMESPACE = "stringlist";
-    private static final String TOP_HASHTAGS = "tophashtags";
     static final Integer MAX_POSTLISTS = 100000;
 
 
@@ -273,7 +270,7 @@ public abstract class AbstractDataAccess {
      * namespace. If key does not exist, or list is empty, returns the empty optional
      *
      * @param hashtag string denoting key in data store
-     * @param index
+     * @param index index of desired postList
      * @return The first element under keyString in data store, or the empty optional if not available
      */
     public Optional<PostList> getHashTagPostList(String hashtag, Integer index) {

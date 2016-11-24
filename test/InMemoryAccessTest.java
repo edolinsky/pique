@@ -1,4 +1,3 @@
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -15,9 +14,6 @@ import java.util.Optional;
 
 import static org.junit.Assert.*;
 
-/**
- * Created by erik on 02/11/16.
- */
 public class InMemoryAccessTest {
 
     private static InMemoryAccessObject inMemoryAccess = new InMemoryAccessObject();
