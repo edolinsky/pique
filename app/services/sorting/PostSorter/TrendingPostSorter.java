@@ -29,11 +29,11 @@ public class TrendingPostSorter extends AbstractPostSorter {
         List<Post> newPostsRelToTop = calculateRelativePopularity(TOP, posts);
 
         // filter out possible duplicates by unique id, giving preference to score relative to top (data is more recent)
-        Map<String, Post> uniquePosts = new HashMap<>();
-        newPostsRelToTrending.forEach(post -> uniquePosts.put(post.getId(), post));
-        newPostsRelToTop.forEach(post -> uniquePosts.put(post.getId(), post));
+        List<Post> allPosts = new ArrayList<>(newPostsRelToTop);
+        allPosts.addAll(newPostsRelToTrending);
 
-        sortedPosts.put(TRENDING, uniquePosts.values().stream()
+        sortedPosts.put(TRENDING, allPosts.stream()
+                .filter(distinctById(Post::getId))
                 .sorted(Collections.reverseOrder(Comparator.comparingInt(Post::getPopularityVelocity)))
                 .collect(Collectors.toList()));
 

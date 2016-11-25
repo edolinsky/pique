@@ -71,21 +71,12 @@ public class HashtagPostSorter extends AbstractPostSorter {
         // iterate over existing hashtags
         oldHashTags.forEach(hashtag -> {
 
-            // retrieve existing posts stored under hashtag
-            List<Post> oldPosts = expandPostLists(dataSource.getAllHashtagPostLists(hashtag));
+            // get list of new posts under this hashtag, as well as old posts under this hashtag
+            List<Post> allPosts = sortedPosts.get(hashtag);
+            allPosts.addAll(expandPostLists(dataSource.getAllHashtagPostLists(hashtag)));
 
-            // merge old posts and new posts, filtering out duplicate IDs
-            Map<String, Post> uniquePosts = new HashMap<>();
-            oldPosts.forEach(post -> uniquePosts.put(post.getId(), post));
-
-            List<Post> newPosts = sortedPosts.get(hashtag);
-
-            if (newPosts != null) {
-                newPosts.forEach(post -> uniquePosts.put(post.getId(), post));
-            }
-
-            // load merged posts into map
-            hashTagPosts.put(hashtag, uniquePosts.values().stream().collect(Collectors.toList()));
+            // filter out duplicate hashtags and load merged posts into map
+            hashTagPosts.put(hashtag, allPosts.stream().filter(distinctById(Post::getId)).collect(Collectors.toList()));
 
         });
 

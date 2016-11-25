@@ -29,6 +29,7 @@ public class SortingNode implements Runnable {
     public SortingNode(AbstractDataAccess dataSource, ThreadNotification sortNotification) {
         this.dataSource = dataSource;
         this.sortNotification = sortNotification;
+        calc = new Calculator();
     }
 
     /**

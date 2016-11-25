@@ -6,6 +6,9 @@ import services.dataAccess.proto.PostListProto.PostList;
 import services.dataAccess.proto.PostProto.Post;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static services.PublicConstants.POSTS_PER_PAGE;
@@ -109,4 +112,19 @@ public abstract class AbstractPostSorter {
     long replaceDisplayPages(String key, List<PostList> pages) {
         return dataSource.replaceDisplayPostLists(key, pages);
     }
+
+
+    /**
+     * Provides a method of filtering a list of posts (within a lambda function) for unique IDs (or any other field for
+     * that matter).
+     *
+     * @param idExtractor
+     * @param <T>
+     * @return
+     */
+    public static <T> Predicate<T> distinctById(Function<? super T, ?> idExtractor) {
+        Map<Object,Boolean> seen = new ConcurrentHashMap<>();
+        return t -> seen.putIfAbsent(idExtractor.apply(t), Boolean.TRUE) == null;
+    }
+
 }

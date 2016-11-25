@@ -3,7 +3,6 @@ package services.sorting.PostSorter;
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.proto.PostProto.Post;
 import services.sorting.Calculator;
-import services.sorting.PostSorter.AbstractPostSorter;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,12 +33,12 @@ public class TopPostSorter extends AbstractPostSorter {
         // collect existing top posts and recalculate popularity score
         List<Post> oldPosts = new ArrayList<>(expandPostLists(dataSource.getAllDisplayPostLists(TOP)));
         oldPosts = calc.calculatePopularityScoreOfAllPosts(oldPosts);
-
         allTopPosts.addAll(oldPosts);
 
         // sort all top posts
-        // filter out posts below popularity score, sort by popularity score in decreasing order
+        // filter out duplicate IDs, posts below popularity score, and sort by popularity score in decreasing order
         sortedPosts.put(TOP, allTopPosts.stream()
+                .filter(distinctById(Post::getId))
                 .filter(post -> post.getPopularityScore() > POPULARITY_THRESHOLD)
                 .sorted(Collections.reverseOrder(Comparator.comparingInt(Post::getPopularityScore)))
                 .collect(Collectors.toList()));
@@ -50,9 +49,10 @@ public class TopPostSorter extends AbstractPostSorter {
     @Override
     public long load(Map<String, List<Post>> sortedPosts) {
         if (sortedPosts.containsKey(TOP)) {
-            return addDisplayPages(TOP, preparePages(sortedPosts.get(TOP)));
+            return replaceDisplayPages(TOP, preparePages(sortedPosts.get(TOP)));
         } else {
             return -1;
         }
     }
+
 }
