@@ -92,20 +92,4 @@ public class HashtagPostSorter extends AbstractPostSorter {
 
         return numPagesAdded;
     }
-
-
-    /**
-     * Loads a set of PostList pages into the hashtag namespace of the data store under key hashtag
-     *
-     * @param hashtag key string
-     * @param pages   list of PostList objects (pages) to be added under key string
-     * @return number of pages added
-     */
-    public int addHashtagPages(String hashtag, List<PostList> pages) {
-
-        // Add pages in reverse (want highest rated pages at top of stack)
-        dataSource.replaceHashTagPostLists(hashtag, Lists.reverse(pages));
-
-        return pages.size();
-    }
 }

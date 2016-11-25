@@ -74,7 +74,7 @@ public abstract class AbstractPostSorter {
      * @param postLists list of postlist entities
      * @return list of post entities comprised of the expanded postLists
      */
-    protected List<Post> expandPostLists(List<PostList> postLists) {
+    public List<Post> expandPostLists(List<PostList> postLists) {
         List<Post> posts = new ArrayList<>();
 
         // convert postList to list of posts and append to new list of posts
@@ -114,6 +114,23 @@ public abstract class AbstractPostSorter {
     }
 
 
+
+    /**
+     * Loads a set of PostList pages into the hashtag namespace of the data store under key hashtag
+     *
+     * @param hashtag key string
+     * @param pages   list of PostList objects (pages) to be added under key string
+     * @return number of pages added
+     */
+    int addHashtagPages(String hashtag, List<PostList> pages) {
+
+        // Add pages in reverse (want highest rated pages at top of stack)
+        dataSource.replaceHashTagPostLists(hashtag, Lists.reverse(pages));
+
+        return pages.size();
+    }
+
+
     /**
      * Provides a method of filtering a list of posts (within a lambda function) for unique IDs (or any other field for
      * that matter).
@@ -122,9 +139,15 @@ public abstract class AbstractPostSorter {
      * @param <T>
      * @return
      */
-    public static <T> Predicate<T> distinctById(Function<? super T, ?> idExtractor) {
+    static <T> Predicate<T> distinctById(Function<? super T, ?> idExtractor) {
         Map<Object,Boolean> seen = new ConcurrentHashMap<>();
         return t -> seen.putIfAbsent(idExtractor.apply(t), Boolean.TRUE) == null;
     }
 
+
+    /** Static Getters **/
+
+    public static int getPageLimit() {
+        return PAGE_LIMIT;
+    }
 }

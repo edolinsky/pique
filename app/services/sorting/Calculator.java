@@ -90,4 +90,10 @@ public class Calculator {
 
         return (int) popularity;
     }
+
+    /** static getters **/
+
+    public static Long getThreeDaysMillis() {
+        return THREE_DAYS_MILLIS;
+    }
 }
