@@ -24,6 +24,8 @@ public class ImgurSource implements RestfulSource {
 
     private static final String SOURCE_NAME = "imgur";
     private static final String REQUEST_URL = "https://api.imgur.com/";
+    private static final String IMAGE_URL = "https://i.imgur.com/";
+    private static final String IMAGE_EXT = ".jpg";
     private static final String VERSION = "3";
     private static final Integer MAX_SEARCH_PER_WINDOW = 12500;
     private static final Integer ONE_THOUSAND = 1000;
@@ -115,7 +117,15 @@ public class ImgurSource implements RestfulSource {
         builder.setNumLikes(object.getAsJsonPrimitive("points").getAsInt());
         builder.addText(object.getAsJsonPrimitive("title").getAsString());
         builder.addHashtag(object.getAsJsonPrimitive("topic").getAsString());
-        builder.addImgLink(object.getAsJsonPrimitive("link").getAsString());
+
+        // imgur returns both albums and individual posts.
+        if (object.getAsJsonPrimitive("is_album").getAsBoolean()) {
+            // if an album, use cover image
+            builder.addImgLink(IMAGE_URL + object.getAsJsonPrimitive("cover").getAsString() + IMAGE_EXT);
+        } else {
+            // if an image, use image link
+            builder.addImgLink(object.getAsJsonPrimitive("link").getAsString());
+        }
         return builder.build();
     }
 
