@@ -1,4 +1,4 @@
-package SorterTests;
+package SortingTests;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -6,27 +6,27 @@ import org.junit.Test;
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.InMemoryAccessObject;
 import services.dataAccess.proto.PostProto.Post;
-import services.sorting.AbstractPostSorter;
-import services.sorting.TrendingPostSorter;
+import services.sorting.PostSorter.AbstractPostSorter;
+import services.sorting.PostSorter.HashtagPostSorter;
+
+import static services.dataAccess.TestDataGenerator.generateListOfPosts;
 
 import java.util.List;
 import java.util.Map;
 
-import static services.dataAccess.TestDataGenerator.generateListOfPosts;
-
-public class TrendingPostSorterTest {
+public class HashtagPostSorterTest {
 
     private AbstractPostSorter sorter;
 
     @Before
-    public void trendingPostSorterTestSetup() {
+    public void abstractPostSorterSetup() {
         AbstractDataAccess data = new InMemoryAccessObject();
-        sorter = new TrendingPostSorter(data);
+        sorter = new HashtagPostSorter(data);
     }
 
     @Test
     @Ignore
-    public void testSortTrending() {
+    public void testSortHashtags() {
         List<Post> posts = generateListOfPosts(10);
         Map<String, List<Post>> sorted = sorter.sort(posts);
         // TODO asserts

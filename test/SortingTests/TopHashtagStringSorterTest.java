@@ -1,17 +1,10 @@
-package SorterTests;
+package SortingTests;
 
 import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.InMemoryAccessObject;
-import services.sorting.AbstractStringSorter;
-import services.sorting.TopHashtagStringSorter;
-
-import java.util.List;
-import java.util.Map;
-
-import static services.dataAccess.TestDataGenerator.randomHashtags;
+import services.sorting.StringSorter.AbstractStringSorter;
+import services.sorting.StringSorter.TopHashtagStringSorter;
 
 public class TopHashtagStringSorterTest {
 

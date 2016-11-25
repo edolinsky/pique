@@ -1,14 +1,11 @@
-package services.sorting;
+package services.sorting.PostSorter;
 
 import com.google.common.collect.Lists;
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.proto.PostListProto.PostList;
 import services.dataAccess.proto.PostProto.Post;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static services.PublicConstants.POSTS_PER_PAGE;
@@ -102,4 +99,14 @@ public abstract class AbstractPostSorter {
         return pagesInChannel;
     }
 
+    /**
+     * Loads a set of PostList pages, replacing old pages, into the display namespace of the data store under key
+     *
+     * @param key key string
+     * @param pages list of PostList objects to replace existing pages
+     * @return size of channel after display pages have been added
+     */
+    long replaceDisplayPages(String key, List<PostList> pages) {
+        return dataSource.replaceDisplayPostLists(key, pages);
+    }
 }

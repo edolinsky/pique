@@ -1,6 +1,7 @@
-package services.sorting;
+package services.sorting.StringSorter;
 
 import services.dataAccess.AbstractDataAccess;
+import services.sorting.StringSorter.AbstractStringSorter;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -8,7 +9,7 @@ import java.util.stream.Collectors;
 import static services.PublicConstants.NUM_TOP_HASHTAGS;
 import static services.PublicConstants.TOP_HASHTAGS;
 
-public class TopHashtagStringSorter extends AbstractStringSorter{
+public class TopHashtagStringSorter extends AbstractStringSorter {
 
     public TopHashtagStringSorter(AbstractDataAccess dataSource) {
         super(dataSource);

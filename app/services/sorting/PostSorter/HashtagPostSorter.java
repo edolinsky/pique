@@ -1,4 +1,5 @@
-package services.sorting;
+package services.sorting.PostSorter;
+
 
 import com.google.common.collect.Lists;
 import services.dataAccess.AbstractDataAccess;

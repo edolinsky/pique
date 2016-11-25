@@ -1,4 +1,4 @@
-package services.sorting;
+package services.sorting.StringSorter;
 
 import services.dataAccess.AbstractDataAccess;
 

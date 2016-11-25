@@ -187,6 +187,17 @@ public abstract class AbstractDataAccess {
     }
 
     /**
+     * Replaces a set of postLists in the display namespace under specified string with the specified list of postLists
+     *
+     * @param displayString string denoting channel in display namespace to update
+     * @param postLists list of postLists to be stored under particular hashtag
+     * @return size of list after replacement
+     */
+    public long replaceDisplayPostLists(String displayString, List<PostList> postLists) {
+        return replacePostLists(DISPLAY_NAMESPACE + NAMESPACE_DELIMITER + displayString, postLists);
+    }
+
+    /**
      * Adds a new postList entity to the beginning of this data store's list of postLists under a particular key in the
      * hashtag namespace. If no key exists, a key-value pair is created and postList is stored at the beginning of the
      * new value list.

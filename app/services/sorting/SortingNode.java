@@ -2,25 +2,26 @@ package services.sorting;
 
 import services.ThreadNotification;
 import services.dataAccess.AbstractDataAccess;
-import services.dataAccess.proto.PostListProto.PostList;
 import services.dataAccess.proto.PostProto.Post;
 
 import java.util.*;
 
 import play.Logger;
+import services.sorting.PostSorter.AbstractPostSorter;
+import services.sorting.PostSorter.HashtagPostSorter;
+import services.sorting.PostSorter.TopPostSorter;
+import services.sorting.PostSorter.TrendingPostSorter;
+import services.sorting.StringSorter.AbstractStringSorter;
+import services.sorting.StringSorter.TopHashtagStringSorter;
 
 import static services.PublicConstants.TOP;
 import static services.PublicConstants.TRENDING;
 import static services.PublicConstants.SORTING_NODE_INPUT_THRESHOLD;
-import static services.PublicConstants.POSTS_PER_PAGE;
 
 public class SortingNode implements Runnable {
 
     private static final Long PROCESS_INPUT_THRESHOLD = Long.valueOf(System.getenv(SORTING_NODE_INPUT_THRESHOLD));
-
-    private static final Double LIKE_WEIGHT = 0.9;
-    private static final Double COMMENT_WEIGHT = 0.5;
-    private static final Double SHARE_WEIGHT = 1.1;
+    private Calculator calc;
 
     private AbstractDataAccess dataSource;
     private ThreadNotification sortNotification;
@@ -94,7 +95,7 @@ public class SortingNode implements Runnable {
          */
 
         // calculate popularity score of all posts
-        List<Post> calculatedPosts = calculatePopularityScoreOfAllPosts(newPosts);
+        List<Post> calculatedPosts = calc.calculatePopularityScoreOfAllPosts(newPosts);
 
         // sort top posts and load in in pages
         Map<String, List<Post>> newSortedTopPosts = topPostSorter.sort(calculatedPosts);
@@ -130,65 +131,5 @@ public class SortingNode implements Runnable {
         topHashtagSorter.load(topHashtagSorter.sort(Collections.emptyList()));
         Logger.info("Sorter added new top hashtags");
 
-    }
-
-    /**
-     * Calculates and inserts popularity score to each post in a list of posts
-     *
-     * @param posts list of posts
-     * @return the same list of posts, but with each post now containing a popularity score
-     */
-    public List<Post> calculatePopularityScoreOfAllPosts(List<Post> posts) {
-        List<Post> calculatedPosts = new ArrayList<>();
-
-        posts.forEach(post -> {
-            post = calculatePopularityAndRebuild(post);
-            calculatedPosts.add(post);
-        });
-
-        return calculatedPosts;
-    }
-
-    /**
-     * Calculates the popularity of a given post, and injects the popularity score into that post
-     *
-     * @param post Post object to be evaluated
-     * @return popularity score
-     */
-    public Post calculatePopularityAndRebuild(Post post) {
-
-        // calculate popularity score of post
-        int popularity = calculatePopularityScore(post.getNumComments(), post.getNumLikes(), post.getNumShares());
-
-        // rebuild post with new score
-        post = post.toBuilder().setPopularityScore(popularity).build();
-
-        return post;
-    }
-
-    /**
-     * Calculates the popularity score given the specified fields
-     *
-     * @param numComments number of comments associated with a post
-     * @param numLikes    number of likes associated with a post
-     * @param numShares   number of shares associated with a post
-     * @return popularity score calculated given input parameters.
-     */
-    private int calculatePopularityScore(int numComments, int numLikes, int numShares) {
-        // evaluate popularity score
-        int popularity = (int) (
-                COMMENT_WEIGHT * numComments
-                        + LIKE_WEIGHT * numLikes
-                        + SHARE_WEIGHT * numShares
-        );
-
-        // handle boundary conditions
-        if (popularity < 0) {
-            popularity = 0;
-        } else if (popularity >= Integer.MAX_VALUE) {
-            popularity = Integer.MAX_VALUE;
-        }
-
-        return popularity;
     }
 }

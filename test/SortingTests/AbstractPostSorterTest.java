@@ -1,4 +1,4 @@
-package SorterTests;
+package SortingTests;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -6,8 +6,8 @@ import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.InMemoryAccessObject;
 import services.dataAccess.proto.PostListProto;
 import services.dataAccess.proto.PostProto;
-import services.sorting.AbstractPostSorter;
-import services.sorting.TopPostSorter;
+import services.sorting.PostSorter.AbstractPostSorter;
+import services.sorting.PostSorter.TopPostSorter;
 
 import java.util.ArrayList;
 import java.util.Collections;
