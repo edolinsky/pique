@@ -26,6 +26,7 @@ public class ImgurSource implements RestfulSource {
     private static final String REQUEST_URL = "https://api.imgur.com/";
     private static final String VERSION = "3";
     private static final Integer MAX_SEARCH_PER_WINDOW = 12500;
+    private static final Integer ONE_THOUSAND = 1000;
     private static final Long WINDOW_LENGTH = TimeUnit.DAYS.toMillis(1);
 
     @Override
@@ -103,8 +104,8 @@ public class ImgurSource implements RestfulSource {
 
     private Post createPost(JsonObject object) {
         Post.Builder builder = Post.newBuilder();
-        builder.setId(object.getAsJsonPrimitive("id").getAsString());
-        builder.setTimestamp(object.getAsJsonPrimitive("datetime").getAsLong());
+        builder.setId(object.getAsJsonPrimitive("id").getAsString());           // convert from seconds to millis
+        builder.setTimestamp(object.getAsJsonPrimitive("datetime").getAsLong() * ONE_THOUSAND);
         builder.addSource(object.getAsJsonPrimitive("account_url").getAsString());
         builder.addSourceLink(object.getAsJsonPrimitive("link").getAsString());
         builder.setPopularityScore(0);
