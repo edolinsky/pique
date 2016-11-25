@@ -61,4 +61,16 @@ public class TopPostSorterTest {
             prevScore = popularityScore;
         }
     }
+
+    @Test
+    public void testPopularityFilter() {
+        List<Post> posts = generateListOfPosts(10);
+        Map<String, List<Post>> sorted = sorter.sort(posts);
+        int popularityThreshold = TopPostSorter.getPopularityThreshold();
+
+        for (Post post : sorted.get(TOP)) {
+            assertTrue(post.getPopularityScore() >= popularityThreshold);
+        }
+
+    }
 }

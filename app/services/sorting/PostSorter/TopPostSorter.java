@@ -55,4 +55,8 @@ public class TopPostSorter extends AbstractPostSorter {
         }
     }
 
+    /** static getters **/
+    public static int getPopularityThreshold() {
+        return POPULARITY_THRESHOLD;
+    }
 }

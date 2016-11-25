@@ -389,4 +389,8 @@ public abstract class AbstractDataAccess {
     public static String getDisplayNamespace() {
         return DISPLAY_NAMESPACE;
     }
+
+    public static String getStringListNamespace() {
+        return STRING_LIST_NAMESPACE;
+    }
 }

@@ -58,7 +58,7 @@ public class SortingNode implements Runnable {
     /**
      * Main process of the sorting node
      */
-    private void sort() {
+    public void sort() {
 
         List<Post> newPosts = new ArrayList<>();
 
@@ -135,5 +135,10 @@ public class SortingNode implements Runnable {
         topHashtagStringSorter.load(topHashtagStringSorter.sort(Collections.emptyList()));
         Logger.info("Sorter sorted and loaded new top hashtags");
 
+    }
+
+    /** static getters **/
+    public static Long getProcessInputThreshold() {
+        return PROCESS_INPUT_THRESHOLD;
     }
 }
