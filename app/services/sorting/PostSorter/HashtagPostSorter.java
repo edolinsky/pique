@@ -24,7 +24,7 @@ public class HashtagPostSorter extends AbstractPostSorter {
      * @return map of hashtag strings to lists of posts that contain the key string hashtag
      */
     @Override
-    public Map sort(List<Post> posts) {
+    public Map<String, List<Post>> sort(List<Post> posts) {
         Map<String, List<Post>> postsByHashTag = new HashMap<>();
 
         // sort by popularity, in decreasing order
@@ -72,7 +72,11 @@ public class HashtagPostSorter extends AbstractPostSorter {
         oldHashTags.forEach(hashtag -> {
 
             // get list of new posts under this hashtag, as well as old posts under this hashtag
-            List<Post> allPosts = sortedPosts.get(hashtag);
+            List<Post> allPosts = new ArrayList<>();
+
+            if (sortedPosts.containsKey(hashtag)) {
+                allPosts.addAll(sortedPosts.get(hashtag));
+            }
             allPosts.addAll(expandPostLists(dataSource.getAllHashtagPostLists(hashtag)));
 
             // filter out duplicate hashtags and load merged posts into map

@@ -42,10 +42,10 @@ public class SortingNode implements Runnable {
             synchronized (sortNotification) {
                 try {
                     // wait for notification of new posts
-                    Logger.info("Sorter is waiting at " + new Date());
+                    Logger.debug("Sorter is waiting at " + new Date());
                     sortNotification.wait();
                 } catch (InterruptedException e) {
-                    Logger.error("Sorting Node Thread Exiting");
+                    Logger.error("Sorting Node Thread Exiting"); // this should never happen (always waiting)
                 }
             }
 
@@ -65,7 +65,7 @@ public class SortingNode implements Runnable {
         // Obtain number of posts available for processing and exit if this does not meet the threshold
         Long numAvailablePosts = dataSource.getNumPostsInSources();
         if (numAvailablePosts < PROCESS_INPUT_THRESHOLD) {
-            Logger.info("Sorter is dissatisfied with the number of available posts. Waiting...");
+            Logger.debug("Sorter is dissatisfied with the number of available posts. Waiting...");
             return;
         }
         Logger.info("Sorting posts at " + new Date());
@@ -88,7 +88,7 @@ public class SortingNode implements Runnable {
         AbstractPostSorter trendingPostSorter = new TrendingPostSorter(dataSource);
         AbstractPostSorter hashtagPostSorter = new HashtagPostSorter(dataSource);
 
-        AbstractStringSorter topHashtagSorter = new TopHashtagStringSorter(dataSource);
+        AbstractStringSorter topHashtagStringSorter = new TopHashtagStringSorter(dataSource);
 
 
         /*
@@ -118,19 +118,22 @@ public class SortingNode implements Runnable {
 
         // add top content in pages to display top stack
         topPostSorter.load(newSortedTopPosts);
+        Logger.info("Sorter loaded new top posts");
 
         // add new trending content in pages to dsiplay trending stack
         trendingPostSorter.load(newSortedTrendingPosts);
+        Logger.info("Sorter loaded new trending posts");
 
         // add hashtag pages to their corresponding keys in data store
         hashtagPostSorter.load(postsByHashTag);
+        Logger.info("Sorter loaded new hashtag posts");
 
 
         /*
            Update Top Hashtags
          */
-        topHashtagSorter.load(topHashtagSorter.sort(Collections.emptyList()));
-        Logger.info("Sorter added new top hashtags");
+        topHashtagStringSorter.load(topHashtagStringSorter.sort(Collections.emptyList()));
+        Logger.info("Sorter sorted and loaded new top hashtags");
 
     }
 }

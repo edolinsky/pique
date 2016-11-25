@@ -2,7 +2,6 @@ package services.sorting.PostSorter;
 
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.proto.PostProto.Post;
-import services.sorting.PostSorter.AbstractPostSorter;
 
 import java.util.*;
 import java.util.stream.Collectors;

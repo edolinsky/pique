@@ -11,7 +11,7 @@ import static services.PublicConstants.TOP;
 
 public class TopPostSorter extends AbstractPostSorter {
 
-    private static final int POPULARITY_THRESHOLD = 300;
+    private static final int POPULARITY_THRESHOLD = 100;
     private Calculator calc;
 
     public TopPostSorter(AbstractDataAccess dataSource) {
@@ -39,7 +39,7 @@ public class TopPostSorter extends AbstractPostSorter {
         // filter out duplicate IDs, posts below popularity score, and sort by popularity score in decreasing order
         sortedPosts.put(TOP, allTopPosts.stream()
                 .filter(distinctById(Post::getId))
-                .filter(post -> post.getPopularityScore() > POPULARITY_THRESHOLD)
+                .filter(post -> post.getPopularityScore() >= POPULARITY_THRESHOLD)
                 .sorted(Collections.reverseOrder(Comparator.comparingInt(Post::getPopularityScore)))
                 .collect(Collectors.toList()));
 

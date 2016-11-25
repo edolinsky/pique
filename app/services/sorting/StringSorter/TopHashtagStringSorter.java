@@ -1,7 +1,6 @@
 package services.sorting.StringSorter;
 
 import services.dataAccess.AbstractDataAccess;
-import services.sorting.StringSorter.AbstractStringSorter;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,7 +31,11 @@ public class TopHashtagStringSorter extends AbstractStringSorter {
 
         Map<String, Long> hashtagPopularityMap = new HashMap<>();
         // retrieve number of pages of hashtag posts at each hashtag display
-        strings.forEach(h -> hashtagPopularityMap.put(h, dataSource.getNumHashTagPostLists(h)));
+        strings.forEach(h -> {
+            Long numPages = dataSource.getNumHashTagPostLists(h);
+
+            hashtagPopularityMap.put(h, numPages);
+        });
 
         // sort hashtags by number of pages available, in decreasing order
         LinkedHashMap<String, Long> sortedHashtagMap = hashtagPopularityMap.entrySet().stream()

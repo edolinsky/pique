@@ -54,7 +54,7 @@ public class ImgurSource implements RestfulSource {
 
     @Override
     public String getSourceName() {
-        return "source:" + SOURCE_NAME;
+        return SOURCE_NAME;
     }
 
     /**

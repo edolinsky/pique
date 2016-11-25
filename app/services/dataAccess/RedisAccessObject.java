@@ -19,8 +19,15 @@ import static services.PublicConstants.REDIS_URL;
 @Singleton
 public class RedisAccessObject extends AbstractDataAccess {
 
-    private static JedisPool pool = new JedisPool(new JedisPoolConfig(), System.getenv(REDIS_URL));
+    private static JedisPool pool;
     private static final int KEY_TIMEOUT = 86400; // number of seconds from postList update or access to expiry
+
+    public RedisAccessObject() {
+        JedisPoolConfig poolConfig = new JedisPoolConfig();
+        poolConfig.setMaxTotal(128);
+
+        pool = new JedisPool(poolConfig, System.getenv(REDIS_URL));
+    }
 
     @Override
     protected long addNewPost(String keyString, Post post) {
