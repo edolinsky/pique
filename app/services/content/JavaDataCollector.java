@@ -6,7 +6,6 @@ import services.dataAccess.proto.PostProto.Post;
 import services.sources.JavaSource;
 import services.sources.Source;
 import services.sources.TwitterSource;
-import twitter4j.Trend;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -27,7 +26,7 @@ public class JavaDataCollector extends AbstractDataCollector {
 	private Queue<String> trends = new LinkedList<>();
 	private Map<String, Long> sinceIds = new PostIdCache();
 
-	public JavaDataCollector(AbstractDataAccess dataAccess, TwitterSource source) {
+	public JavaDataCollector(AbstractDataAccess dataAccess, JavaSource source) {
 		super(dataAccess);
 		this.source = source;
 	}
@@ -47,7 +46,7 @@ public class JavaDataCollector extends AbstractDataCollector {
 
         // if no trends exist for this collector, retrieve them
 		if (trends.isEmpty()) {
-            trends.addAll(source.getTrends("canada", "vancouver"));
+			trends.addAll(source.getTrends("canada", "vancouver"));
 		}
 
         // get the top trend not yet queried

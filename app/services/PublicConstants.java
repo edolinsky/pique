@@ -17,6 +17,11 @@ public class PublicConstants {
     public static final String IMGUR_APP_ID = "imgur_client_id";
     public static final String IMGUR_SECRET = "imgur_client_secret";
 
+    public static final String REDDIT_USER = "reddit_user";
+    public static final String REDDIT_PASS = "reddit_pass";
+    public static final String REDDIT_CLIENTID = "reddit_client_id";
+    public static final String REDDIT_SECRET = "reddit_secret";
+
     public static final String DATA_SOURCE = "data_source";
     public static final String REDIS_URL = "redis_url";
     public static final String REDIS_PORT = "redis_port";
