@@ -7,6 +7,7 @@ import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.InMemoryAccessObject;
 import services.dataAccess.proto.PostProto.Post;
 import services.sources.TwitterSource;
+import services.sources.RedditSource;
 
 import java.util.List;
 
@@ -17,28 +18,48 @@ import static org.junit.Assert.assertTrue;
 public class JavaDataCollectorTest {
 
 	AbstractDataAccess data;
-	TwitterSource source; // TODO mock or stub so we are just testing JavaDataCollector
-	AbstractDataCollector collector;
+	TwitterSource twitterSource;
+	RedditSource redditSource;
+	AbstractDataCollector twitterCollector;
+	AbstractDataCollector redditCollector;
 
 	@Before
 	public void before() {
 		data = new InMemoryAccessObject();
-		source = new TwitterSource();
-		collector = new JavaDataCollector(data, source);
+		twitterSource = new TwitterSource();
+		redditSource = new RedditSource();
+		twitterCollector = new JavaDataCollector(data, twitterSource);
+		redditCollector = new JavaDataCollector(data, redditSource);
 	}
 
 	@Test
-	public void testFetch() {
-		List<Post> posts = collector.fetch();
+	public void testTwitterFetch() {
+		List<Post> posts = twitterCollector.fetch();
 		assertFalse(posts.isEmpty());
 	}
 
 	@Test
-	public void testPost() {
-		List<Post> toStore = collector.fetch();
-		collector.store(toStore);
+	public void testRedditFetch() {
+		List<Post> posts = redditCollector.fetch();
+		assertFalse(posts.isEmpty());
+	}
 
-		List<Post> retrieved = data.getAllPostsFromSource(collector.getSource().getSourceName());
+	@Test
+	public void testTwitterPost() {
+		List<Post> toStore = twitterCollector.fetch();
+		twitterCollector.store(toStore);
+
+		List<Post> retrieved = data.getAllPostsFromSource(twitterCollector.getSource().getSourceName());
+
+		assertEquals(toStore, retrieved);
+	}
+
+	@Test
+	public void testRedditPost() {
+		List<Post> toStore = redditCollector.fetch();
+		redditCollector.store(toStore);
+
+		List<Post> retrieved = data.getAllPostsFromSource(redditCollector.getSource().getSourceName());
 
 		assertEquals(toStore, retrieved);
 
