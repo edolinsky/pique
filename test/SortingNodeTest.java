@@ -7,7 +7,6 @@ import services.dataAccess.InMemoryAccessObject;
 import services.dataAccess.proto.PostListProto.PostList;
 import services.dataAccess.proto.PostProto.Post;
 import services.sorting.SortingNode;
-import sun.security.pkcs11.wrapper.PKCS11RuntimeException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,9 +17,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static services.dataAccess.TestDataGenerator.generateListOfPosts;
 
-/**
- * Created by erik on 09/11/16.
- */
 public class SortingNodeTest {
 
     private SortingNode node;
