@@ -132,6 +132,6 @@ HTTP endpoints are routed to specific controllers), and `logs`.
  
 # Design Patterns
 
-Play takes most of its design from the Model-View-Controller design pattern, but also makes use of singletons, templates,
+Pique takes most of its design from the Model-View-Controller design pattern, but also makes use of singletons, templates,
 builders, observers, data access objects, and possibly some others we may have forgotten about.
 
