@@ -1,11 +1,13 @@
 import org.junit.Before;
 import org.junit.Test;
+import services.dataAccess.proto.PostProto.Post;
+import services.sources.RedditSource;
+
 import static org.junit.Assert.*;
 
+import java.util.List;
 
-import services.sources.RedditSource;
 import net.dean.jraw.RedditClient;
-import net.dean.jraw.models.Submission;
 
 /**
  * Created by Sammie on 2016-11-16.
@@ -32,11 +34,15 @@ public class RedditSourceTest {
     }
 
     @Test
-    public void testGetHotPosts() {
-        for(Submission s : redditSource.getHotPosts()) {
-            System.out.println(s);
-        }
-        assertEquals(100, redditSource.getHotPosts().size());
+    public void testGetTrendingPosts() {
+        List<Post> post = redditSource.getTrendingPosts("", 1, null);
+        assertEquals(1, post.size());
+    }
+
+    @Test
+    public void testGetMaxTrendingPosts() {
+        List<Post> post = redditSource.getMaxTrendingPosts("");
+        assertEquals(950, post.size());
     }
 
 }

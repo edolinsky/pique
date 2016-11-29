@@ -2,8 +2,10 @@ package services.sources;
 
 import services.dataAccess.proto.PostProto.Post;
 
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -16,8 +18,6 @@ import net.dean.jraw.http.oauth.OAuthException;
 import net.dean.jraw.http.NetworkException;
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Submission;
-import net.dean.jraw.models.Subreddit;
-import net.dean.jraw.paginators.SubredditStream;
 import net.dean.jraw.paginators.SubredditPaginator;
 import net.dean.jraw.paginators.Sorting;
 import net.dean.jraw.paginators.TimePeriod;
@@ -38,14 +38,13 @@ public class RedditSource implements JavaSource {
 
     private static final String REDDIT = "reddit";
     private static final String DEFAULT_TEXT = "N/A";
-    private static final Integer MAX_SUBREDDIT_REQUEST_SIZE = 10;
-    private static final Integer MAX_REQUEST_SIZE = 200;
+    private static final Integer MAX_REQUEST_SIZE = 950;
     private static final Integer MAX_SEARCH_PER_WINDOW = 60;
     private static final Long WINDOW_LENGTH = TimeUnit.MINUTES.toMillis(1);
 
     private RedditClient redditClient;
 
-    //DiscordException??
+
     public RedditSource() {
         UserAgent myUserAgent = UserAgent.of("desktop", System.getenv(REDDIT_CLIENTID), "v0.1", System.getenv(REDDIT_USER));
         redditClient = new RedditClient(myUserAgent);
@@ -83,26 +82,14 @@ public class RedditSource implements JavaSource {
 
     @Override
     public List<String> getTrends(String country, String city) {
-
-        SubredditStream subredditStream = new SubredditStream(redditClient, "popular");
-        ArrayList<String> trendingSubreddits = new ArrayList<>();
-
-
-        while(subredditStream.hasNext() && trendingSubreddits.size() < MAX_SUBREDDIT_REQUEST_SIZE) {
-            Listing<Subreddit> subredditPage = subredditStream.next();
-
-            for(int i=0; i<subredditStream.next().size(); i++) {
-                trendingSubreddits.add(subredditPage.get(i).getDisplayName());
-            }
-        }
-
-        return trendingSubreddits;
+        List<String> strings = Arrays.asList("");
+        return strings;
     }
 
 
     @Override
     public List<Post> getTrendingPosts(String trend, int numPosts, Long sinceId) {
-        return parseSubmissions(getHotPosts());
+        return parseSubmissions(getHotPosts(numPosts));
     }
 
     @Override
@@ -119,17 +106,33 @@ public class RedditSource implements JavaSource {
         return redditClient;
     }
 
-    public List<Submission> getHotPosts() {
+    public List<Submission> getHotPosts(int numPosts) {
         SubredditPaginator sp = new SubredditPaginator(redditClient);
+        Iterator<Listing<Submission>> listingIterator = sp.iterator();
 
-        sp.setLimit(MAX_REQUEST_SIZE);
+        sp.setLimit(numPosts);
         sp.setSorting(Sorting.HOT);
         sp.setTimePeriod(TimePeriod.DAY);
         sp.next(true);
 
-        Listing<Submission> list = sp.getCurrentListing();
+        ArrayList<Submission> hotPosts = new ArrayList<>();
+        Listing<Submission> page = sp.getCurrentListing();
 
-        return list;
+        hotPosts.addAll(page);
+
+        //Iterate through next Reddit pages and add to hotPosts. Each page only returns 100
+        while(listingIterator.hasNext() && hotPosts.size() <= numPosts) {
+            Listing<Submission> nextPage = listingIterator.next();
+
+            hotPosts.addAll(nextPage);
+        }
+
+        //Only return numPosts # of hot posts from the list
+        for(int i=hotPosts.size()-1; i>=numPosts; i--) {
+            hotPosts.remove(i);
+        }
+
+        return hotPosts;
     }
 
     /**
@@ -156,6 +159,7 @@ public class RedditSource implements JavaSource {
         builder.setNumComments(s.getCommentCount());
         builder.setNumLikes(s.getScore());
         builder.addText(s.getSelftext());
+        builder.addHashtag(s.getSubredditName());
 
         if (s.getThumbnail() != null) {
             builder.addImgLink(s.getThumbnail()); // Post thumbnail
