@@ -10,7 +10,7 @@ public class Calculator {
     private static final Double LIKE_WEIGHT = 0.9;
     private static final Double COMMENT_WEIGHT = 0.5;
     private static final Double SHARE_WEIGHT = 1.1;
-    private static final Long THREE_DAYS_MILLIS = 259200000L;
+    private static final Long POST_EXPIRY = 259200000L; // three days (in milliseconds)
 
     /**
      * Calculates and inserts popularity score to each post in a list of posts
@@ -71,7 +71,7 @@ public class Calculator {
     private static int calculatePopularityScore(int numComments, int numLikes, int numShares, long timeStamp) {
 
         // evaluate linear time decay
-        double decayFactor = (THREE_DAYS_MILLIS - (System.currentTimeMillis() - timeStamp)) / (double) THREE_DAYS_MILLIS;
+        double decayFactor = (POST_EXPIRY - (System.currentTimeMillis() - timeStamp)) / (double) POST_EXPIRY;
 
         // evaluate popularity score, scaled by linear time decay
         double popularity = (
@@ -93,7 +93,7 @@ public class Calculator {
 
     /** static getters **/
 
-    public static Long getThreeDaysMillis() {
-        return THREE_DAYS_MILLIS;
+    public static Long getPostExpiry() {
+        return POST_EXPIRY;
     }
 }

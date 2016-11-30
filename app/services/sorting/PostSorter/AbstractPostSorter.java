@@ -113,8 +113,6 @@ public abstract class AbstractPostSorter {
         return dataSource.replaceDisplayPostLists(key, pages);
     }
 
-
-
     /**
      * Loads a set of PostList pages into the hashtag namespace of the data store under key hashtag
      *
@@ -129,7 +127,6 @@ public abstract class AbstractPostSorter {
 
         return pages.size();
     }
-
 
     /**
      * Provides a method of filtering a list of posts (within a lambda function) for unique IDs (or any other field for

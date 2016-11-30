@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.proto.PostListProto.PostList;
 import services.dataAccess.proto.PostProto.Post;
+import services.sorting.Calculator;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -12,9 +13,11 @@ import java.util.stream.Collectors;
 public class HashtagPostSorter extends AbstractPostSorter {
 
     private static final String NO_HASHTAGS = "N/A";
+    private Calculator calc;
 
     public HashtagPostSorter(AbstractDataAccess dataSource) {
         super(dataSource);
+        calc = new Calculator();
     }
 
     /**
@@ -78,9 +81,18 @@ public class HashtagPostSorter extends AbstractPostSorter {
                 allPosts.addAll(sortedPosts.get(hashtag));
             }
             allPosts.addAll(expandPostLists(dataSource.getAllHashtagPostLists(hashtag)));
+            
+            // calculate new popularity score
+            allPosts = calc.calculatePopularityScoreOfAllPosts(allPosts);
 
-            // filter out duplicate hashtags and load merged posts into map
-            hashTagPosts.put(hashtag, allPosts.stream().filter(distinctById(Post::getId)).collect(Collectors.toList()));
+            // filter out duplicate posts, expired posts, and load merged posts into map
+            hashTagPosts.put(hashtag,
+                    allPosts.stream()
+                            .filter(distinctById(Post::getId))
+                            .filter(post -> post.getPopularityScore() > 0)
+                            .sorted(Collections.reverseOrder(Comparator.comparingInt(Post::getPopularityScore)))
+                            .collect(Collectors.toList())
+            );
 
         });
 
