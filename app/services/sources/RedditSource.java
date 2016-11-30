@@ -1,5 +1,6 @@
 package services.sources;
 
+import com.google.gson.JsonParseException;
 import services.dataAccess.proto.PostProto.Post;
 
 import java.util.Arrays;
@@ -38,7 +39,7 @@ public class RedditSource implements JavaSource {
 
     private static final String REDDIT = "reddit";
     private static final String DEFAULT_TEXT = "N/A";
-    private static final Integer MAX_REQUEST_SIZE = 950;
+    private static final Integer MAX_REQUEST_SIZE = 900;
     private static final Integer MAX_SEARCH_PER_WINDOW = 60;
     private static final Long WINDOW_LENGTH = TimeUnit.MINUTES.toMillis(1);
 
@@ -132,6 +133,7 @@ public class RedditSource implements JavaSource {
             hotPosts.remove(i);
         }
 
+        System.out.println(hotPosts.get(0));
         return hotPosts;
     }
 
@@ -145,7 +147,17 @@ public class RedditSource implements JavaSource {
             return Collections.emptyList();
         }
 
-        return submissions.stream().map(this::createPost).collect(Collectors.toList());
+        ArrayList<Post> parsedSubmissions = new ArrayList<>();
+
+        for(Submission s : submissions) {
+            try {
+                parsedSubmissions.add(submissions.indexOf(s), createPost(s));
+            } catch(JsonParseException e) {
+                System.out.println("JSON parse error for: " + s.getId());
+            }
+        }
+
+        return parsedSubmissions;
     }
 
     private Post createPost(Submission s) {
@@ -168,4 +180,5 @@ public class RedditSource implements JavaSource {
         builder.addExtLink(s.getUrl()); // Link to Reddit post or linked external site
         return builder.build();
     }
+
 }

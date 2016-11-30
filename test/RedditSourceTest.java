@@ -36,13 +36,14 @@ public class RedditSourceTest {
     @Test
     public void testGetTrendingPosts() {
         List<Post> post = redditSource.getTrendingPosts("", 1, null);
+        System.out.println(post.get(0));
         assertEquals(1, post.size());
     }
 
     @Test
     public void testGetMaxTrendingPosts() {
         List<Post> post = redditSource.getMaxTrendingPosts("");
-        assertEquals(950, post.size());
+        assertEquals(900, post.size());
     }
 
 }
