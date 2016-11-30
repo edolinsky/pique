@@ -1,9 +1,6 @@
 package services.sorting.PostSorter;
 
-
-import com.google.common.collect.Lists;
 import services.dataAccess.AbstractDataAccess;
-import services.dataAccess.proto.PostListProto.PostList;
 import services.dataAccess.proto.PostProto.Post;
 import services.sorting.Calculator;
 
@@ -81,7 +78,7 @@ public class HashtagPostSorter extends AbstractPostSorter {
                 allPosts.addAll(sortedPosts.get(hashtag));
             }
             allPosts.addAll(expandPostLists(dataSource.getAllHashtagPostLists(hashtag)));
-            
+
             // calculate new popularity score
             allPosts = calc.calculatePopularityScoreOfAllPosts(allPosts);
 

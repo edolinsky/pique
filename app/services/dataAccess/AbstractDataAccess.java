@@ -12,12 +12,12 @@ public abstract class AbstractDataAccess {
 
     static final String NAMESPACE_DELIMITER = ":";
 
-    private static final String DISPLAY_NAMESPACE = "display" + NAMESPACE_DELIMITER;
-    private static final String HASHTAG_NAMESPACE = "hashtag" + NAMESPACE_DELIMITER;
-    private static final String SOURCE_NAMESPACE = "source" + NAMESPACE_DELIMITER;
-    private static final String TEST_NAMESPACE = "test" + NAMESPACE_DELIMITER;
+    private static final String DISPLAY_NAMESPACE = "display";
+    private static final String HASHTAG_NAMESPACE = "hashtag";
+    private static final String SOURCE_NAMESPACE = "source";
+    private static final String TEST_NAMESPACE = "test";
 
-    private static final String STRING_LIST_NAMESPACE = "stringlist" + NAMESPACE_DELIMITER;
+    private static final String STRING_LIST_NAMESPACE = "stringlist";
     static final Integer MAX_POSTLISTS = 1000;
 
 
@@ -158,7 +158,7 @@ public abstract class AbstractDataAccess {
      * @return length of list of posts at source under source namespace after insertion of new post
      */
     public long addNewPostFromSource(String source, Post post) {
-        return addNewPost(SOURCE_NAMESPACE + source, post);
+        return addNewPost(SOURCE_NAMESPACE + NAMESPACE_DELIMITER + source, post);
     }
 
     /**
@@ -170,7 +170,7 @@ public abstract class AbstractDataAccess {
      * @return length of list of posts at source under source namespace after insertion of new posts
      */
     public long addNewPostsFromSource(String source, List<Post> listOfPosts) {
-        return addNewPosts(SOURCE_NAMESPACE + source, listOfPosts);
+        return addNewPosts(SOURCE_NAMESPACE + NAMESPACE_DELIMITER + source, listOfPosts);
     }
 
     /**
@@ -183,7 +183,7 @@ public abstract class AbstractDataAccess {
      * @return size of list at displayString under display namespace after insertion of new postList
      */
     public long addNewDisplayPostList(String displayString, PostList postList) {
-        return addNewPostList(DISPLAY_NAMESPACE + displayString, postList);
+        return addNewPostList(DISPLAY_NAMESPACE + NAMESPACE_DELIMITER + displayString, postList);
     }
 
     /**
@@ -194,7 +194,7 @@ public abstract class AbstractDataAccess {
      * @return size of list after replacement
      */
     public long replaceDisplayPostLists(String displayString, List<PostList> postLists) {
-        return replacePostLists(DISPLAY_NAMESPACE + displayString, postLists);
+        return replacePostLists(DISPLAY_NAMESPACE + NAMESPACE_DELIMITER + displayString, postLists);
     }
 
     /**
@@ -207,7 +207,7 @@ public abstract class AbstractDataAccess {
      * @return size of list at specified hashtag under hashtag namespace after insertion of new postList
      */
     public long addNewHashTagPostList(String hashtag, PostList postList) {
-        return addNewPostList(HASHTAG_NAMESPACE + hashtag, postList);
+        return addNewPostList(HASHTAG_NAMESPACE + NAMESPACE_DELIMITER + hashtag, postList);
     }
 
     /**
@@ -218,7 +218,7 @@ public abstract class AbstractDataAccess {
      * @return size of list after insert
      */
     public long replaceHashTagPostLists(String hashtag, List<PostList> postLists) {
-        return replacePostLists(HASHTAG_NAMESPACE + hashtag, postLists);
+        return replacePostLists(HASHTAG_NAMESPACE + NAMESPACE_DELIMITER + hashtag, postLists);
     }
 
     /**
@@ -229,7 +229,7 @@ public abstract class AbstractDataAccess {
      * data store
      */
     public List<Post> getAllPostsFromSource(String source) {
-        return getAllPosts(SOURCE_NAMESPACE + source);
+        return getAllPosts(SOURCE_NAMESPACE + NAMESPACE_DELIMITER + source);
     }
 
     /**
@@ -240,7 +240,7 @@ public abstract class AbstractDataAccess {
      * @return The first element under keyString in data store, or the empty optional if not availalbe
      */
     public Optional<Post> popFirstPostFromSource(String source) {
-        return popFirstPost(SOURCE_NAMESPACE + source);
+        return popFirstPost(SOURCE_NAMESPACE + NAMESPACE_DELIMITER + source);
     }
 
     /**
@@ -250,7 +250,7 @@ public abstract class AbstractDataAccess {
      * @return list of all posts stored under that hashtag
      */
     public List<PostList> getAllHashtagPostLists(String hashtag) {
-        return getAllPostLists(HASHTAG_NAMESPACE + hashtag);
+        return getAllPostLists(HASHTAG_NAMESPACE + NAMESPACE_DELIMITER + hashtag);
     }
 
     /**
@@ -260,7 +260,7 @@ public abstract class AbstractDataAccess {
      * @return number of post list entities stored under a particular hashtag
      */
     public long getNumHashTagPostLists(String hashtag) {
-        return getListSize(HASHTAG_NAMESPACE + hashtag);
+        return getListSize(HASHTAG_NAMESPACE + NAMESPACE_DELIMITER + hashtag);
     }
 
     /**
@@ -273,7 +273,7 @@ public abstract class AbstractDataAccess {
      * or the empty optional if not available
      */
     public Optional<PostList> getDisplayPostList(String displayString, Integer index) {
-        return getPostList(DISPLAY_NAMESPACE + displayString, index);
+        return getPostList(DISPLAY_NAMESPACE + NAMESPACE_DELIMITER + displayString, index);
     }
 
     /**
@@ -285,7 +285,7 @@ public abstract class AbstractDataAccess {
      * @return The first element under keyString in data store, or the empty optional if not available
      */
     public Optional<PostList> getHashTagPostList(String hashtag, Integer index) {
-        return getPostList(HASHTAG_NAMESPACE + hashtag, index);
+        return getPostList(HASHTAG_NAMESPACE + NAMESPACE_DELIMITER + hashtag, index);
     }
 
     /**
@@ -296,7 +296,7 @@ public abstract class AbstractDataAccess {
      * @return list of postLists under that particular display name
      */
     public List<PostList> getAllDisplayPostLists(String displayName) {
-        return getAllPostLists(DISPLAY_NAMESPACE + displayName);
+        return getAllPostLists(DISPLAY_NAMESPACE + NAMESPACE_DELIMITER + displayName);
     }
 
     /**
@@ -337,7 +337,7 @@ public abstract class AbstractDataAccess {
      * @return first numTopHashtags hashtags in the top hashtag list
      */
     public List<String> getTopHashTags(int numTopHashtags) {
-        return getStringList(STRING_LIST_NAMESPACE + TOP_HASHTAGS, numTopHashtags);
+        return getStringList(STRING_LIST_NAMESPACE + NAMESPACE_DELIMITER + TOP_HASHTAGS, numTopHashtags);
     }
 
     /**
@@ -347,7 +347,7 @@ public abstract class AbstractDataAccess {
      * @return new length of top hashtag list
      */
     public long addTopHashtags(List<String> topHashTags) {
-        return replaceStringList(STRING_LIST_NAMESPACE + TOP_HASHTAGS, topHashTags);
+        return replaceStringList(STRING_LIST_NAMESPACE + NAMESPACE_DELIMITER + TOP_HASHTAGS, topHashTags);
     }
 
     /**
@@ -359,7 +359,7 @@ public abstract class AbstractDataAccess {
      * @return string denoting status of trim operation
      */
     public String deleteFirstNPostsFromSourceQueue(String source, Integer numPosts) {
-        return deleteFirstNPosts(SOURCE_NAMESPACE + source, numPosts);
+        return deleteFirstNPosts(SOURCE_NAMESPACE + NAMESPACE_DELIMITER + source, numPosts);
     }
 
     /*
