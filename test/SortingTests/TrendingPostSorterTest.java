@@ -101,9 +101,9 @@ public class TrendingPostSorterTest {
             // decrease comments/likes/shares by random values, bounded by their current value
             // decrease timestamp by age_millis, set above
             Post oldPost = newPost.toBuilder()
-                    .setNumComments(numComments - ThreadLocalRandom.current().nextInt(0, numComments))
-                    .setNumLikes(numLikes - ThreadLocalRandom.current().nextInt(0, numLikes))
-                    .setNumShares(numShares - ThreadLocalRandom.current().nextInt(0, numShares))
+                    .setNumComments(numComments - ThreadLocalRandom.current().nextInt(0, numComments + 1))
+                    .setNumLikes(numLikes - ThreadLocalRandom.current().nextInt(0, numLikes + 1))
+                    .setNumShares(numShares - ThreadLocalRandom.current().nextInt(0, numShares + 1))
                     .setTimestamp(timestamp - age_millis)
                     .build();
 
