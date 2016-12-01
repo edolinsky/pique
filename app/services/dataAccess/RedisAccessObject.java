@@ -299,8 +299,13 @@ public class RedisAccessObject extends AbstractDataAccess {
                 Logger.error("Problems closing Redis Pipe"); // todo: handle better
             }
 
-            // delete old entries, so that only new string list remains
-            redisAccess.ltrim(key, 0, listLength - 1);
+            if (listLength > 0) {
+                // delete old entries, so that only new string list remains
+                redisAccess.ltrim(key, 0, listLength - 1);
+            } else {
+                // if replacing with empty list, delete all in channel
+                redisAccess.del(key);
+            }
         }
 
         return listLength;
@@ -329,8 +334,13 @@ public class RedisAccessObject extends AbstractDataAccess {
                 Logger.error("Problems closing Redis Pipe"); // todo: handle better
             }
 
-            // delete old entries, so that only new postLists remain
-            redisAccess.ltrim(key, 0, listLength - 1);
+            if (listLength > 0) {
+                // trim entries, so that only new postLists remain
+                redisAccess.ltrim(key, 0, listLength - 1);
+            } else {
+                // If input is empty list, delete all existing entries
+                redisAccess.del(key);
+            }
         }
 
         return listLength;
