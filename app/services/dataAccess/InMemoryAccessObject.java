@@ -1,6 +1,5 @@
 package services.dataAccess;
 
-import services.dataAccess.proto.PostListProto;
 import services.dataAccess.proto.PostListProto.PostList;
 import services.dataAccess.proto.PostProto.Post;
 

@@ -1,1 +1,1 @@
-web: /var/app/current/bin/pique -Dhttp.port=5000 -Dplay.crypto.secret="$app_secret"
+web: /var/app/current/bin/pique -Dhttp.port=5000 -Dplay.crypto.secret="$app_secret" -J-Xmx4096m

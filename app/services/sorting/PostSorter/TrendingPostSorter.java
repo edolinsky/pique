@@ -27,16 +27,16 @@ public class TrendingPostSorter extends AbstractPostSorter {
         List<Post> newPostsRelToTrending = calculateRelativePopularity(TRENDING, posts);
         List<Post> newPostsRelToTop = calculateRelativePopularity(TOP, posts);
 
-        // filter out possible duplicates by unique id, giving preference to score relative to top (data is more recent)
         List<Post> allPosts = new ArrayList<>(newPostsRelToTop);
         allPosts.addAll(newPostsRelToTrending);
 
+        // filter out possible duplicates by unique id, giving preference to score relative to top (data is more recent)
+        // sort in decreasing order of velocity score
         sortedPosts.put(TRENDING, allPosts.stream()
                 .filter(distinctById(Post::getId))
                 .sorted(Collections.reverseOrder(Comparator.comparingInt(Post::getPopularityVelocity)))
                 .collect(Collectors.toList()));
 
-        // sort in decreasing order of velocity score
         return sortedPosts;
     }
 

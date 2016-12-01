@@ -26,6 +26,7 @@ public class CalculatorTest {
         Post post = generateListOfPosts(1).get(0);
         post = calc.calculatePopularityAndRebuild(post);
 
+        // post should have popularity score
         assertTrue(post.hasField(Post.getDescriptor().findFieldByNumber(Post.POPULARITY_SCORE_FIELD_NUMBER)));
     }
 
@@ -40,6 +41,7 @@ public class CalculatorTest {
 
         post = calc.calculatePopularityAndRebuild(post);
 
+        // popularity score should be bounded to 0
         assertEquals(0, post.getPopularityScore());
 
     }
@@ -54,6 +56,8 @@ public class CalculatorTest {
                 .build();
 
         post = calc.calculatePopularityAndRebuild(post);
+
+        // popularity score should be 0
         assertEquals(0, post.getPopularityScore());
     }
 
@@ -68,6 +72,7 @@ public class CalculatorTest {
 
         post = calc.calculatePopularityAndRebuild(post);
 
+        // popularity score should be reasonably small
         int popularityScore = post.getPopularityScore();
         assertTrue(0 <= popularityScore && popularityScore <= 5);
 
@@ -84,6 +89,7 @@ public class CalculatorTest {
 
         post = calc.calculatePopularityAndRebuild(post);
 
+        // popularity score should be bounded to int max value
         assertEquals(Integer.MAX_VALUE, post.getPopularityScore());
     }
 
@@ -94,6 +100,7 @@ public class CalculatorTest {
 
         posts = calc.calculatePopularityScoreOfAllPosts(posts);
 
+        // all posts should be rebuilt with popularity score
         for (Post post : posts) {
             assertTrue(post.hasField(Post.getDescriptor().findFieldByNumber(Post.POPULARITY_SCORE_FIELD_NUMBER)));
         }
@@ -103,6 +110,7 @@ public class CalculatorTest {
     public void testCalculatePopularityOfAllPostsEmptyInput() {
         List<Post> posts = calc.calculatePopularityScoreOfAllPosts(Collections.emptyList());
 
+        // empty input gives empty output
         assertEquals(Collections.emptyList(), posts);
     }
 
