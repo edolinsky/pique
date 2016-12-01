@@ -110,8 +110,8 @@ public class ImgurSource implements RestfulSource {
         builder.setPopularityScore(0);
         builder.setPopularityVelocity(0);
         builder.setNumComments(object.getAsJsonPrimitive("comment_count").getAsInt());
-        builder.setNumShares(object.getAsJsonPrimitive("views").getAsInt());
-        builder.setNumLikes(object.getAsJsonPrimitive("points").getAsInt());
+        builder.setNumShares(object.getAsJsonPrimitive("score").getAsInt());
+        builder.setNumLikes(object.getAsJsonPrimitive("ups").getAsInt());
         builder.addText(object.getAsJsonPrimitive("title").getAsString());
         builder.addHashtag(object.getAsJsonPrimitive("topic").getAsString());
         builder.addImgLink(object.getAsJsonPrimitive("link").getAsString());
