@@ -1,9 +1,7 @@
 package services.sources;
 
-import com.google.gson.JsonParseException;
 import services.dataAccess.proto.PostProto.Post;
 
-import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -83,8 +81,7 @@ public class RedditSource implements JavaSource {
 
     @Override
     public List<String> getTrends(String country, String city) {
-        List<String> strings = Arrays.asList("");
-        return strings;
+        return Collections.emptyList();
     }
 
 
@@ -116,7 +113,7 @@ public class RedditSource implements JavaSource {
         sp.setTimePeriod(TimePeriod.DAY);
         sp.next(true);
 
-        ArrayList<Submission> hotPosts = new ArrayList<>();
+        List<Submission> hotPosts = new ArrayList<>();
         Listing<Submission> page = sp.getCurrentListing();
 
         hotPosts.addAll(page);
@@ -129,11 +126,9 @@ public class RedditSource implements JavaSource {
         }
 
         //Only return numPosts # of hot posts from the list
-        for(int i=hotPosts.size()-1; i>=numPosts; i--) {
-            hotPosts.remove(i);
-        }
+        hotPosts.removeAll(hotPosts.subList(numPosts-1, hotPosts.size()-1));
 
-        System.out.println(hotPosts.get(0));
+
         return hotPosts;
     }
 
@@ -147,17 +142,7 @@ public class RedditSource implements JavaSource {
             return Collections.emptyList();
         }
 
-        ArrayList<Post> parsedSubmissions = new ArrayList<>();
-
-        for(Submission s : submissions) {
-            try {
-                parsedSubmissions.add(submissions.indexOf(s), createPost(s));
-            } catch(JsonParseException e) {
-                System.out.println("JSON parse error for: " + s.getId());
-            }
-        }
-
-        return parsedSubmissions;
+        return submissions.stream().map(this::createPost).collect(Collectors.toList());
     }
 
     private Post createPost(Submission s) {

@@ -36,7 +36,6 @@ public class RedditSourceTest {
     @Test
     public void testGetTrendingPosts() {
         List<Post> post = redditSource.getTrendingPosts("", 1, null);
-        System.out.println(post.get(0));
         assertEquals(1, post.size());
     }
 
