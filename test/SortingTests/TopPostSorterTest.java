@@ -2,16 +2,14 @@ package SortingTests;
 
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assume.assumeTrue;
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.InMemoryAccessObject;
 import services.dataAccess.proto.PostProto.Post;
 import services.sorting.PostSorter.AbstractPostSorter;
 import services.sorting.PostSorter.TopPostSorter;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -21,10 +19,11 @@ import static services.PublicConstants.TOP;
 public class TopPostSorterTest {
 
     private AbstractPostSorter sorter;
+    private AbstractDataAccess data;
 
     @Before
     public void topPostSorterTestSetup() {
-        AbstractDataAccess data = new InMemoryAccessObject();
+        data = new InMemoryAccessObject();
         sorter = new TopPostSorter(data);
     }
 
@@ -44,6 +43,7 @@ public class TopPostSorterTest {
 
         });
 
+        // sort zeroed posts; result should be an empty list
         Map<String, List<Post>> sorted = sorter.sort(zeroedPosts);
 
         assertEquals(Collections.emptyList(), sorted.get(TOP));
@@ -55,6 +55,7 @@ public class TopPostSorterTest {
         List<Post> posts = generateListOfPosts(10);
         Map<String, List<Post>> sorted = sorter.sort(posts);
 
+        // Posts should be sorted by decreasing popularity score
         for (Post post : sorted.get(TOP)) {
             int popularityScore = post.getPopularityScore();
             assertTrue(popularityScore <= prevScore);
@@ -63,11 +64,32 @@ public class TopPostSorterTest {
     }
 
     @Test
+    public void testLoadTopPosts() {
+        int numPosts = 10;
+
+        // ignore this test if numPosts is more than one page
+        assumeTrue(numPosts <= AbstractPostSorter.getPageLimit());
+
+        // generate posts
+        List<Post> posts = generateListOfPosts(numPosts);
+        Map<String, List<Post>> sorted = new HashMap<>();
+        sorted.put(TOP, posts);
+
+        sorter.load(sorted);
+
+        // assert that what is stored matches what was added, in proper order
+        List<Post> stored = data.getAllDisplayPostLists(TOP).get(0).getPostsList();
+        assertEquals(posts, stored);
+
+    }
+
+    @Test
     public void testPopularityFilter() {
         List<Post> posts = generateListOfPosts(10);
         Map<String, List<Post>> sorted = sorter.sort(posts);
         int popularityThreshold = TopPostSorter.getPopularityThreshold();
 
+        // All posts should be at or above the popularity threshold
         for (Post post : sorted.get(TOP)) {
             assertTrue(post.getPopularityScore() >= popularityThreshold);
         }
