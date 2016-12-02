@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 public class HashtagPostSorter extends AbstractPostSorter {
 
+    private static final int POST_THRESHOLD = AbstractDataAccess.getMaxPostlists() / 2;
     private static final String NO_HASHTAGS = "N/A";
     private Calculator calc;
 
@@ -61,6 +62,7 @@ public class HashtagPostSorter extends AbstractPostSorter {
      * Prepares the new hashtag display channels given a list of new posts, pre-sorted into a map of hashtags to list
      * of posts containing that hashtag
      *
+     * Only loads a list of posts under a hashtag if its size is greater than POST_THRESHOLD
      * @param sortedPosts map of hashtags to list of posts containing that hashtag
      */
     @Override
@@ -91,6 +93,13 @@ public class HashtagPostSorter extends AbstractPostSorter {
                             .collect(Collectors.toList())
             );
 
+        });
+
+        // filter out lists with fewer than POST_THRESHOLD posts
+        hashTagPosts.forEach((s, l) -> {
+            if (l.size() < POST_THRESHOLD) {
+                l = Collections.emptyList();
+            }
         });
 
         // load each hashtag list into data store under hashtag key
