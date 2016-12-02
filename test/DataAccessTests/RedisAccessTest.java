@@ -86,7 +86,7 @@ public class RedisAccessTest {
      */
 
     @Test
-    public void addPostToEmptyRedis() {
+    public void testAddPostToEmpty() {
         assumeTrue(redisTestsIncluded);
 
         List<Post> posts = generateListOfPosts(numTestPosts);
@@ -97,7 +97,7 @@ public class RedisAccessTest {
     }
 
     @Test
-    public void addPostToNonEmptyRedis() {
+    public void testAddPostToNonEmpty() {
         assumeTrue(redisTestsIncluded);
 
         List<Post> posts = generateListOfPosts(numTestPosts);
@@ -111,7 +111,7 @@ public class RedisAccessTest {
     }
 
     @Test
-    public void addPostsToEmptyRedis() {
+    public void testAddPostsToEmpty() {
         assumeTrue(redisTestsIncluded);
 
         List<Post> posts = generateListOfPosts(numTestPosts);
@@ -123,7 +123,7 @@ public class RedisAccessTest {
     }
 
     @Test
-    public void addPostsToNonEmptyRedis() {
+    public void testAddPostsToNonEmpty() {
         assumeTrue(redisTestsIncluded);
 
         List<Post> posts = generateListOfPosts(numTestPosts);
@@ -137,7 +137,7 @@ public class RedisAccessTest {
     }
 
     @Test
-    public void popEmptyPostRedis() {
+    public void testPopEmptyPost() {
         assumeTrue(redisTestsIncluded);
 
         // Need to see that we handle an empty response correctly
@@ -145,7 +145,7 @@ public class RedisAccessTest {
     }
 
     @Test
-    public void popNonEmptyPostRedis() {
+    public void testPopNonEmptyPost() {
         assumeTrue(redisTestsIncluded);
 
         List<Post> posts = generateListOfPosts(numTestPosts);
@@ -160,7 +160,7 @@ public class RedisAccessTest {
     }
 
     @Test
-    public void addListOfPostsToEmptyRedis() {
+    public void testAddListOfPostsToEmpty() {
         assumeTrue(redisTestsIncluded);
 
         List<Post> posts = generateListOfPosts(numTestPosts);
@@ -171,7 +171,7 @@ public class RedisAccessTest {
     }
 
     @Test
-    public void addListOfOddOrderedPostsToNonEmptyRedis() {
+    public void testAddListOfOddOrderedPostsToNonEmpty() {
         assumeTrue(redisTestsIncluded);
 
         List<Post> posts = generateListOfPosts(numTestPosts);
@@ -189,7 +189,7 @@ public class RedisAccessTest {
     }
 
     @Test
-    public void getEmptyListofPosts() {
+    public void testGetEmptyListofPosts() {
         assumeTrue(redisTestsIncluded);
 
         // check for proper empty return value
@@ -198,7 +198,7 @@ public class RedisAccessTest {
     }
 
     @Test
-    public void getNonEmptyListofPosts() {
+    public void testGetNonEmptyListofPosts() {
         assumeTrue(redisTestsIncluded);
 
         List<Post> posts = generateListOfPosts(numTestPosts);
@@ -208,34 +208,12 @@ public class RedisAccessTest {
         assertEquals(posts, redisAccessObject.getAllPostsFromSource(testKeyString));
     }
 
-    @Test
-    public void popOldestPostFromEmpty() {
-        assumeTrue(redisTestsIncluded);
-
-        // check for proper error handling on empty keyspace
-        assertEquals(Optional.empty(), redisAccessObject.popFirstPostFromSource(testKeyString));
-    }
-
-    @Test
-    public void popOldestPostFromNonEmpty() {
-        assumeTrue(redisTestsIncluded);
-
-        List<Post> posts = generateListOfPosts(numTestPosts);
-
-        // initialize with posts, and pop one post
-        redisAccessObject.addNewPostsFromSource(testKeyString, posts);
-        redisAccessObject.popFirstPostFromSource(testKeyString);
-
-        // pop second post to see if popped in order
-        assertEquals(Optional.of(posts.get(1)), redisAccessObject.popFirstPostFromSource(testKeyString));
-    }
-
     /*
      * PostList Management Tests
      */
 
     @Test
-    public void peekAtEmptyPostList() {
+    public void testPeekAtEmptyPostList() {
         assumeTrue(redisTestsIncluded);
 
         // check for error handling on empty PostList
@@ -243,7 +221,7 @@ public class RedisAccessTest {
     }
 
     @Test
-    public void peekAtNonEmptyPostList() {
+    public void testPeekAtNonEmptyPostList() {
         assumeTrue(redisTestsIncluded);
 
         PostList postList = generatePostList(numTestPosts);
@@ -260,7 +238,7 @@ public class RedisAccessTest {
     }
 
     @Test
-    public void addDisplayPostToEmpty() {
+    public void testAddDisplayPostToEmpty() {
         assumeTrue(redisTestsIncluded);
 
         PostList postList = generatePostList(numTestPosts);
@@ -271,7 +249,7 @@ public class RedisAccessTest {
     }
 
     @Test
-    public void addHashTagPostListToEmpty() {
+    public void testAddHashTagPostListToEmpty() {
         assumeTrue(redisTestsIncluded);
 
         PostList postList = generatePostList(numTestPosts);
@@ -281,7 +259,7 @@ public class RedisAccessTest {
     }
 
     @Test
-    public void addDisplayPostListToNonEmptyMemory() {
+    public void testAddDisplayPostListToNonEmpty() {
         assumeTrue(redisTestsIncluded);
 
         PostList postList = generatePostList(numTestPosts);
@@ -292,7 +270,7 @@ public class RedisAccessTest {
     }
 
     @Test
-    public void addHashTagPostListToNonEmptyMemory() {
+    public void testAddHashTagPostListToNonEmpty() {
         assumeTrue(redisTestsIncluded);
 
         PostList postList = generatePostList(numTestPosts);
@@ -303,7 +281,7 @@ public class RedisAccessTest {
     }
 
     @Test
-    public void getOutOfBoundsPostList() {
+    public void testGetOutOfBoundsPostList() {
         assumeTrue(redisTestsIncluded);
 
         PostList postList = generatePostList(numTestPosts);
@@ -317,13 +295,13 @@ public class RedisAccessTest {
      */
 
     @Test
-    public void getNumPostsInEmptyNameSpace() {
+    public void testGetNumPostsInEmptyNameSpace() {
         assumeTrue(redisTestsIncluded);
         assertEquals(0, redisAccessObject.getNumPostsInNameSpace(""));
     }
 
     @Test
-    public void getNumPostsInNonEmptyNameSpace() {
+    public void testGetNumPostsInNonEmptyNameSpace() {
         assumeTrue(redisTestsIncluded);
 
         List<Post> posts = generateListOfPosts(numTestPosts);
@@ -362,7 +340,7 @@ public class RedisAccessTest {
      */
 
     @Test
-    public void getKeysInEmptyNameSpace() {
+    public void testGetKeysInEmptyNameSpace() {
         assumeTrue(redisTestsIncluded);
 
         // result on query for non-existent keys should be empty
@@ -370,7 +348,7 @@ public class RedisAccessTest {
     }
 
     @Test
-    public void getKeysInNonEmptyNameSpace() {
+    public void testGetKeysInNonEmptyNameSpace() {
         assumeTrue(redisTestsIncluded);
 
         List<Post> posts = generateListOfPosts(numTestPosts);
@@ -389,7 +367,7 @@ public class RedisAccessTest {
      */
 
     @Test
-    public void deleteNPostsFromNonEmptyListOfPosts() {
+    public void testDeleteNPostsFromNonEmptyListOfPosts() {
         assumeTrue(redisTestsIncluded);
 
         List<Post> posts = generateListOfPosts(numTestPosts);
@@ -402,7 +380,7 @@ public class RedisAccessTest {
     }
 
     @Test
-    public void deleteNPostsFromEmptyListOfPosts() {
+    public void testDeleteNPostsFromEmptyListOfPosts() {
         assumeTrue(redisTestsIncluded);
 
         // delete on empty should result in empty.
@@ -411,7 +389,7 @@ public class RedisAccessTest {
     }
 
     @Test
-    public void deleteMoreThanSizePostsFromListOfPosts() {
+    public void testDeleteMoreThanSizePostsFromListOfPosts() {
         assumeTrue(redisTestsIncluded);
 
         List<Post> posts = generateListOfPosts(numTestPosts);
@@ -424,7 +402,7 @@ public class RedisAccessTest {
     }
 
     @Test
-    public void deleteZeroPostsFromListOfPosts() {
+    public void testDeleteZeroPostsFromListOfPosts() {
         assumeTrue(redisTestsIncluded);
 
         List<Post> posts = generateListOfPosts(numTestPosts);
