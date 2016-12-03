@@ -30,12 +30,12 @@ public class HashtagPostSorter extends AbstractPostSorter {
 
         // sort by popularity, in decreasing order
         List<Post> listOfPostsClone = new ArrayList<>(posts);
-        listOfPostsClone.stream()
+        listOfPostsClone = listOfPostsClone.stream()
                 .sorted(Collections.reverseOrder(Comparator.comparingInt(Post::getPopularityScore)))
                 .collect(Collectors.toList());
 
         // iterate through individual posts
-        for (Post post : posts) {
+        for (Post post : listOfPostsClone) {
 
             // iterate over each hashtag contained in posts
             for (int hashtagIndex = 0; hashtagIndex < post.getHashtagCount(); hashtagIndex++) {

@@ -106,8 +106,8 @@ public class ImgurSource implements RestfulSource {
 
     private Post createPost(JsonObject object) {
         Post.Builder builder = Post.newBuilder();
-        builder.setId(object.getAsJsonPrimitive("id").getAsString());           // convert from seconds to millis
-        builder.setTimestamp(object.getAsJsonPrimitive("datetime").getAsLong() * ONE_THOUSAND);
+        builder.setId(object.getAsJsonPrimitive("id").getAsString());
+        builder.setTimestamp(object.getAsJsonPrimitive("datetime").getAsLong() * ONE_THOUSAND); // convert from seconds to millis
         builder.addSource(object.getAsJsonPrimitive("account_url").getAsString());
         builder.addSourceLink(object.getAsJsonPrimitive("link").getAsString());
         builder.setPopularityScore(0);

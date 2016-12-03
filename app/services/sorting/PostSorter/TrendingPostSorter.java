@@ -2,6 +2,7 @@ package services.sorting.PostSorter;
 
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.proto.PostProto.Post;
+import services.sorting.Calculator;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -11,7 +12,12 @@ import static services.PublicConstants.TRENDING;
 
 public class TrendingPostSorter extends AbstractPostSorter {
 
-    public TrendingPostSorter(AbstractDataAccess dataSource) { super(dataSource); }
+    private Calculator calc;
+
+    public TrendingPostSorter(AbstractDataAccess dataSource) {
+        super(dataSource);
+        calc = new Calculator();
+    }
 
     /**
      * Sorts a list of posts based on their popularity score relative to the existing display channels
@@ -58,7 +64,7 @@ public class TrendingPostSorter extends AbstractPostSorter {
      * @return list of posts, now with calculated popularity velocities
      */
     private List<Post> calculateRelativePopularity(String displayName, List<Post> newPosts) {
-        List<Post> calculatedPosts = new ArrayList<>();
+        List<Post> calculatedPosts;
 
         // retrieve old posts from specified display channel
         List<Post> oldPosts = expandPostLists(dataSource.getAllDisplayPostLists(displayName));
@@ -68,20 +74,9 @@ public class TrendingPostSorter extends AbstractPostSorter {
         oldPosts.forEach(post -> oldPostIdMap.put(post.getId(), post));
 
         // calculate popularity velocity for each new post, relative to the same post in the past
-        newPosts.forEach(newPost -> {
-            // if old post does not exist on record, new post receives popularity velocity of 0
-            int popularityVelocity = 0;
-
-            Post oldPost = oldPostIdMap.get(newPost.getId());
-            if (oldPost != null) {
-
-                // If post does exist on record, calculate popularity velocity and rebuild post
-                popularityVelocity = newPost.getPopularityScore() - oldPost.getPopularityScore();
-                newPost = newPost.toBuilder().setPopularityVelocity(popularityVelocity).build();
-            }
-
-            calculatedPosts.add(newPost);
-        });
+        calculatedPosts = newPosts.stream()
+                .map(newPost -> calc.calculatePopularityVelocity(newPost, oldPostIdMap.get(newPost.getId())))
+                .collect(Collectors.toList());
 
         return calculatedPosts;
     }

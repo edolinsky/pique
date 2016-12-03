@@ -4,6 +4,7 @@ import services.dataAccess.proto.PostProto.Post;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Calculator {
 
@@ -19,14 +20,9 @@ public class Calculator {
      * @return the same list of posts, but with each post now containing a popularity score
      */
     public List<Post> calculatePopularityScoreOfAllPosts(List<Post> posts) {
-        List<Post> calculatedPosts = new ArrayList<>();
 
-        posts.forEach(post -> {
-            post = calculatePopularityAndRebuild(post);
-            calculatedPosts.add(post);
-        });
+        return posts.stream().map(this::calculatePopularityAndRebuild).collect(Collectors.toList());
 
-        return calculatedPosts;
     }
 
     /**
@@ -89,6 +85,29 @@ public class Calculator {
         }
 
         return (int) popularity;
+    }
+
+
+    /**
+     * Calculates the popularity velocity of a new post relative to the same post in the past
+     *
+     * @param newPost new version of post
+     * @param oldPost old version of post
+     * @return new post rebuilt with newly calculated popularity velocity
+     */
+    public Post calculatePopularityVelocity(Post newPost, Post oldPost) {
+        // if old post does not exist on record, new post receives popularity velocity of 0
+        int popularityVelocity = 0;
+
+        if (oldPost != null) {
+
+            // If post does exist on record, calculate popularity velocity and rebuild post
+            popularityVelocity = newPost.getPopularityScore() - oldPost.getPopularityScore();
+        }
+
+        newPost = newPost.toBuilder().setPopularityVelocity(popularityVelocity).build();
+
+        return newPost;
     }
 
     /** static getters **/

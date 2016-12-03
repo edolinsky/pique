@@ -114,4 +114,42 @@ public class CalculatorTest {
         assertEquals(Collections.emptyList(), posts);
     }
 
+    @Test
+    public void testCalculatePopularityVelocityIncreasing() {
+        int newPopScore = 10;
+        int oldPopScore = 5;
+        List<Post> posts = generateListOfPosts(1);
+
+        Post newPost = posts.get(0).toBuilder().setPopularityScore(newPopScore).build();
+        Post oldPost = posts.get(0).toBuilder().setPopularityScore(oldPopScore).build();
+
+        // increase in popularity score gives positive popularity velocity
+        assertEquals(newPopScore - oldPopScore, calc.calculatePopularityVelocity(newPost, oldPost).getPopularityVelocity());
+    }
+
+    @Test
+    public void testCalculatePopularityVelocityDecreasing() {
+        int newPopScore = 5;
+        int oldPopScore = 10;
+        List<Post> posts = generateListOfPosts(1);
+
+        Post newPost = posts.get(0).toBuilder().setPopularityScore(newPopScore).build();
+        Post oldPost = posts.get(0).toBuilder().setPopularityScore(oldPopScore).build();
+
+        // decrease in popularity score gives negative popularity velocity
+        assertEquals(newPopScore - oldPopScore, calc.calculatePopularityVelocity(newPost, oldPost).getPopularityVelocity());
+    }
+
+    @Test
+    public void testCalculatePopularityVelocityZero() {
+        int popScore = 1;
+        List<Post> posts = generateListOfPosts(1);
+
+        Post newPost = posts.get(0).toBuilder().setPopularityScore(popScore).build();
+        Post oldPost = posts.get(0).toBuilder().setPopularityScore(popScore).build();
+
+        // same popularity score gives 0 popularity velocity
+        assertEquals(0, calc.calculatePopularityVelocity(newPost, oldPost).getPopularityVelocity());
+    }
+
 }
