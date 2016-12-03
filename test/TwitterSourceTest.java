@@ -34,7 +34,7 @@ public class TwitterSourceTest {
 
 	@Test
 	public void testNoRetweets() {
-        List<Status> statuses = twitterSource.getStatusesForTrend("vancouver", 100, null);
+        List<Status> statuses = twitterSource.getStatusesForTrend("#vancouver", 100, null);
 
         statuses.stream().forEach(s -> assertFalse(s.isRetweet()));
     }

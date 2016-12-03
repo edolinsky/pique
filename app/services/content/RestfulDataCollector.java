@@ -1,5 +1,6 @@
 package services.content;
 
+import services.PublicConstants;
 import services.dataAccess.AbstractDataAccess;
 import services.dataAccess.proto.PostProto.Post;
 import services.sources.RestfulSource;
@@ -15,6 +16,7 @@ import java.util.Map;
 import java.util.Queue;
 
 import static services.PublicConstants.HTTP_GET;
+import static services.PublicConstants.MAX_TRACKED_TRENDS;
 
 /**
  * This class is capable of making RESTful API calls to collect data, given an
@@ -29,7 +31,7 @@ public class RestfulDataCollector extends AbstractDataCollector {
 
 	private RestfulSource source;
 	private Queue<String> trends = new LinkedList<>();
-    private Map<String, Long> sinceIds = new PostIdCache();
+    private Map<String, Long> sinceIds = new PostIdCache(MAX_TRACKED_TRENDS);
 
 	public RestfulDataCollector(AbstractDataAccess dataAccess, RestfulSource source) {
         super(dataAccess);
