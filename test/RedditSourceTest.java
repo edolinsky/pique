@@ -42,6 +42,7 @@ public class RedditSourceTest {
     @Test
     public void testGetMaxTrendingPosts() {
         List<Post> post = redditSource.getMaxTrendingPosts("");
+        assertTrue(post.get(0) != post.get(100));
         assertEquals(900, post.size());
     }
 

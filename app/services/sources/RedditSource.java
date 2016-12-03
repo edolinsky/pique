@@ -42,16 +42,22 @@ public class RedditSource implements JavaSource {
     private static final Long WINDOW_LENGTH = TimeUnit.MINUTES.toMillis(1);
 
     private RedditClient redditClient;
+    private Credentials credentials;
 
 
     public RedditSource() {
         UserAgent myUserAgent = UserAgent.of("desktop", System.getenv(REDDIT_CLIENTID), "v0.1", System.getenv(REDDIT_USER));
         redditClient = new RedditClient(myUserAgent);
-        Credentials credentials = Credentials.script(System.getenv(REDDIT_USER),
+
+        credentials = Credentials.script(System.getenv(REDDIT_USER),
                                                      System.getenv(REDDIT_PASS),
                                                      System.getenv(REDDIT_CLIENTID),
                                                      System.getenv(REDDIT_SECRET));
 
+        authenticateReddit();
+    }
+
+    private void authenticateReddit() {
         OAuthData authData = null;
 
         try {
@@ -105,8 +111,8 @@ public class RedditSource implements JavaSource {
     }
 
     public List<Submission> getHotPosts(int numPosts) {
+        authenticateReddit();
         SubredditPaginator sp = new SubredditPaginator(redditClient);
-        Iterator<Listing<Submission>> listingIterator = sp.iterator();
 
         sp.setLimit(numPosts);
         sp.setSorting(Sorting.HOT);
@@ -114,13 +120,12 @@ public class RedditSource implements JavaSource {
         sp.next(true);
 
         List<Submission> hotPosts = new ArrayList<>();
-        Listing<Submission> page = sp.getCurrentListing();
 
-        hotPosts.addAll(page);
+        hotPosts.addAll(sp.getCurrentListing());
 
         //Iterate through next Reddit pages and add to hotPosts. Each page only returns 100
-        while(listingIterator.hasNext() && hotPosts.size() <= numPosts) {
-            Listing<Submission> nextPage = listingIterator.next();
+        while(sp.hasNext() && hotPosts.size() <= numPosts) {
+            Listing<Submission> nextPage = sp.next();
 
             hotPosts.addAll(nextPage);
         }
@@ -128,6 +133,8 @@ public class RedditSource implements JavaSource {
         //Only return numPosts # of hot posts from the list
         hotPosts.removeAll(hotPosts.subList(numPosts-1, hotPosts.size()-1));
 
+        redditClient.getOAuthHelper().revokeAccessToken(credentials);
+        redditClient.deauthenticate();
 
         return hotPosts;
     }
