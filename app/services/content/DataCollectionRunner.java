@@ -44,8 +44,10 @@ public class DataCollectionRunner implements Runnable {
                 int numPosts = collect();
                 logCollection(numPosts);
                 notification.notify();
+            }
 
-                if (rehydrationRequest != null) {
+            if (rehydrationRequest != null) {
+                synchronized (rehydrationRequest) {
                     rehydrationRequest.notify();
                 }
             }
@@ -66,8 +68,12 @@ public class DataCollectionRunner implements Runnable {
     public int collect() {
         List<Post> posts = collector.fetch();
         collector.store(posts);
-        rehydrationRequest.requestRehydrationFor(posts.stream()
-                .map(p -> Long.parseLong(p.getId())).collect(Collectors.toList()));
+
+        if (rehydrationRequest != null) {
+            rehydrationRequest.requestRehydrationFor(posts.stream()
+                    .map(p -> Long.parseLong(p.getId())).collect(Collectors.toList()));
+        }
+
         return posts.size();
     }
 

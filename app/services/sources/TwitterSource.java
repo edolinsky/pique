@@ -70,7 +70,7 @@ public class TwitterSource implements JavaSource, Rehydratable {
 
     @Override
     public long getQueryDelta() {
-        return WINDOW_LENGTH/(MAX_SEARCH_PER_WINDOW * 1/2);
+        return WINDOW_LENGTH/(MAX_SEARCH_PER_WINDOW * 1/5);
     }
 
     @Override
@@ -246,8 +246,20 @@ public class TwitterSource implements JavaSource, Rehydratable {
 
 	@Override
 	public List<Post> rehydrate(List<Long> ids) {
-		return null;
-	}
+        long[] idArray = new long[ids.size()];
+        for (int i = 0; i < ids.size(); i++) {
+            idArray[i] = ids.get(i);
+        }
+
+        try {
+            ResponseList<Status> results = twitter.lookup(idArray);
+            return parseStatuses(results);
+        } catch (TwitterException e) {
+            e.printStackTrace();
+        }
+
+        return Collections.emptyList();
+    }
 
 	@Override
 	public Integer numRehydrationQueries() {
