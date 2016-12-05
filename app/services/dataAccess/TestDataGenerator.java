@@ -80,7 +80,7 @@ public class TestDataGenerator {
 
         List<String> tags = new ArrayList<>();
         for (int i = 0; i < numTags; i++) {
-            tags.add(randomString("#", randomWordLength()));
+            tags.add(randomString("", randomWordLength()));
         }
 
         return tags;
