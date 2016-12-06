@@ -1,6 +1,5 @@
 package services.dataAccess;
 
-import services.dataAccess.proto.PostListProto;
 import services.dataAccess.proto.PostListProto.PostList;
 import services.dataAccess.proto.PostProto.Post;
 
@@ -177,8 +176,41 @@ public class InMemoryAccessObject extends AbstractDataAccess {
 
     @Override
     public List<String> getKeysInNameSpace(String nameSpace) {
-        // filter key set for keys matching keyString and return filtered list
-        return postDataStore.keySet().stream().filter(key -> key.contains(nameSpace + NAMESPACE_DELIMITER)).collect(Collectors.toList());
+
+        // search through post data store for namespace
+        for (String keyString : postDataStore.keySet()) {
+            if (keyString.startsWith(nameSpace)) {
+
+                // return all keys in namespace in post data store
+                return postDataStore.keySet().stream()
+                        .filter(key -> key.contains(nameSpace + NAMESPACE_DELIMITER))
+                        .collect(Collectors.toList());
+            }
+        }
+
+        // search through postList data store for namespace
+        for (String keyString : postListDataStore.keySet()) {
+            if (keyString.startsWith(nameSpace)) {
+
+                // return all keys in namespace in postList data store
+                return postListDataStore.keySet().stream()
+                        .filter(key -> key.contains(nameSpace + NAMESPACE_DELIMITER))
+                        .collect(Collectors.toList());
+            }
+        }
+
+        // search through string list data store for namespace
+        for (String keyString : stringListDataStore.keySet()) {
+            if (keyString.startsWith(nameSpace)) {
+
+                // return all keys in namespace in string list data store
+                return stringListDataStore.keySet().stream()
+                        .filter(key -> key.contains(nameSpace + NAMESPACE_DELIMITER))
+                        .collect(Collectors.toList());
+            }
+        }
+
+        return Collections.emptyList();
     }
 
     @Override
