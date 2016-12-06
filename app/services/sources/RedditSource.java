@@ -110,6 +110,11 @@ public class RedditSource implements JavaSource {
         return redditClient;
     }
 
+    /**
+     * Iterates through pages of Reddit's front page and returns a list of all of the submissions
+     * @param numPosts number of submissions to query
+     * @return List of type Submission
+     */
     public List<Submission> getHotPosts(int numPosts) {
         authenticateReddit();
         SubredditPaginator sp = new SubredditPaginator(redditClient);
