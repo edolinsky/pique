@@ -7,13 +7,9 @@ public class PublicConstants {
     // http method
     public static final String HTTP_GET = "GET";
 
-    // special characters
-    public static final String HASHTAG = "%23";
-
-
     /** data collection **/
 
-    public static final Integer MAX_TRACKED_TRENDS = 10000;
+    public static final Integer MAX_TRACKED_TRENDS = 100;
 
     // twitter auth
     public static final String TWITTER4J_CONSUMER_KEY = "twitter4j_consumerKey";

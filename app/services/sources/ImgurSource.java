@@ -62,12 +62,12 @@ public class ImgurSource implements RestfulSource {
 
     /**
      * imgur has harsher penalties for an overage so we are going to run this at a slightly
-     * slower rate of 75% max.
+     * slower rate
      * @return
      */
     @Override
     public long getQueryDelta() {
-        return WINDOW_LENGTH/(MAX_SEARCH_PER_WINDOW * 4/10);
+        return WINDOW_LENGTH/(MAX_SEARCH_PER_WINDOW * 1/5);
     }
 
     @Override
@@ -113,8 +113,8 @@ public class ImgurSource implements RestfulSource {
         builder.setPopularityScore(0);
         builder.setPopularityVelocity(0);
         builder.setNumComments(object.getAsJsonPrimitive("comment_count").getAsInt());
-        builder.setNumShares(object.getAsJsonPrimitive("views").getAsInt());
-        builder.setNumLikes(object.getAsJsonPrimitive("points").getAsInt());
+        builder.setNumShares(object.getAsJsonPrimitive("score").getAsInt());
+        builder.setNumLikes(object.getAsJsonPrimitive("ups").getAsInt());
         builder.addText(object.getAsJsonPrimitive("title").getAsString());
         builder.addHashtag(object.getAsJsonPrimitive("topic").getAsString());
 

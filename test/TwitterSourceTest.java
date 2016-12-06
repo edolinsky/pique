@@ -4,6 +4,7 @@ import services.dataAccess.proto.PostProto.Post;
 import services.sources.TwitterSource;
 import twitter4j.Status;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,7 +35,7 @@ public class TwitterSourceTest {
 
 	@Test
 	public void testNoRetweets() {
-        List<Status> statuses = twitterSource.getStatusesForTrend("vancouver", 100, null);
+        List<Status> statuses = twitterSource.getStatusesForTrend("#vancouver", 100, null);
 
         statuses.stream().forEach(s -> assertFalse(s.isRetweet()));
     }
@@ -52,5 +53,20 @@ public class TwitterSourceTest {
                 (Collectors.toSet());
         assertFalse(newIds.contains(postId));
     }
+
+	@Test
+	public void testRehydrate() {
+		String trend = "vancouver";
+		List<Post> post = twitterSource.getTrendingPosts(trend, 1 , null);
+		assertEquals(1, post.size());
+
+		Long postId = Long.parseLong(post.get(0).getId());
+		List<Post> rehydrated = twitterSource.rehydrate(Collections.singletonList(postId));
+		assertEquals(1, rehydrated.size());
+
+		Long rehydratedId = Long.parseLong(rehydrated.get(0).getId());
+		assertEquals(postId, rehydratedId);
+
+	}
 
 }
