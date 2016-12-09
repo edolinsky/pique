@@ -66,6 +66,7 @@ public class JavaDataCollector extends AbstractDataCollector {
 		if (!posts.isEmpty()) {
 			sinceIds.put(trend, Long.parseLong(posts.get(0).getId()));
 		}
+
         return posts;
 	}
 }
