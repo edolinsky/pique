@@ -1,5 +1,6 @@
 package services.sources;
 
+import services.dataAccess.proto.PostProto;
 import services.dataAccess.proto.PostProto.Post;
 import twitter4j.HashtagEntity;
 import twitter4j.Location;
@@ -22,13 +23,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static services.PublicConstants.HASHTAG;
 import static services.PublicConstants.TWITTER4J_ACCESS_TOKEN;
 import static services.PublicConstants.TWITTER4J_ACCESS_TOKEN_SECRET;
 import static services.PublicConstants.TWITTER4J_CONSUMER_KEY;
@@ -39,13 +37,14 @@ import static services.PublicConstants.TWITTER4J_CONSUMER_SECRET;
  *
  * @author Reid Oliveira, Sammie Jiang
  */
-public class TwitterSource implements JavaSource {
+public class TwitterSource implements JavaSource, Rehydratable {
     
     private static final String TWITTER = "twitter";
     private static final String DEFAULT_TEXT = "N/A";
 	private static final Integer MAX_REQUEST_SIZE = 100;
     private static final String FILTER_RETWEETS = " -filter:retweets";
     private static final Integer MAX_SEARCH_PER_WINDOW = 450;
+	private static final Integer MAX_REHYDRATE_PER_WINDOW = 900;
     private static final Long WINDOW_LENGTH = TimeUnit.MINUTES.toMillis(15);
 
 	private Map<String, Set<Location>> cachedCodes = new HashMap<>();
@@ -71,7 +70,7 @@ public class TwitterSource implements JavaSource {
 
     @Override
     public long getQueryDelta() {
-        return WINDOW_LENGTH/(MAX_SEARCH_PER_WINDOW * 1/2);
+        return WINDOW_LENGTH/(MAX_SEARCH_PER_WINDOW * 1/5);
     }
 
     @Override
@@ -81,8 +80,8 @@ public class TwitterSource implements JavaSource {
             Optional<Integer> id = getLocationId(country, city);
 
             if (id.isPresent()) {
-                return Arrays.asList(twitter.getPlaceTrends(id.get()).getTrends()).stream().map
-                        (Trend::getName).collect(Collectors.toList());
+                return Arrays.asList(twitter.getPlaceTrends(id.get()).getTrends())
+                        .stream().map(Trend::getName).collect(Collectors.toList());
             }
         } catch (TwitterException e){
             e.printStackTrace();
@@ -108,7 +107,7 @@ public class TwitterSource implements JavaSource {
     }
 
     public List<Status> getStatusesForTrend(String trend, int numPosts, Long sinceId) {
-        Query trendQuery = new Query(asHashtag(trend) + FILTER_RETWEETS);
+        Query trendQuery = new Query(trend + FILTER_RETWEETS);
         trendQuery.setCount(numPosts);
         if (sinceId != null) {
             trendQuery.setSinceId(sinceId);
@@ -123,10 +122,6 @@ public class TwitterSource implements JavaSource {
         }
 
         return Collections.emptyList();
-    }
-
-    private String asHashtag(String trend) {
-        return HASHTAG + trend;
     }
 
 	/**
@@ -247,5 +242,37 @@ public class TwitterSource implements JavaSource {
 				builder.addExtLink(urlArray[k].getURL());
 			}
 		}
+	}
+
+	@Override
+	public List<Post> rehydrate(List<Long> ids) {
+        long[] idArray = new long[ids.size()];
+        for (int i = 0; i < ids.size(); i++) {
+            idArray[i] = ids.get(i);
+        }
+
+        try {
+            ResponseList<Status> results = twitter.lookup(idArray);
+            return parseStatuses(results);
+        } catch (TwitterException e) {
+            e.printStackTrace();
+        }
+
+        return Collections.emptyList();
+    }
+
+	@Override
+	public Integer numRehydrationQueries() {
+		return MAX_REHYDRATE_PER_WINDOW;
+	}
+
+	@Override
+	public Long rehydrationWindowLength() {
+		return WINDOW_LENGTH;
+	}
+
+	@Override
+	public Integer maxPostsForRehydrate() {
+		return MAX_REQUEST_SIZE;
 	}
 }

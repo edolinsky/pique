@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
+import static services.PublicConstants.MAX_TRACKED_TRENDS;
+
 /**
  * This class interacts with an {@link Source} to collect data through a Java
  * library and an {@link AbstractDataAccess} to place the results
@@ -24,7 +26,7 @@ public class JavaDataCollector extends AbstractDataCollector {
 
 	private JavaSource source;
 	private Queue<String> trends = new LinkedList<>();
-	private Map<String, Long> sinceIds = new PostIdCache();
+	private Map<String, Long> sinceIds = new PostIdCache(MAX_TRACKED_TRENDS);
 
 	public JavaDataCollector(AbstractDataAccess dataAccess, JavaSource source) {
 		super(dataAccess);

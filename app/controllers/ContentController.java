@@ -36,14 +36,14 @@ public class ContentController {
         collectors = new ArrayList<>();
 
         Thread twitter = new Thread(new DataCollectionRunner(new JavaDataCollector(access, new
-                TwitterSource()), sortNotification)); // TODO THIS IS AWFUL
+                TwitterSource()), sortNotification));
         twitter.start();
-	collectors.add(twitter);
+	    collectors.add(twitter);
 
         Thread imgur = new Thread(new DataCollectionRunner(new RestfulDataCollector(access, new
                 ImgurSource()), sortNotification));
         imgur.start();
-	collectors.add(imgur);
+	    collectors.add(imgur);
 
         Thread reddit = new Thread(new DataCollectionRunner(new JavaDataCollector(access, new
                 RedditSource()), sortNotification));
