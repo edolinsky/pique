@@ -45,7 +45,7 @@
                             <li role="presentation"><a id="#" title="Trending" onclick="trendingFunction('0');return false;">Trending</a></li>
                             <form class="navbar-form pull-right">
                                 <div class="form-group">
-                                    <input type="text" class="form-control" placeholder="#SearchHashtags">
+                                    <input type="text" class="form-control" placeholder="#SearchHashtags" id="SearchHashtags">
                                 </div>
                             </form>
                         </ul>
@@ -57,7 +57,7 @@
         </nav>
 
     </head>
-    <body onload="topFunction()">
+    <body onload="topFunction('0')">
         @content
     </body>
 </html>
