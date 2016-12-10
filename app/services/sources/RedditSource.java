@@ -4,6 +4,7 @@ import services.dataAccess.proto.PostProto.Post;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -16,8 +17,6 @@ import net.dean.jraw.http.oauth.OAuthException;
 import net.dean.jraw.http.NetworkException;
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Submission;
-import net.dean.jraw.models.Subreddit;
-import net.dean.jraw.paginators.SubredditStream;
 import net.dean.jraw.paginators.SubredditPaginator;
 import net.dean.jraw.paginators.Sorting;
 import net.dean.jraw.paginators.TimePeriod;
@@ -38,22 +37,27 @@ public class RedditSource implements JavaSource {
 
     private static final String REDDIT = "reddit";
     private static final String DEFAULT_TEXT = "N/A";
-    private static final Integer MAX_SUBREDDIT_REQUEST_SIZE = 10;
-    private static final Integer MAX_REQUEST_SIZE = 200;
+    private static final Integer MAX_REQUEST_SIZE = 900;
     private static final Integer MAX_SEARCH_PER_WINDOW = 60;
     private static final Long WINDOW_LENGTH = TimeUnit.MINUTES.toMillis(1);
 
     private RedditClient redditClient;
+    private Credentials credentials;
 
-    //DiscordException??
+
     public RedditSource() {
         UserAgent myUserAgent = UserAgent.of("desktop", System.getenv(REDDIT_CLIENTID), "v0.1", System.getenv(REDDIT_USER));
         redditClient = new RedditClient(myUserAgent);
-        Credentials credentials = Credentials.script(System.getenv(REDDIT_USER),
+
+        credentials = Credentials.script(System.getenv(REDDIT_USER),
                                                      System.getenv(REDDIT_PASS),
                                                      System.getenv(REDDIT_CLIENTID),
                                                      System.getenv(REDDIT_SECRET));
 
+        authenticateReddit();
+    }
+
+    private void authenticateReddit() {
         OAuthData authData = null;
 
         try {
@@ -77,32 +81,19 @@ public class RedditSource implements JavaSource {
 
     @Override
     public long getQueryDelta() {
-        return WINDOW_LENGTH/(MAX_SEARCH_PER_WINDOW * 1/2);
+        return WINDOW_LENGTH/(MAX_SEARCH_PER_WINDOW * 1/5);
     }
 
 
     @Override
     public List<String> getTrends(String country, String city) {
-
-        SubredditStream subredditStream = new SubredditStream(redditClient, "popular");
-        ArrayList<String> trendingSubreddits = new ArrayList<>();
-
-
-        while(subredditStream.hasNext() && trendingSubreddits.size() < MAX_SUBREDDIT_REQUEST_SIZE) {
-            Listing<Subreddit> subredditPage = subredditStream.next();
-
-            for(int i=0; i<subredditStream.next().size(); i++) {
-                trendingSubreddits.add(subredditPage.get(i).getDisplayName());
-            }
-        }
-
-        return trendingSubreddits;
+        return Collections.emptyList();
     }
 
 
     @Override
     public List<Post> getTrendingPosts(String trend, int numPosts, Long sinceId) {
-        return parseSubmissions(getHotPosts());
+        return parseSubmissions(getHotPosts(numPosts));
     }
 
     @Override
@@ -119,17 +110,38 @@ public class RedditSource implements JavaSource {
         return redditClient;
     }
 
-    public List<Submission> getHotPosts() {
+    /**
+     * Iterates through pages of Reddit's front page and returns a list of all of the submissions
+     * @param numPosts number of submissions to query
+     * @return List of type Submission
+     */
+    public List<Submission> getHotPosts(int numPosts) {
+        authenticateReddit();
         SubredditPaginator sp = new SubredditPaginator(redditClient);
 
-        sp.setLimit(MAX_REQUEST_SIZE);
+        sp.setLimit(numPosts);
         sp.setSorting(Sorting.HOT);
         sp.setTimePeriod(TimePeriod.DAY);
         sp.next(true);
 
-        Listing<Submission> list = sp.getCurrentListing();
+        List<Submission> hotPosts = new ArrayList<>();
 
-        return list;
+        hotPosts.addAll(sp.getCurrentListing());
+
+        //Iterate through next Reddit pages and add to hotPosts. Each page only returns 100
+        while(sp.hasNext() && hotPosts.size() <= numPosts) {
+            Listing<Submission> nextPage = sp.next();
+
+            hotPosts.addAll(nextPage);
+        }
+
+        //Only return numPosts # of hot posts from the list
+        hotPosts.removeAll(hotPosts.subList(numPosts-1, hotPosts.size()-1));
+
+        redditClient.getOAuthHelper().revokeAccessToken(credentials);
+        redditClient.deauthenticate();
+
+        return hotPosts;
     }
 
     /**
@@ -156,6 +168,7 @@ public class RedditSource implements JavaSource {
         builder.setNumComments(s.getCommentCount());
         builder.setNumLikes(s.getScore());
         builder.addText(s.getSelftext());
+        builder.addHashtag(s.getSubredditName());
 
         if (s.getThumbnail() != null) {
             builder.addImgLink(s.getThumbnail()); // Post thumbnail
@@ -164,4 +177,5 @@ public class RedditSource implements JavaSource {
         builder.addExtLink(s.getUrl()); // Link to Reddit post or linked external site
         return builder.build();
     }
+
 }
