@@ -11,17 +11,23 @@ window.onscroll = function() {
         numPages++;
         var postType = document.getElementById("PostType");
 
-        if(postType.textContent == "Top Posts"){
+        if (postType.textContent == "Top Posts") {
           topFunction(numPages);
-        } else if(postType.textContent == "Trending Posts"){
+        } else if (postType.textContent == "Trending Posts") {
           trendingFunction(numPages);
         } else {
           // it's a hashtag where postType contains the hashtag name
-          hashtagFunction(postType, numPages);
+          hashtagFunction(postType.textContent, numPages);
         }
 
     }
 };
+
+function search(input, event) {
+  if (event.keyCode === 13) {
+      hashtagFunction(input.value, 0);
+  }
+}
 
 function requestPage(myURL, callback, tag) {
 
