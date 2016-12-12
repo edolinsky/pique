@@ -4,6 +4,45 @@ if (window.console) {
 
 var numPages = 0;
 
+$(document).ready(function () {
+    //hide hider and popup_box on load
+    $("#hider").hide();
+    $("#dialogBox").hide();
+
+    //when area outside pop up clicked, close pop up
+    $("#hider").click(function() {
+        $("#dialogBox").fadeOut();
+        $(this).fadeOut();
+    });
+
+    // For collapsed navigation toggle
+    /**
+    $('#bs-example-navbar-collapse-1').on('show.bs.collapse', function() {
+        $('.nav-pills').addClass('nav-stacked');
+    });
+
+    //Unstack menu when not collapsed
+    $('#bs-example-navbar-collapse-1').on('hide.bs.collapse', function() {
+        $('.nav-pills').removeClass('nav-stacked');
+    });*/
+});
+
+// opens dialog pop up with input parameters
+function openDialog(link, source) {
+    var dialogBox = document.createElement("div");
+    dialogBox.id = "dialogBox";
+    var $dialog = $('#dialogBox')
+        .html() // inner html of dialog
+        .dialog({
+            title: "Page",
+            autoOpen: false,
+            dialogClass: 'dialog_fixed,ui-widget-header',
+            modal: true,
+        });
+    dialogBox.appendChild($dialog);
+    $dialog.dialog('open');
+}
+
 window.onscroll = function() {
     var page = document.getElementById("page");
     if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
@@ -78,6 +117,13 @@ function createElements(httpResponse, tag) {
       var postObj = document.createElement("div");
       postObj.id = "postObj";
       postObj.className = "postObj";
+
+      // Clicking post brings up pop up
+      postObj.onclick = function () {
+          $("#hider").fadeIn();
+          $('#dialogBox').fadeIn();
+          openDialog(post.extLink_, post.source_); // Any parameters to be passed in for pop up
+      };
 
       var row1 = document.createElement("div");
 
@@ -258,6 +304,14 @@ function addElements(httpResponse, tag) {
       var postObj = document.createElement("div");
       postObj.id = "postObj";
       postObj.className = "postObj";
+      postObj.href = "http://www.gooogle.com";
+
+      // Clicking post brings up pop up
+      postObj.onclick = function () {
+          $("#hider").fadeIn();
+          $('#dialogBox').fadeIn();
+          openDialog(post.extLink_, post.source_); // Any parameters to be passed in for pop up
+      };
 
       var row1 = document.createElement("div");
 
