@@ -23,6 +23,10 @@ window.onscroll = function() {
     }
 };
 
+function searchHashtagItem(hashtagItem) {
+    hashtagFunction(hashtagItem, 0);
+}
+
 function search(input, event) {
   if (event.keyCode === 13) {
       event.preventDefault();
@@ -150,9 +154,11 @@ function createPosts(post) {
         var row4Col = document.createElement("div");
         row4Col.style.color = "SteelBlue";
         row4Col.style.display = "inline";
-
-        var hashtag = document.createTextNode(post.hashtag_[j] + "  ");
-        row4Col.appendChild(hashtag);
+        row4Col.id = "hashtagItem";
+        row4Col.style.paddingRight = "5px";
+        var hashtagText = document.createTextNode(post.hashtag_[j]);
+        row4Col.appendChild(hashtagText);
+        row4Col.setAttribute("onclick", "searchHashtagItem(this.textContent)");
         row4.appendChild(row4Col);
       }
     }
@@ -177,16 +183,20 @@ function createPosts(post) {
 
     var row4 = document.createElement("div");
     row4.style.paddingTop = "10px";
+    row4.style.width = "300px";
+    row4.style.overflow = "hidden";
     if(post.hashtag_[0] != "N/A") {
       for (var j = 0; j < post.hashtag_.length; j++) {
         var row4Col = document.createElement("div");
         row4Col.style.color = "SteelBlue";
         row4Col.style.display = "inline";
         row4Col.style.fontSize = "200%";
-        row4.style.width = "300px";
-        row4.style.overflow = "hidden";
-        var hashtag = document.createTextNode(post.hashtag_[j] + "  ");
-        row4Col.appendChild(hashtag);
+        row4Col.style.paddingRight = "5px";
+        row4Col.id = "hashtagItem";
+        var hashtag = post.hashtag_[j];
+        var hashtagText = document.createTextNode(hashtag);
+        row4Col.appendChild(hashtagText);
+        row4Col.setAttribute("onclick", "searchHashtagItem(this.textContent)");
         row4.appendChild(row4Col);
       }
     }
