@@ -60,23 +60,53 @@ function createPosts(post) {
 
   var row1 = document.createElement("div");
 
-  var row1Col1= document.createElement("div");
-  row1Col1.style.display = "inline";
-  row1Col1.style.float = "left";
-  row1Col1.style.padding = "2px";
-  row1Col1.style.color = "SteelBlue";
-  var posterList = document.createTextNode(post.source_);
-  row1Col1.appendChild(posterList);
-  row1.appendChild(row1Col1);
-
   var row1Col2 = document.createElement("div");
   row1Col2.style.display = "inline";
-  row1Col2.style.float = "middle";
   row1Col2.style.padding = "2px";
   row1Col2.style.color = "LightSteelBlue";
   var time = document.createTextNode(getFormattedDate(post.timestamp_));
   row1Col2.appendChild(time);
   row1.appendChild(row1Col2);
+
+  var row1Col3 = document.createElement("div");
+  row1Col3.style.display = "inline";
+  row1Col3.style.float = "right";
+  row1Col3.style.padding = "2px";
+  var source_link = document.createElement("a");
+  source_link.href = post.sourceLink_;
+  source_link.style.textDecoration = "none";
+  source_link.style.color = "LightSteelBlue";
+  var source = document.createTextNode("Source");
+  if(post.sourceLink_[0].includes("reddit")) {
+    source.textContent = "Reddit";
+  }
+  else if(post.sourceLink_[0].includes("twitter")) {
+    source.textContent = "Twitter";
+  }
+  else if(post.sourceLink_[0].includes("imgur")) {
+    source.textContent = "Imgur";
+  }
+  source_link.appendChild(source);
+  var link_img = document.createElement("img");
+  link_img.src = "/assets/images/link_arrow.jpeg";
+  link_img.height = "20";
+  link_img.style.paddingLeft = "3px";
+  source_link.appendChild(link_img);
+  row1Col3.appendChild(source_link);
+  row1.appendChild(row1Col3);
+  postObj.appendChild(row1);
+
+  var row6 = document.createElement("div");
+  var row6Col1 = document.createElement("div");
+  row6Col1.style.padding = "2px";
+  row6Col1.style.paddingTop = "8px";
+  row6Col1.style.textAlign = "left";
+  row6Col1.style.color = "SteelBlue";
+  row6Col1.style.fontSize = "110%";
+  var posterList = document.createTextNode(post.source_);
+  row6Col1.appendChild(posterList);
+  row6.appendChild(row6Col1);
+  postObj.appendChild(row6);
 
   var row2 = document.createElement("div");
   var row2Col1 = document.createElement("div");
@@ -90,7 +120,7 @@ function createPosts(post) {
     imgLink.src = post.imgLink_;
     imgLink.height = "160";
     row2Col1.appendChild(imgLink);
-    row2Col1.style.padding = "10px";
+    row2Col1.style.paddingBottom = "20px";
     row2Col1.style.textAlign = "center";
     row2.appendChild(row2Col1);
     postObj.appendChild(row2);
@@ -130,7 +160,6 @@ function createPosts(post) {
 
     var row3Col1 = document.createElement("div");
     row3Col1.style.fontSize = "150%";
-    row3Col1.style.paddingTop = "20px";
     var textList = document.createTextNode(post.text_);
     row3Col1.appendChild(textList);
     row3.appendChild(row3Col1);
@@ -178,11 +207,6 @@ function createPosts(post) {
   row5Col3.appendChild(comments);
   row5.appendChild(row5Col3);
   postObj.appendChild(row5);
-
-  // when the user clicks on the post it will bring them to the original
-  var postLink = document.createElement("a");
-  postLink.href = post.sourceLink_;
-  postObj.appendChild(postLink);
 
   return postObj;
 }
