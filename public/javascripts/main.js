@@ -103,6 +103,8 @@ function createPosts(post) {
   row6Col1.style.textAlign = "left";
   row6Col1.style.color = "SteelBlue";
   row6Col1.style.fontSize = "110%";
+  row6Col1.style.width = "300px";
+  row6Col1.style.overflow = "hidden";
   var posterList = document.createTextNode(post.source_);
   row6Col1.appendChild(posterList);
   row6.appendChild(row6Col1);
@@ -118,16 +120,20 @@ function createPosts(post) {
 
     var imgLink = document.createElement("img");
     imgLink.src = post.imgLink_;
-    imgLink.height = "160";
+    imgLink.id = "postImage";
+    imgLink.style.height = "160px";
     row2Col1.appendChild(imgLink);
     row2Col1.style.paddingBottom = "20px";
     row2Col1.style.textAlign = "center";
+    row2Col1.style.max_width = "325px";
     row2.appendChild(row2Col1);
     postObj.appendChild(row2);
 
     var row3 = document.createElement("div");
     var row3Col1 = document.createElement("div");
     row3Col1.style.height = "62px";
+    row3Col1.style.overflow = "hidden";
+    row3Col1.style.width = "300px";
     row3Col1.style.overflow = "hidden";
     var textList = document.createTextNode(post.text_);
     row3Col1.appendChild(textList);
@@ -136,6 +142,8 @@ function createPosts(post) {
 
     var row4 = document.createElement("div");
     row4.style.height = "25px";
+    row4.style.overflow = "hidden";
+    row4.style.width = "300px";
     row4.style.overflow = "hidden";
     if(post.hashtag_[0] != "N/A") {
       for (var j = 0; j < post.hashtag_.length; j++) {
@@ -160,6 +168,8 @@ function createPosts(post) {
 
     var row3Col1 = document.createElement("div");
     row3Col1.style.fontSize = "150%";
+    row3Col1.style.width = "300px";
+    row6Col1.style.overflow = "hidden";
     var textList = document.createTextNode(post.text_);
     row3Col1.appendChild(textList);
     row3.appendChild(row3Col1);
@@ -173,6 +183,8 @@ function createPosts(post) {
         row4Col.style.color = "SteelBlue";
         row4Col.style.display = "inline";
         row4Col.style.fontSize = "200%";
+        row4.style.width = "300px";
+        row4.style.overflow = "hidden";
         var hashtag = document.createTextNode(post.hashtag_[j] + "  ");
         row4Col.appendChild(hashtag);
         row4.appendChild(row4Col);
@@ -189,21 +201,42 @@ function createPosts(post) {
   var row5Col1 = document.createElement("div");
   row5Col1.style.display = "inline";
   row5Col1.style.padding = "10px";
-  var likes = document.createTextNode("Likes: " + post.numLikes_);
+  var num_likes;
+  if(post.numLikes_ >= 10000) {
+    num_likes = Math.round(post.numLikes_/1000) +'k';
+  }
+  else {
+    num_likes = post.numLikes_;
+  }
+  var likes = document.createTextNode("Likes: " + num_likes);
   row5Col1.appendChild(likes);
   row5.appendChild(row5Col1);
 
   var row5Col2 = document.createElement("div");
   row5Col2.style.display = "inline";
   row5Col2.style.padding = "10px";
-  var shares = document.createTextNode("Shares: " + post.numShares_);
+  var num_shares;
+  if(post.numShares_ >= 10000) {
+    num_shares = Math.round(post.numShares_/1000) +'k';
+  }
+  else {
+    num_shares = post.numShares_;
+  }
+  var shares = document.createTextNode("Shares: " + num_shares);
   row5Col2.appendChild(shares);
   row5.appendChild(row5Col2);
 
   var row5Col3 = document.createElement("div");
   row5Col3.style.display = "inline";
   row5Col3.style.padding = "10px";
-  var comments = document.createTextNode("Comments: " + post.numComments_);
+  var num_comments;
+  if(post.numComments_ >= 10000) {
+    num_comments = Math.round(post.numComments_/1000) +'k';
+  }
+  else {
+    num_comments = post.numComments_;
+  }
+  var comments = document.createTextNode("Comments: " + num_comments);
   row5Col3.appendChild(comments);
   row5.appendChild(row5Col3);
   postObj.appendChild(row5);
