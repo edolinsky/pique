@@ -43,6 +43,12 @@ a.navbar-brand {
   color: #FFF;
 }
 
+.tag {
+  max-width:  70px;
+  overflow: hidden;
+  font-size: 80%;
+}
+
 /* Navigational bar */
 .navbar.navbar-dark.navbar-fixed-top {
   background-color: #36474F;
@@ -136,11 +142,9 @@ a.navbar-brand {
     left: 50%;
     width: 50em;
     height: 30em;
-    margin-top: -20em;
+    margin-top: -13em;
     margin-left: -25em;
     background-color: #FFF;
     border-radius: 10px;
     z-index:100;
 }
-
-

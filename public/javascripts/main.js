@@ -332,7 +332,7 @@ function createElements(httpResponse, tag) {
       var postObj = createPosts(post);
 
       // Clicking post brings up pop up
-      postObj.setAttribute("onclick", "clickObj(this)");
+      postObj.setAttribute("onclick", "clickObj(post)");
 
       if(i % 3 == 0) {
 
@@ -385,13 +385,6 @@ function addElements(httpResponse, tag) {
 
       var postObj = createPosts(post);
 
-      // Clicking post brings up pop up
-      postObj.onclick = function () {
-          $("#hider").fadeIn();
-          $('#dialogBox').fadeIn();
-          openDialog(post);
-      };
-
       var lastRow = container.lastElementChild;
       var lastCol = lastRow.lastElementChild;
 
@@ -428,6 +421,17 @@ function addElements(httpResponse, tag) {
   }
 }
 
+// Get the 10 top hashtags, display them in the header
+function displayTopHashtags(httpResponse, tag) {
+    var tagList = JSON.parse(httpResponse);
+
+    for (var i = 0; i < 10; i++) {
+       var div = document.getElementById("tag" + i);
+       var tag = document.createTextNode(tagList[i]);
+       div.appendChild(tag);
+    }
+}
+
 function topFunction(pageNum) {
   if(pageNum == 0) {
     var returnval = requestPage("/top/" + pageNum, createElements, "Top Posts");
@@ -453,4 +457,8 @@ function hashtagFunction(hashtag, pageNum) {
   else {
     var returnval = requestPage("/hashtag/" + hashtag + "/" + pageNum, addElements, hashtag);
   }
+}
+
+window.onload = function topHashtagFunction() {
+  requestPage("/tophashtags", displayTopHashtags, "Top Hashtags");
 }
