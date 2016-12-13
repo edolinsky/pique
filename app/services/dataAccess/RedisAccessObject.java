@@ -19,8 +19,15 @@ import static services.PublicConstants.REDIS_URL;
 @Singleton
 public class RedisAccessObject extends AbstractDataAccess {
 
-    private static JedisPool pool = new JedisPool(new JedisPoolConfig(), System.getenv(REDIS_URL));
+    private static JedisPool pool;
     private static final int KEY_TIMEOUT = 86400; // number of seconds from postList update or access to expiry
+
+    public RedisAccessObject() {
+        JedisPoolConfig poolConfig = new JedisPoolConfig();
+        poolConfig.setMaxTotal(128);
+
+        pool = new JedisPool(poolConfig, System.getenv(REDIS_URL));
+    }
 
     @Override
     protected long addNewPost(String keyString, Post post) {
@@ -299,8 +306,13 @@ public class RedisAccessObject extends AbstractDataAccess {
                 Logger.error("Problems closing Redis Pipe"); // todo: handle better
             }
 
-            // delete old entries, so that only new string list remains
-            redisAccess.ltrim(key, 0, listLength - 1);
+            if (listLength > 0) {
+                // delete old entries, so that only new string list remains
+                redisAccess.ltrim(key, 0, listLength - 1);
+            } else {
+                // if replacing with empty list, delete all in channel
+                redisAccess.del(key);
+            }
         }
 
         return listLength;
@@ -329,8 +341,13 @@ public class RedisAccessObject extends AbstractDataAccess {
                 Logger.error("Problems closing Redis Pipe"); // todo: handle better
             }
 
-            // delete old entries, so that only new postLists remain
-            redisAccess.ltrim(key, 0, listLength - 1);
+            if (listLength > 0) {
+                // trim entries, so that only new postLists remain
+                redisAccess.ltrim(key, 0, listLength - 1);
+            } else {
+                // If input is empty list, delete all existing entries
+                redisAccess.del(key);
+            }
         }
 
         return listLength;
