@@ -71,6 +71,11 @@ public class TestDataAccess extends AbstractDataAccess {
     }
 
     @Override
+    public Optional<PostList> getHashTagPostList(String hashtag, Integer index) {
+        return Optional.of(TestDataGenerator.generatePostList(50));
+    }
+
+    @Override
     protected String deleteFirstNPosts(String keyString, Integer numPosts) {
         return null;
     }

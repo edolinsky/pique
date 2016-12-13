@@ -12,7 +12,7 @@ body {
   padding: 20px;
   margin: 10px;
   width: 350px;
-  height: 350px;
+  height: 420px;
   cursor: pointer;
   display: inline-block;
   position: relative;
@@ -21,16 +21,13 @@ body {
 }
 
 .dialogObj {
-    border-radius: 10px;
-    -webkit-box-shadow: 0 0 7px #ddd;
     padding: 20px;
     margin: 10px;
-    width: 350px;
+    width: 700px;
     height: 350px;
     cursor: pointer;
     display: inline-block;
     position: relative;
-    transition: 0.5s ease-in-out;
     overflow: hidden;
 }
 

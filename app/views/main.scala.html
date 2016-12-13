@@ -34,17 +34,6 @@
                     <a class="navbar-brand" href="">Pique</a>
                 </div>
 
-
-                <!-- /* For collapsed navigation toggle */
-                <div class="navbar-header pull-right">
-                    <button type="button" id="navbar-toggles" class="navbar-toggles" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                </div> -->
-
                 <!-- Collect the nav buttons and search for toggling -->
                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 
@@ -57,11 +46,11 @@
                             <li role="presentation"><a id="#" title="Trending" onclick="trendingFunction('0');return false;">Trending</a></li>
                             <form class="navbar-form pull-right">
                                 <div class="form-group">
-                                    <input type="text" id="bootstrap-overrides" class="form-control" placeholder="#SearchHashtags">
+
+                                    <input type="text" class="form-control" placeholder="#SearchHashtags" id="SearchHashtags" onkeydown="search(this, event)">
                                 </div>
                             </form>
                         </ul>
-
 
                     </div>
                 </div><!-- /.navbar-collapse -->
@@ -69,7 +58,7 @@
         </nav>
 
     </head>
-    <body onload="topFunction()">
+    <body onload="topFunction('0')">
         <div class="hider" id="hider"></div>
         <div id="dialogBox">
             <div id="dialogObj"></div>
