@@ -144,6 +144,37 @@ public class RedditSource implements JavaSource {
         return hotPosts;
     }
 
+    public List<Post> getPostsFrom(String subreddit, int numPosts) {
+        authenticateReddit();
+        SubredditPaginator sp = new SubredditPaginator(redditClient);
+        sp.setSubreddit(subreddit);
+
+        sp.setLimit(numPosts);
+        sp.setSorting(Sorting.HOT);
+        sp.setTimePeriod(TimePeriod.DAY);
+        sp.next(true);
+
+        List<Submission> hotPosts = new ArrayList<>();
+
+        hotPosts.addAll(sp.getCurrentListing());
+
+        //Iterate through next Reddit pages and add to hotPosts. Each page only returns 100
+        while(sp.hasNext() && hotPosts.size() <= numPosts) {
+            Listing<Submission> nextPage = sp.next();
+
+            hotPosts.addAll(nextPage);
+        }
+
+        //Only return numPosts # of hot posts from the list
+        hotPosts.removeAll(hotPosts.subList(numPosts-1, hotPosts.size()-1));
+
+        redditClient.getOAuthHelper().revokeAccessToken(credentials);
+        redditClient.deauthenticate();
+
+        return parseSubmissions(hotPosts);
+
+    }
+
     /**
      * Generates Post object for every submission in queried Reddit posts
      * @param submissions
@@ -162,16 +193,18 @@ public class RedditSource implements JavaSource {
         builder.setId(String.valueOf(s.getCreated().getTime()));
         builder.setTimestamp(s.getCreated().getTime());
         builder.addSource(s.getAuthor());
-        builder.addSourceLink("http://www.reddit.com/user/" + s.getAuthor()); // Link to post author
+        builder.addSourceLink("http://www.reddit.com" + s.getPermalink()); // Link to post author
         builder.setPopularityScore(0);
         builder.setPopularityVelocity(0);
         builder.setNumComments(s.getCommentCount());
         builder.setNumLikes(s.getScore());
-        builder.addText(s.getSelftext());
+        builder.addText(s.getTitle() + "\n\n" + s.getSelftext());
         builder.addHashtag(s.getSubredditName());
 
         if (s.getThumbnail() != null) {
             builder.addImgLink(s.getThumbnail()); // Post thumbnail
+        } else {
+            builder.addImgLink("N/A");
         }
 
         builder.addExtLink(s.getUrl()); // Link to Reddit post or linked external site

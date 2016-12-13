@@ -41,6 +41,11 @@ public class RedditSourceTest {
         assertEquals(1, post.size());
     }
 
+    @Test
+    public void testTextPost() {
+        List<Post> post = redditSource.getPostsFrom("jokes", 1);
+    }
+
     //Tests that when Reddit iterates through its pages, it's not continuously pulling the same page
     @Test
     public void testNoRepeatPagesWhenGettingMaxTrendingPosts() {
