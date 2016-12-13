@@ -12,23 +12,13 @@ $(document).ready(function () {
     //when area outside pop up clicked, close pop up
     $("#hider").click(function() {
         $("#dialogBox").fadeOut();
+        $("#dialogBox").html('<div id="dialogObj"></div>');
         $(this).fadeOut();
     });
-
-    // For collapsed navigation toggle
-    /**
-    $('#bs-example-navbar-collapse-1').on('show.bs.collapse', function() {
-        $('.nav-pills').addClass('nav-stacked');
-    });
-
-    //Unstack menu when not collapsed
-    $('#bs-example-navbar-collapse-1').on('hide.bs.collapse', function() {
-        $('.nav-pills').removeClass('nav-stacked');
-    });*/
 });
 
 // opens dialog pop up with input parameters
-function openDialog(link, source) {
+function openDialog(post) {
     var dialogBox = document.createElement("div");
     dialogBox.id = "dialogBox";
     var $dialog = $('#dialogBox')
@@ -38,9 +28,148 @@ function openDialog(link, source) {
             autoOpen: false,
             dialogClass: 'dialog_fixed,ui-widget-header',
             modal: true,
+            open: loadDialog(post)
         });
     dialogBox.appendChild($dialog);
     $dialog.dialog('open');
+}
+
+// load post content into dialog
+function loadDialog(post) {
+    var dialogObj = document.getElementById("dialogObj");
+    dialogObj.id = "dialogObj";
+    dialogObj.className = "dialogObj";
+
+    var dialogBox = document.getElementById('#dialogBox');
+    dialogBox.appendChild(dialogObj);
+
+    var row1 = document.createElement("div");
+
+    var row1Col1= document.createElement("div");
+    row1Col1.style.display = "inline";
+    row1Col1.style.float = "left";
+    row1Col1.style.padding = "2px";
+    row1Col1.style.color = "SteelBlue";
+    var posterList = document.createTextNode(post.source_);
+    row1Col1.appendChild(posterList);
+    row1.appendChild(row1Col1);
+
+    var row1Col2 = document.createElement("div");
+    row1Col2.style.display = "inline";
+    row1Col2.style.float = "right";
+    row1Col2.style.padding = "2px";
+    row1Col2.style.color = "LightSteelBlue";
+    var time = document.createTextNode(getFormattedDate(post.timestamp_));
+    row1Col2.appendChild(time);
+    row1.appendChild(row1Col2);
+    dialogObj.appendChild(row1);
+
+    var row2 = document.createElement("div");
+    var row2Col1 = document.createElement("div");
+    if(post.imgLink_ != "N/A") {
+
+        // if there is an image in the post
+        var bk = document.createElement("br");
+        row2.appendChild(bk);
+
+        var imgLink = document.createElement("img");
+        imgLink.src = post.imgLink_;
+        imgLink.height = "160";
+        row2Col1.appendChild(imgLink);
+        row2Col1.style.padding = "10px";
+        row2Col1.style.textAlign = "center";
+        row2.appendChild(row2Col1);
+        dialogObj.appendChild(row2);
+
+        var row3 = document.createElement("div");
+        var row3Col1 = document.createElement("div");
+        row3Col1.style.height = "62px";
+        row3Col1.style.overflow = "hidden";
+        var textList = document.createTextNode(post.text_);
+        row3Col1.appendChild(textList);
+        row3.appendChild(row3Col1);
+        dialogObj.appendChild(row3);
+
+        var row4 = document.createElement("div");
+        row4.style.height = "25px";
+        row4.style.overflow = "hidden";
+        if(post.hashtag_[0] != "N/A") {
+            for (var j = 0; j < post.hashtag_.length; j++) {
+                var row4Col = document.createElement("div");
+                row4Col.style.color = "SteelBlue";
+                row4Col.style.display = "inline";
+
+                var hashtag = document.createTextNode(post.hashtag_[j] + "  ");
+                row4Col.appendChild(hashtag);
+                row4.appendChild(row4Col);
+            }
+        }
+        dialogObj.appendChild(row4);
+
+    } else {
+
+        // if the post has no image
+
+        var row3 = document.createElement("div");
+        var bk = document.createElement("br");
+        row3.appendChild(bk);
+
+        var row3Col1 = document.createElement("div");
+        row3Col1.style.fontSize = "150%";
+        row3Col1.style.paddingTop = "20px";
+        var textList = document.createTextNode(post.text_);
+        row3Col1.appendChild(textList);
+        row3.appendChild(row3Col1);
+        dialogObj.appendChild(row3);
+
+        var row4 = document.createElement("div");
+        row4.style.paddingTop = "10px";
+        if(post.hashtag_[0] != "N/A") {
+            for (var j = 0; j < post.hashtag_.length; j++) {
+                var row4Col = document.createElement("div");
+                row4Col.style.color = "SteelBlue";
+                row4Col.style.display = "inline";
+                row4Col.style.fontSize = "200%";
+                var hashtag = document.createTextNode(post.hashtag_[j] + "  ");
+                row4Col.appendChild(hashtag);
+                row4.appendChild(row4Col);
+            }
+        }
+        dialogObj.appendChild(row4);
+    }
+
+    var row5 = document.createElement("div");
+    row5.style.position = "absolute";
+    row5.style.bottom = "0";
+    row5.style.paddingBottom = "20px";
+
+    var row5Col1 = document.createElement("div");
+    row5Col1.style.display = "inline";
+    row5Col1.style.padding = "10px";
+    var likes = document.createTextNode("Likes: " + post.numLikes_);
+    row5Col1.appendChild(likes);
+    row5.appendChild(row5Col1);
+
+    var row5Col2 = document.createElement("div");
+    row5Col2.style.display = "inline";
+    row5Col2.style.padding = "10px";
+    var shares = document.createTextNode("Shares: " + post.numShares_);
+    row5Col2.appendChild(shares);
+    row5.appendChild(row5Col2);
+
+    var row5Col3 = document.createElement("div");
+    row5Col3.style.display = "inline";
+    row5Col3.style.padding = "10px";
+    var comments = document.createTextNode("Comments: " + post.numComments_);
+    row5Col3.appendChild(comments);
+    row5.appendChild(row5Col3);
+    dialogObj.appendChild(row5);
+
+    // when the user clicks on the post it will bring them to the original
+    var postLink = document.createElement("a");
+    postLink.href = post.sourceLink_;
+    dialogObj.appendChild(postLink);
+
 }
 
 window.onscroll = function() {
@@ -122,7 +251,7 @@ function createElements(httpResponse, tag) {
       postObj.onclick = function () {
           $("#hider").fadeIn();
           $('#dialogBox').fadeIn();
-          openDialog(post.extLink_, post.source_); // Any parameters to be passed in for pop up
+          openDialog(post);
       };
 
       var row1 = document.createElement("div");
@@ -310,7 +439,7 @@ function addElements(httpResponse, tag) {
       postObj.onclick = function () {
           $("#hider").fadeIn();
           $('#dialogBox').fadeIn();
-          openDialog(post.extLink_, post.source_); // Any parameters to be passed in for pop up
+          openDialog(post); // Any parameters to be passed in for pop up
       };
 
       var row1 = document.createElement("div");

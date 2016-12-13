@@ -20,6 +20,20 @@ body {
   overflow: hidden;
 }
 
+.dialogObj {
+    border-radius: 10px;
+    -webkit-box-shadow: 0 0 7px #ddd;
+    padding: 20px;
+    margin: 10px;
+    width: 350px;
+    height: 350px;
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+    transition: 0.5s ease-in-out;
+    overflow: hidden;
+}
+
 div.postObj:hover {
   transform: scale(1.05);
 }
@@ -104,7 +118,7 @@ a.navbar-brand {
 
 /* black overlay for pop up dialog */
 #hider {
-    position:absolute;
+    position:fixed;
     top: 0%;
     left: 0%;
     width:100%;
@@ -120,7 +134,7 @@ a.navbar-brand {
 
 /* pop up dialog */
 #dialogBox {
-    position:absolute;
+    position:fixed;
     top: 50%;
     left: 50%;
     width: 50em;
@@ -129,7 +143,6 @@ a.navbar-brand {
     margin-left: -25em;
     background-color: #FFF;
     border-radius: 10px;
-    -webkit-box-shadow: 0 0 7px #eee;
     z-index:100;
 }
 
