@@ -71,7 +71,7 @@ function search(input, event) {
 function requestPage(myURL, callback, tag) {
     var div = document.getElementById("noContent");
     div.style.display = "none";
-    
+
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function() {
         console.log(xmlHttp.readyState);
@@ -215,8 +215,9 @@ function createPosts(post) {
 
     var row3Col1 = document.createElement("div");
     row3Col1.style.fontSize = "150%";
+    row3Col1.style.maxHeight = "210px";
     row3Col1.style.width = "300px";
-    row6Col1.style.overflow = "hidden";
+    row3Col1.style.overflow = "hidden";
     var textList = document.createTextNode(post.text_);
     row3Col1.appendChild(textList);
     row3.appendChild(row3Col1);
