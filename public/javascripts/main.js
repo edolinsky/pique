@@ -69,16 +69,23 @@ function search(input, event) {
 }
 
 function requestPage(myURL, callback, tag) {
-
+    var div = document.getElementById("noContent");
+    div.style.display = "none";
+    
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function() {
         console.log(xmlHttp.readyState);
+        // OK
         if (xmlHttp.status == 200) {
           if(xmlHttp.readyState == 4) {
             callback(xmlHttp.response, tag);
           }
         }
-        // TODO: if no content returned, display error message
+        // no content
+        if (xmlHttp.status == 204) {
+          var div = document.getElementById("noContent");
+          div.style.display = "inline";
+        }
     }
     xmlHttp.open("GET", myURL, false);
     xmlHttp.send(null);

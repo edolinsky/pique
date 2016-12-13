@@ -49,6 +49,11 @@ a.navbar-brand {
   font-size: 80%;
 }
 
+.noContent {
+  margin-left: 10px;
+  color: LightSteelBlue;
+}
+
 /* Navigational bar */
 .navbar.navbar-dark.navbar-fixed-top {
   background-color: #36474F;
