@@ -1,9 +1,9 @@
 @*
- * This template is called from the `index` template. This template
- * handles the rendering of the page header and body tags. It takes
- * two arguments, a `String` for the title of the page and an `Html`
- * object to insert into the body of the page.
- *@
+* This template is called from the `index` template. This template
+* handles the rendering of the page header and body tags. It takes
+* two arguments, a `String` for the title of the page and an `Html`
+* object to insert into the body of the page.
+*@
 @(title: String)(content: Html)
 
 <!DOCTYPE html>
@@ -23,28 +23,41 @@
             <!-- Latest compiled and minified JavaScript -->
         <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-
+        <script src="/node_modules/vanilla-modal/dist/index.js"></script>
         <script src="https://use.fontawesome.com/7a36cd6f24.js"></script>
         <script src="@routes.Assets.versioned("javascripts/main.js")" type="text/javascript"></script>
 
-        <nav class="navbar navbar-default navbar-fixed-top" style="background-color: #36474F;">
+        <nav class="navbar navbar-dark navbar-fixed-top bg-inverse" role="navigation">
             <div class="container-fluid">
                     <!-- Brand and toggle get grouped for better mobile display -->
                 <div class="navbar-header">
                     <a class="navbar-brand" href="">Pique</a>
                 </div>
 
-                    <!-- Collect the nav buttons and search for toggling -->
+
+                <!-- Collect the nav buttons and search for toggling -->
                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 
                     <div class="nav navbar-nav navbar-right">
 
-                            <!-- Navbar buttons -->
-                        <ul class="nav nav-pills">
+                        <!-- Navbar buttons -->
+                        <ul class="nav nav-pills head-menu">
+                            <input type="hidden" id="selected_menu_item" value="=$selectedMenuId; ?>" />
+                            <li role="presentation"><a class="tag" id="tag0" style="color:LightSteelBlue;margin-top: 3px;" onclick="hashtagFunction(this.textContent, '0');return false;"></a></li>
+                            <li role="presentation"><a class="tag" id="tag1" style="color:LightSteelBlue;margin-top: 3px;" onclick="hashtagFunction(this.textContent, '0');return false;"></a></li>
+                            <li role="presentation"><a class="tag" id="tag2" style="color:LightSteelBlue;margin-top: 3px;" onclick="hashtagFunction(this.textContent, '0');return false;"></a></li>
+                            <li role="presentation"><a class="tag" id="tag3" style="color:LightSteelBlue;margin-top: 3px;" onclick="hashtagFunction(this.textContent, '0');return false;"></a></li>
+                            <li role="presentation"><a class="tag" id="tag4" style="color:LightSteelBlue;margin-top: 3px;" onclick="hashtagFunction(this.textContent, '0');return false;"></a></li>
+                            <li role="presentation"><a class="tag" id="tag5" style="color:LightSteelBlue;margin-top: 3px;" onclick="hashtagFunction(this.textContent, '0');return false;"></a></li>
+                            <li role="presentation"><a class="tag" id="tag6" style="color:LightSteelBlue;margin-top: 3px;" onclick="hashtagFunction(this.textContent, '0');return false;"></a></li>
+                            <li role="presentation"><a class="tag" id="tag7" style="color:LightSteelBlue;margin-top: 3px;" onclick="hashtagFunction(this.textContent, '0');return false;"></a></li>
+                            <li role="presentation"><a class="tag" id="tag8" style="color:LightSteelBlue;margin-top: 3px;" onclick="hashtagFunction(this.textContent, '0');return false;"></a></li>
+                            <li role="presentation"><a class="tag" id="tag9" style="color:LightSteelBlue;margin-top: 3px;" onclick="hashtagFunction(this.textContent, '0');return false;"></a></li>
                             <li role="presentation"><a id="#" title="Top" onclick="topFunction('0');return false;">Top</a></li>
                             <li role="presentation"><a id="#" title="Trending" onclick="trendingFunction('0');return false;">Trending</a></li>
                             <form class="navbar-form pull-right">
                                 <div class="form-group">
+
                                     <input type="text" class="form-control" placeholder="#SearchHashtags" id="SearchHashtags" onkeydown="search(this, event)">
                                 </div>
                             </form>
@@ -57,6 +70,11 @@
 
     </head>
     <body onload="topFunction('0')">
+        <div class="hider" id="hider"></div>
+        <div id="dialogBox">
+            <div id="dialogObj"></div>
+        </div>
+        <div class="noContent" id="noContent" style="display:none;">Sorry, there's no content for this search.</div>
         @content
     </body>
 </html>

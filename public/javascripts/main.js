@@ -4,6 +4,40 @@ if (window.console) {
 
 var numPages = 0;
 
+$(document).ready(function () {
+    //hide hider and popup_box on load
+    $("#hider").hide();
+    $("#dialogBox").hide();
+
+    //when area outside pop up clicked, close pop up
+    $("#hider").click(function() {
+        $("#dialogBox").fadeOut();
+        $("#dialogBox").html('<div id="dialogObj"></div>');
+        $(this).fadeOut();
+    });
+});
+
+// opens dialog pop up with input parameters
+function openDialog(post) {
+    var dialogBox = document.getElementById("dialogBox");
+    var $dialog = $('#dialogBox')
+        .html() // inner html of dialog
+        .dialog({
+            title: "Page",
+            autoOpen: false,
+            dialogClass: 'dialog_fixed,ui-widget-header',
+            modal: true,
+            open: loadDialog(post)
+        });
+    dialogBox.appendChild($dialog);
+    $dialog.dialog('open');
+}
+
+function loadDialog(post) {
+    var postClone = post.cloneNode(true);
+    document.getElementById("dialogBox").appendChild(postClone);
+}
+
 window.onscroll = function() {
     var page = document.getElementById("page");
     if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
@@ -35,16 +69,23 @@ function search(input, event) {
 }
 
 function requestPage(myURL, callback, tag) {
+    var div = document.getElementById("noContent");
+    div.style.display = "none";
 
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function() {
         console.log(xmlHttp.readyState);
+        // OK
         if (xmlHttp.status == 200) {
           if(xmlHttp.readyState == 4) {
             callback(xmlHttp.response, tag);
           }
         }
-        // TODO: if no content returned, display error message
+        // no content
+        if (xmlHttp.status == 204) {
+          var div = document.getElementById("noContent");
+          div.style.display = "inline";
+        }
     }
     xmlHttp.open("GET", myURL, false);
     xmlHttp.send(null);
@@ -174,8 +215,9 @@ function createPosts(post) {
 
     var row3Col1 = document.createElement("div");
     row3Col1.style.fontSize = "150%";
+    row3Col1.style.maxHeight = "210px";
     row3Col1.style.width = "300px";
-    row6Col1.style.overflow = "hidden";
+    row3Col1.style.overflow = "hidden";
     var textList = document.createTextNode(post.text_);
     row3Col1.appendChild(textList);
     row3.appendChild(row3Col1);
@@ -254,6 +296,13 @@ function createPosts(post) {
   return postObj;
 }
 
+
+function clickObj(post) {
+    $("#hider").fadeIn();
+    $('#dialogBox').fadeIn();
+    openDialog(post);
+};
+
 function createElements(httpResponse, tag) {
 
   var postList = JSON.parse(httpResponse);
@@ -289,6 +338,9 @@ function createElements(httpResponse, tag) {
       var post = postList.posts_[i];
 
       var postObj = createPosts(post);
+
+      // Clicking post brings up pop up
+      postObj.setAttribute("onclick", "clickObj(post)");
 
       if(i % 3 == 0) {
 
@@ -377,6 +429,17 @@ function addElements(httpResponse, tag) {
   }
 }
 
+// Get the 10 top hashtags, display them in the header
+function displayTopHashtags(httpResponse, tag) {
+    var tagList = JSON.parse(httpResponse);
+
+    for (var i = 0; i < 10; i++) {
+       var div = document.getElementById("tag" + i);
+       var tag = document.createTextNode(tagList[i]);
+       div.appendChild(tag);
+    }
+}
+
 function topFunction(pageNum) {
   if(pageNum == 0) {
     var returnval = requestPage("/top/" + pageNum, createElements, "Top Posts");
@@ -402,4 +465,8 @@ function hashtagFunction(hashtag, pageNum) {
   else {
     var returnval = requestPage("/hashtag/" + hashtag + "/" + pageNum, addElements, hashtag);
   }
+}
+
+window.onload = function topHashtagFunction() {
+  requestPage("/tophashtags", displayTopHashtags, "Top Hashtags");
 }

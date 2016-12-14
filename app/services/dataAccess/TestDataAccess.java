@@ -10,6 +10,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.List;
+import java.util.Arrays;
 import java.util.Optional;
 
 
@@ -97,7 +98,8 @@ public class TestDataAccess extends AbstractDataAccess {
 
     @Override
     protected List<String> getStringList(String keyString, long length) {
-        return null;
+        List<String> list = Arrays.asList("loooooooooooongword", "loooooooooooongword", "loooooooooooongword", "loooooooooooongword", "loooooooooooongword", "loooooooooooongword", "loooooooooooongword", "loooooooooooongword", "loooooooooooongword", "loooooooooooongword");
+        return list;
     }
 
     @Override
