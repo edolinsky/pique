@@ -34,8 +34,10 @@ function openDialog(post) {
 }
 
 function loadDialog(post) {
-    var postClone = post.cloneNode(true);
-    document.getElementById("dialogBox").appendChild(postClone);
+    var clonedPost = post.cloneNode(true);
+    clonedPost.id = "clonedPost";
+    clonedPost.style.transform = "scale(1.2)";
+    document.getElementById("dialogBox").appendChild(clonedPost);
 }
 
 window.onscroll = function() {
@@ -99,6 +101,7 @@ function createPosts(post) {
   var row1 = document.createElement("div");
 
   var row1Col2 = document.createElement("div");
+  row1Col2.id = "timestamp";
   row1Col2.style.display = "inline";
   row1Col2.style.padding = "2px";
   row1Col2.style.color = "LightSteelBlue";
@@ -386,11 +389,8 @@ function addElements(httpResponse, tag) {
       var postObj = createPosts(post);
 
       // Clicking post brings up pop up
-      postObj.onclick = function () {
-          $("#hider").fadeIn();
-          $('#dialogBox').fadeIn();
-          openDialog(post);
-      };
+      // Clicking post brings up pop up
+      postObj.setAttribute("onclick", "clickObj(this)");
 
       var lastRow = container.lastElementChild;
       var lastCol = lastRow.lastElementChild;

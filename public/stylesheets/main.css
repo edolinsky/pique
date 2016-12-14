@@ -13,6 +13,7 @@ body {
   margin: 10px;
   width: 350px;
   height: 420px;
+  background-color: #FFF;
   cursor: pointer;
   display: inline-block;
   position: relative;
@@ -21,6 +22,8 @@ body {
 }
 
 .dialogObj {
+    top: 50%;
+    left: 50%;
     padding: 20px;
     margin: 10px;
     width: 700px;
@@ -29,6 +32,8 @@ body {
     display: inline-block;
     position: relative;
     overflow: hidden;
+    background-color: #FFF;
+    transform: scale(1.7);
 }
 
 div.postObj:hover {
@@ -134,13 +139,15 @@ a.navbar-brand {
     position:fixed;
     top: 50%;
     left: 50%;
-    width: 50em;
-    height: 30em;
+    width: 595px;
+    height: 714em;
     margin-top: -20em;
     margin-left: -25em;
-    background-color: #FFF;
     border-radius: 10px;
     z-index:100;
 }
 
-
+#clonedPost {
+    margin-left: 140px;
+    margin-top: 50px
+}
